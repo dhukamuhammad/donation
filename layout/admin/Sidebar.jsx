@@ -1,18 +1,17 @@
 "use client";
 import { FileText, LayoutDashboard, LogOut, Settings, Tag, Users, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation"; // Pathname detect karne ke liye
 
-// Sidebar Component
 const Sidebar = () => {
-    const [activeMenu, setActiveMenu] = useState('categories');
+    const pathname = usePathname(); // Current URL path nikalne ke liye
 
     const menuItems = [
-        { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { id: 'categories', icon: Tag, label: 'Categories' },
-        { id: 'users', icon: Users, label: 'Users' },
-        { id: 'reports', icon: FileText, label: 'Reports' },
-        { id: 'settings', icon: Settings, label: 'Settings' },
+        { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+        { id: 'categories', icon: Tag, label: 'Categories', path: '/admin/category' },
+        { id: 'donationFunds', icon: Users, label: 'Donation Funds', path: '/admin/donationFund' },
+        { id: 'reports', icon: FileText, label: 'Reports', path: '/reports' },
+        { id: 'settings', icon: Settings, label: 'Settings', path: '/settings' },
     ];
 
     return (
@@ -22,10 +21,8 @@ const Sidebar = () => {
 
                 {/* Sidebar Header */}
                 <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
-                    <h2 className="text-lg font-bold text-[#2563EB]">Donation </h2>
-                    <button
-                        className="lg:hidden text-gray-600 hover:text-[#1D4ED8]"
-                    >
+                    <h2 className="text-lg font-bold text-[#2563EB]">Donation Admin</h2>
+                    <button className="lg:hidden text-gray-600 hover:text-[#1D4ED8]">
                         <X size={20} />
                     </button>
                 </div>
@@ -35,21 +32,23 @@ const Sidebar = () => {
                     <ul className="space-y-2">
                         {menuItems.map((item) => {
                             const Icon = item.icon;
-                            const isActive = activeMenu === item.id;
+                            // Agar pathname aur item.path match karte hain toh active class lagegi
+                            const isActive = pathname === item.path;
 
                             return (
-                                <Link href={item.id} key={item.id}>
-                                    <button
-                                        onClick={() => setActiveMenu(item.id)}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                                ? 'bg-[#2563EB] text-white'
+                                <li key={item.id}>
+                                    <Link 
+                                        href={item.path}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                                            isActive
+                                                ? 'bg-[#2563EB] text-white' 
                                                 : 'text-gray-700 hover:bg-[#EBF2FE]'
-                                            }`}
+                                        }`}
                                     >
                                         <Icon size={20} />
                                         <span className="font-medium">{item.label}</span>
-                                    </button>
-                                </Link>
+                                    </Link>
+                                </li>
                             );
                         })}
                     </ul>
@@ -66,6 +65,5 @@ const Sidebar = () => {
         </div>
     );
 };
-
 
 export default Sidebar;

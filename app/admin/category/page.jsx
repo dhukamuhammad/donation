@@ -26,9 +26,7 @@ const CategoryPage = () => {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-[22px] font-semibold text-slate-800">
-          Donation Categories
-        </h2>
+        <h1 className="text-2xl font-bold text-gray-800">Donation Categories</h1>
       </div>
 
       {/* Content Wrapper */}
@@ -37,23 +35,23 @@ const CategoryPage = () => {
         <div className="flex-[2] bg-white rounded shadow-sm overflow-hidden">
           {/* Table Header */}
           <div className="px-5 py-4 border-b">
-            <h3 className="text-[16px] font-semibold text-slate-700">
+            <h3 className="text-base font-semibold text-slate-700">
               All Categories
             </h3>
           </div>
 
           {/* Table */}
-          <div className="p-3 overflow-x-auto">
+          <div className="p-4 overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th className="px-4 py-3 text-left text-slate-500 font-medium border-b w-[70px]">
+                  <th className="px-4 py-3 text-left text-slate-600 font-semibold border-b text-sm w-[70px]">
                     ID
                   </th>
-                  <th className="px-4 py-3 text-left text-slate-500 font-medium border-b">
+                  <th className="px-4 py-3 text-left text-slate-600 font-semibold border-b text-sm">
                     Title
                   </th>
-                  <th className="px-4 py-3 text-center text-slate-500 font-medium border-b w-[120px]">
+                  <th className="px-4 py-3 text-center text-slate-600 font-semibold border-b text-sm w-[120px]">
                     Actions
                   </th>
                 </tr>
@@ -62,14 +60,14 @@ const CategoryPage = () => {
               <tbody>
                 {categories.map((category) => (
                   <tr key={category.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 text-slate-700">{category.id}</td>
-                    <td className="px-4 py-3 text-slate-700">{category.title}</td>
+                    <td className="px-4 py-3 text-slate-700 text-base font-medium">{category.id}</td>
+                    <td className="px-4 py-3 text-slate-700 text-base">{category.title}</td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button className="text-[#2563EB] hover:bg-blue-50 p-2 rounded-lg transition-colors">
                           <Edit2 size={16} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(category.id)}
                           className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
                         >
@@ -88,7 +86,7 @@ const CategoryPage = () => {
         <div className="flex-1 min-w-[280px] bg-white rounded shadow-sm overflow-hidden">
           {/* Form Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b">
-            <h3 className="text-[16px] font-semibold text-slate-700">
+            <h3 className="text-base font-semibold text-slate-700">
               Add Category
             </h3>
           </div>
@@ -105,13 +103,13 @@ const CategoryPage = () => {
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                   placeholder="Enter category title"
-                  className="w-full px-4 py-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                  className="w-full px-4 py-2.5 text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                 />
               </div>
 
               <button
                 onClick={handleAddCategory}
-                className="w-full bg-[#2563EB] text-white py-2 rounded text-sm font-medium hover:bg-[#1e40af] transition"
+                className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg text-base font-medium hover:bg-[#1e40af] transition"
               >
                 Add Category
               </button>
