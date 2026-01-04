@@ -1,125 +1,144 @@
 "use client";
-
+import axiosInstance from "@/lib/axiosinstance";
 import { Edit2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CategoryPage = () => {
-  const [categories, setCategories] = useState([
-    { id: 1, title: 'Medical Treatment' },
-    { id: 2, title: 'Education Support' },
-    { id: 3, title: 'Emergency Help' },
-  ]);
-  const [newCategory, setNewCategory] = useState('');
+  // ================= STATE =================
+  const [categories, setCategories] = useState([]);
+  const [form, setForm] = useState({ title: "" });
 
-  const handleAddCategory = () => {
-    if (newCategory.trim()) {
-      setCategories([...categories, { id: categories.length + 1, title: newCategory }]);
-      setNewCategory('');
+  // ================= FETCH =================
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axiosInstance.get("/category");
+      setCategories(res.data);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const handleDelete = (id) => {
-    setCategories(categories.filter(cat => cat.id !== id));
+  // ================= SUBMIT =================
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.title) return;
+
+    try {
+      if (form.id) {
+        await axiosInstance.put(`/category/${form.id}`, form);
+      } else {
+        await axiosInstance.post("/category", form);
+      }
+
+      setForm({ title: "" });
+      fetchCategories();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
+  // ================= DELETE =================
+  const handleDelete = async (id) => {
+    try {
+      await axiosInstance.delete(`/category/${id}`);
+      fetchCategories();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // ================= EDIT =================
+  const handleEdit = (category) => {
+    setForm({
+      id: category.id,
+      title: category.title,
+    });
+  };
+
+  // ================= UI =================
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Donation Categories</h1>
-      </div>
+      <h1 className="text-2xl font-bold mb-6">Donation Category</h1>
 
-      {/* Content Wrapper */}
       <div className="flex gap-5 lg:flex-row flex-col">
-        {/* ================= LEFT : TABLE ================= */}
-        <div className="flex-[2] bg-white rounded shadow-sm overflow-hidden">
-          {/* Table Header */}
-          <div className="px-5 py-4 border-b">
-            <h3 className="text-base font-semibold text-slate-700">
-              All Categories
-            </h3>
-          </div>
+        {/* ================= TABLE ================= */}
+        <div className="flex-[2] bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200" >
+          <table className="w-full ">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 ">
+                <th className="p-3 text-left text-gray-600">ID</th>
+                <th className="p-3 text-left text-gray-600">Title</th>
+                <th className="p-3 text-center text-gray-600">Actions</th>
+              </tr>
+            </thead>
 
-          {/* Table */}
-          <div className="p-4 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 text-left text-slate-600 font-semibold border-b text-sm w-[70px]">
-                    ID
-                  </th>
-                  <th className="px-4 py-3 text-left text-slate-600 font-semibold border-b text-sm">
-                    Title
-                  </th>
-                  <th className="px-4 py-3 text-center text-slate-600 font-semibold border-b text-sm w-[120px]">
-                    Actions
-                  </th>
+            <tbody>
+              {categories.map((cat, index) => (
+                <tr key={cat.id} className="hover:bg-slate-50">
+                  <td className="p-3">{index + 1}</td>
+                  <td className="p-3">{cat.title}</td>
+                  <td className="p-3 text-center">
+                    <button
+                      onClick={() => handleEdit(cat)}
+                      className="text-blue-600 p-2"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(cat.id)}
+                      className="text-red-600 p-2"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-
-              <tbody>
-                {categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 text-slate-700 text-base font-medium">{category.id}</td>
-                    <td className="px-4 py-3 text-slate-700 text-base">{category.title}</td>
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button className="text-[#2563EB] hover:bg-blue-50 p-2 rounded-lg transition-colors">
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(category.id)}
-                          className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        {/* ================= RIGHT : FORM ================= */}
-        <div className="flex-1 min-w-[280px] bg-white rounded shadow-sm overflow-hidden">
-          {/* Form Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b">
-            <h3 className="text-base font-semibold text-slate-700">
-              Add Category
-            </h3>
-          </div>
+        {/* ================= FORM ================= */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 p-5 h-[20%]">
+          <h3 className="font-semibold mb-4">
+            {form.id ? "Edit Category" : "Add Category"}
+          </h3>
 
-          {/* Form */}
-          <div className="p-5">
-            <div>
-              <div className="mb-5">
-                <label className="block mb-2 text-sm font-medium text-slate-600">
-                  Category Title
-                </label>
-                <input
-                  type="text"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  placeholder="Enter category title"
-                  className="w-full px-4 py-2.5 text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
-                />
-              </div>
+          <input
+            type="text"
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
+            placeholder="Enter category title"
+            className="w-full border px-4 py-2 rounded mb-4"
+          />
 
+          <div className="flex gap-4">
+
+            {form.id && (
               <button
-                onClick={handleAddCategory}
-                className="w-full bg-[#2563EB] text-white py-2.5 rounded-lg text-base font-medium hover:bg-[#1e40af] transition"
+                onClick={() => setForm({ title: "" })}
+                className="w-[50%] bg-gray-200 text-black py-2 rounded hover:bg-gray-300"
               >
-                Add Category
+                Cancel
               </button>
-            </div>
+            )}
+
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-blue-600 text-white py-2 rounded"
+            >
+              {form.id ? "Update Category" : "Add Category"}
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
-
 
 export default CategoryPage;
