@@ -37,7 +37,7 @@ const AddDonationFundPage = () => {
         ...prev,
         thumbnail: file
       }));
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setThumbnailPreview(reader.result);
@@ -105,7 +105,7 @@ const AddDonationFundPage = () => {
                 <Image size={16} />
                 Campaign Thumbnail
               </label>
-              
+
               {!thumbnailPreview ? (
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#2563EB] transition-colors cursor-pointer">
                   <input
@@ -215,18 +215,18 @@ const AddDonationFundPage = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
-              <button
-                onClick={handleSubmit}
-                className="flex-1 bg-[#2563EB] text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-blue-700 transition-colors shadow-sm"
-              >
-                Create Campaign
-              </button>
+            <div className="flex justify-end items-center gap-3 pt-4 border-t border-gray-200">
               <button
                 onClick={handleReset}
                 className="px-8 py-3 rounded-lg text-base font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
               >
-                Reset
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                className=" bg-[#2563EB] text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                Create Campaign
               </button>
             </div>
           </div>
