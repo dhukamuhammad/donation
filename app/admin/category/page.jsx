@@ -22,6 +22,24 @@ const CategoryPage = () => {
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    setError(''); // Clear error on input change
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files[0]
+    }))
+  }
+
   // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
