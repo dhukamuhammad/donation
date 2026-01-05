@@ -74,15 +74,15 @@ const Category = () => {
                                     <h3 className="text-lg font-bold text-gray-900 mb-3">{category.title}</h3>
 
                                     <div className="flex gap-2 mb-3">
-                                        <button className="flex items-center gap-1 bg-teal-500 text-white text-xs px-2 py-1 rounded">
+                                        <button className="flex items-center gap-1 bg-emerald-500 text-white text-xs px-2 py-1 rounded">
                                             <Coins className="w-3 h-3" />
                                             <span className="font-medium">Sadaqah</span>
                                         </button>
-                                        <button className="flex items-center gap-1 bg-purple-500 text-white text-xs px-2 py-1 rounded">
+                                        <button className="flex items-center gap-1 bg-emerald-500 text-white text-xs px-2 py-1 rounded">
                                             <Moon className="w-3 h-3" />
                                             <span className="font-medium">Zakat</span>
                                         </button>
-                                        <button className="flex items-center gap-1 bg-pink-500 text-white text-xs px-2 py-1 rounded">
+                                        <button className="flex items-center gap-1 bg-emerald-500 text-white text-xs px-2 py-1 rounded">
                                             <Book className="w-3 h-3" />
                                             <span className="font-medium">Lillah</span>
                                         </button>
@@ -113,13 +113,14 @@ const Category = () => {
                     })}
                 </div>
 
-                {/* View More Button */}
+                {/* View More Button
                 <div className="text-center mt-8">
                     <button className="bg-[#2563EB] text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-all inline-flex items-center gap-2">
                         View More
                         <span className="text-lg">→</span>
                     </button>
                 </div>
+                 */}
             </div>
         </div>
     );

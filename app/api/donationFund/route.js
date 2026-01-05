@@ -17,11 +17,8 @@ export async function POST(req) {
     try {
         const data = await req.formData();
         const fields = Object.fromEntries(data.entries());
-        console.log(fields);
         const file = data.get("thumbnail");
-        console.log(file)
         const imagePath = await uploadImage(file);
-        console.log(imagePath)
 
         await db.query(
             "INSERT INTO donation_fund (title,date,total_amount,thumbnail,fun_cat) VALUES (?,?,?,?,?)",
