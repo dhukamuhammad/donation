@@ -31,10 +31,12 @@ const Footer = () => {
                     {/* Brand Section */}
                     <div>
                         <div className="flex items-center gap-2 mb-4">
+                            {/* Logo Icon and Text 
                             <div className="bg-[#2563EB] p-2 rounded-lg">
                                 <Heart size={20} fill="white" className="text-white" />
                             </div>
-                            <span className="text-xl font-bold">HopeChain</span>
+                            */}
+                            <span className="text-xl font-bold">Donation</span>
                         </div>
                         <p className="text-gray-400 text-sm mb-4">
                             Connecting compassionate donors with meaningful causes to create lasting impact and positive change.

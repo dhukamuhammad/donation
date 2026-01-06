@@ -7,19 +7,21 @@ import Link from "next/link";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Left - Logo */}
-          <div className="flex items-center gap-2 cursor-pointer">
-            <div className="bg-gradient-to-r from-[#2563EB] to-blue-600 p-2.5 rounded-xl shadow-lg">
-              <Heart size={26} className="text-white" fill="white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-[#2563EB] to-blue-600 bg-clip-text text-transparent">
-              HopeChain
-            </span>
-          </div>
+    return (
+        <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center h-16">
+                    {/* Left - Logo */}
+                    <div className="flex items-center gap-2 cursor-pointer">
+                        {/* Logo Icon and Text 
+                        <div className="bg-gradient-to-r from-[#2563EB] to-blue-600 p-2.5 rounded-xl shadow-lg">
+                            <Heart size={26} className="text-white" fill="white" />
+                        </div>
+                        */}
+                        <span className="text-2xl font-bold bg-gradient-to-r from-[#2563EB] to-blue-600 bg-clip-text text-transparent">
+                            Donation
+                        </span>
+                    </div>
 
           {/* Center - Pages */}
           <div className="hidden lg:flex items-center gap-8">
