@@ -3,6 +3,7 @@ import axiosInstance from "@/lib/axiosinstance";
 import { Edit2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+
 const CategoryPage = () => {
   // ================= STATE =================
   const [categories, setCategories] = useState([]);

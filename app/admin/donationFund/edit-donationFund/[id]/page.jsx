@@ -27,16 +27,27 @@ const EditDonationFundPage = () => {
   const fetchCategories = async () => {
     try {
       const res = await axiosInstance.get("/category");
-      setCategories({});
+      setCategories(res.data);
     } catch (err) {
       console.error(err);
     }
   };
 
-    const fetchDonationFundById = async () => {
+  const fetchDonationFundById = async () => {
     try {
       const res = await axiosInstance.get(`/donationFund/${id}`);
-      setFormData(res.data);
+      const donation_fund = res.data;
+
+      const parsedDate = new Date(donation_fund.date);
+      const localDateString = parsedDate.toLocaleDateString('en-CA');
+
+      setFormData({
+        title: donation_fund.title,
+        thumbnail: null,
+        total_amount: donation_fund.total_amount,
+        fun_cat: donation_fund.fun_cat,
+        date: localDateString,
+      });
     } catch (err) {
       console.error(err);
     }
