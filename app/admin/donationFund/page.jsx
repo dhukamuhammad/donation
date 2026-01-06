@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Calendar, CloudDownload } from "lucide-react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
+import Image from "next/image";
 
 const DonationFundPage = () => {
   const [funds, setFunds] = useState([]);
@@ -104,13 +105,17 @@ const DonationFundPage = () => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-center">
-                      <img
-                        src={fund.thumbnail}
-                        alt={fund.title}
-                        className="w-14 h-14 rounded-lg object-cover border-2 border-gray-200 shadow-sm"
-                      />
+                      <div className="relative w-14 h-14">
+                        <Image
+                          src={`/uploads/${fund.thumbnail}`}
+                          alt={fund.title}
+                          fill
+                          className="rounded-lg object-cover border border-gray-200 shadow-sm"
+                        />
+                      </div>
                     </div>
                   </td>
+
                   <td className="px-4 py-3">
                     <span className="text-gray-800 font-semibold text-sm">
                       {formatAmount(fund.total_amount)}
@@ -124,9 +129,11 @@ const DonationFundPage = () => {
 
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
-                      <button className="flex items-center gap-1.5 text-[#2563EB] hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">
-                        <Edit2 size={14} />
-                      </button>
+                      <Link href={`/admin/donationFund/edit-donationFund/${fund.id}`}>
+                        <button className="flex items-center gap-1.5 text-[#2563EB] hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">
+                          <Edit2 size={14} />
+                        </button>
+                      </Link>
                       <button
                         onClick={() => handleDelete(fund.id)}
                         className="flex items-center gap-1.5 text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors"

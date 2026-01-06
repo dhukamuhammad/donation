@@ -7,7 +7,7 @@ import path from "path";
 // GET with ID
 export async function GET(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const [rows] = await db.query("SELECT * FROM donation_fund WHERE id = ?", [
       id,
     ]);
@@ -20,7 +20,7 @@ export async function GET(req, { params }) {
 // PUT update
 export async function PUT(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const data = await req.formData();
     const fields = Object.fromEntries(data.entries());
     const file = data.get("thumbnail");

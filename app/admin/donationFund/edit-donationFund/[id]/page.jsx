@@ -1,0 +1,202 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { Calendar, DollarSign, Tag, FileText, Image } from "lucide-react";
+import axiosInstance from "@/lib/axiosinstance";
+import { useParams, useRouter } from "next/navigation";
+
+const EditDonationFundPage = () => {
+  const router = useRouter();
+  const params = useParams();
+  const { id } = params;
+
+  const [categories, setCategories] = useState([]);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    thumbnail: null,
+    total_amount: "",
+    fun_cat: "",
+    date: "",
+  });
+
+  useEffect(() => {
+    fetchDonationFundById()
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axiosInstance.get("/category");
+      setCategories({});
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+    const fetchDonationFundById = async () => {
+    try {
+      const res = await axiosInstance.get(`/donationFund/${id}`);
+      setFormData(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // TEXT CHANGE
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // FILE CHANGE
+  const handleFileChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      thumbnail: e.target.files[0],
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const fd = new FormData();
+      fd.append("title", formData.title);
+      fd.append("date", formData.date);
+      fd.append("total_amount", formData.total_amount);
+      fd.append("fun_cat", formData.fun_cat);
+      fd.append("thumbnail", formData.thumbnail);
+
+      await axiosInstance.put(`/donationFund/${id}`, fd, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      router.back();
+    } catch (err) {
+      console.error("Submit error:", err);
+    }
+  };
+
+  return (
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Add Donation Fund</h1>
+        <p className="text-sm text-gray-500 mt-1">Create a new donation campaign</p>
+      </div>
+
+      {/* Form Card */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-6">
+              {/* TITLE */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <FileText size={16} /> Campaign Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  placeholder="Enter campaign title"
+                  className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                />
+              </div>
+
+              {/* IMAGE */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <Image size={16} /> Campaign Thumbnail
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
+                file:rounded-lg file:border-0
+                file:bg-blue-50 file:text-[#2563EB] file:font-medium
+                hover:file:bg-blue-100 transition cursor-pointer"
+                />
+              </div>
+
+              {/* GRID */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* AMOUNT */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <DollarSign size={16} /> Target Amount (₹)
+                  </label>
+                  <input
+                    type="number"
+                    name="total_amount"
+                    value={formData.total_amount}
+                    onChange={handleInputChange}
+                    placeholder="Enter target amount"
+                    className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                  />
+                </div>
+
+                {/* CATEGORY */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <Tag size={16} /> Category
+                  </label>
+                  <select
+                    name="fun_cat"
+                    value={formData.fun_cat}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                  >
+                    <option value="">Select category</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* DATE */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <Calendar size={16} /> Date
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                  />
+                </div>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="px-8 py-3 rounded-lg text-base font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="flex bg-[#2563EB] text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  Create Campaign
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EditDonationFundPage;
