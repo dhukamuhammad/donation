@@ -87,7 +87,7 @@ const Fundraisers = () => {
                     onClick={() => setSelectedCategory(category.id)}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
                       selectedCategory === category.id
-                        ? "bg-blue-50 text-blue-600 shadow-md scale-105"
+                        ? "bg-blue-50 text-blue-600 scale-105"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
