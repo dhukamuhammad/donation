@@ -1,31 +1,45 @@
-import React from 'react';
-import { Heart, ArrowRight } from 'lucide-react';
+import React from "react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 const Banner = () => {
   return (
-    <section className="py-12 px-4 bg-gradient-to-br from-[#2563EB] to-blue-700">
-      <div className="max-w-4xl mx-auto text-center">
-        {/* Icon */}
-        <div className="inline-flex items-center justify-center w-14 h-14 bg-white rounded-full mb-6 shadow-lg">
-          <Heart size={32} className="text-[#2563EB]" fill="#2563EB" />
-        </div>
+    <section className="py-10 px-4 bg-gradient-to-br from-blue-50 via-slate-50 to-indigo-50 relative overflow-hidden">
+      {/* Decorative Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-10 left-10 w-20 h-20 border-4 border-blue-400 rounded-full"></div>
+        <div className="absolute top-20 right-20 w-16 h-16 border-4 border-indigo-400 rounded-full"></div>
+        <div className="absolute bottom-10 left-1/4 w-12 h-12 border-4 border-purple-400 rounded-full"></div>
+        <div className="absolute bottom-20 right-1/3 w-24 h-24 border-4 border-blue-400 rounded-full"></div>
+      </div>
 
-        {/* Heading */}
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-          Your Small Contribution Can Make a Big Difference
+      {/* Gradient Orbs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full filter blur-3xl opacity-20"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-200 to-blue-200 rounded-full filter blur-3xl opacity-20"></div>
+
+      <div className="max-w-6xl mx-auto text-center relative z-10">
+        {/* Main Heading */}
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+          Every Contribution{" "}
+          <span className="text-[#2563EB]">
+            Creates Impact
+          </span>
         </h2>
 
         {/* Description */}
-        <p className="text-lg md:text-x text-blue-100 mb-8 max-w-2xl mx-auto">
-          Join thousands of donors who are changing lives every day. Your generosity brings hope to those in need.
+        <p className="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          Join thousands of compassionate donors making a real difference in
+          lives every single day
         </p>
 
-        {/* Donate Button */}
-        <button className="group bg-white text-[#2563EB] px-10 py-4 rounded-lg hover:bg-blue-50 transition font-bold text-lg shadow-2xl inline-flex items-center gap-3">
-          <Heart size={22} fill="#2563EB" />
-          Donate Now
-          <ArrowRight size={22} className="group-hover:translate-x-1 transition" />
-        </button>
+        <div className="flex justify-center">
+          <button className="group w-[20%] flex items-center justify-center gap-2 bg-blue-100 text-blue-600 font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-200 transition">
+            Start Donating
+            <ArrowRight
+              size={20}
+              className="transition-transform group-hover:translate-x-1"
+            />
+          </button>
+        </div>
       </div>
     </section>
   );
