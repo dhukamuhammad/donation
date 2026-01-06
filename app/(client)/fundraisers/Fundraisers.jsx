@@ -52,7 +52,14 @@ const Fundraisers = () => {
       console.error(error);
     }
   };
-
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto flex gap-6 px-6 py-8">
@@ -142,7 +149,7 @@ const Fundraisers = () => {
                   {/* Date */}
                   <p className="text-sm text-gray-500 mb-4 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    Started — {fund.date}
+                    Started — {formatDate(fund.date)}
                   </p>
 
                   {/* Progress Section */}

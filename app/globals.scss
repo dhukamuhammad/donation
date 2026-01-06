@@ -30,3 +30,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Smooth popup scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  display: none;
+}
+
+::-webkit-scrollbar-track {
+  background: #e0edff;
+  border-radius: 10px;
+}
+
+// ::-webkit-scrollbar-thumb {
+//   background: #93c5fd;
+//   border-radius: 10px;
+// }
+
+// ::-webkit-scrollbar-thumb:hover {
+//   background: #60a5fa;
+// }
