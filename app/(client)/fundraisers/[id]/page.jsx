@@ -9,10 +9,73 @@ import {
   Users,
   CheckCircle,
   ArrowLeft,
+  X,
 } from "lucide-react";
 
 const FundraisersDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("story");
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedAmount, setSelectedAmount] = useState(500);
+  const [customAmount, setCustomAmount] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    pan: "",
+    donationType: "",
+  });
+
+  const predefinedAmounts = [500, 1000, 1500, 2000];
+
+  const handleAmountClick = (amount) => {
+    setSelectedAmount(amount);
+    setShowCustomInput(false);
+    setCustomAmount("");
+  };
+
+  const handleOtherClick = () => {
+    setShowCustomInput(true);
+    setSelectedAmount(0);
+  };
+
+  const handleCustomAmountChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    setCustomAmount(value);
+    setSelectedAmount(value ? parseInt(value) : 0);
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = () => {
+    if (
+      selectedAmount > 0 &&
+      formData.name &&
+      formData.phone &&
+      formData.email
+    ) {
+      alert(`Donation of ₹${selectedAmount} submitted successfully!`);
+      // Reset form
+      setIsOpen(false);
+      setSelectedAmount(500);
+      setCustomAmount("");
+      setShowCustomInput(false);
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        pan: "",
+        donationType: "",
+      });
+    } else {
+      alert("Please fill all required fields");
+    }
+  };
 
   // Sample data
   const fundraiser = {
@@ -222,7 +285,10 @@ Your support can help save a life and bring hope to his family. Please donate ge
               {/* Main Donation Card */}
               <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="bg-blue-100 p-6 text-center">
-                  <button className="w-full bg-white text-blue-600 font-bold py-4 rounded-lg hover:bg-gray-50 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-lg">
+                  <button
+                    onClick={() => setIsOpen(true)}
+                    className="w-full bg-white text-blue-600 font-bold py-4 rounded-lg hover:bg-gray-50 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-lg"
+                  >
                     <Heart className="w-6 h-6" />
                     Donate Now
                   </button>
@@ -303,6 +369,139 @@ Your support can help save a life and bring hope to his family. Please donate ge
           </div>
         </div>
       </div>
+
+      {/* 
+      ---------------------------------------------------------------------------------------------
+      ---------------------------------------------------------------------------------------------
+      popup amount mode
+       ---------------------------------------------------------------------------------------------
+      ---------------------------------------------------------------------------------------------
+      */}
+
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-blue-100 p-4 rounded-t-lg flex justify-between items-center sticky top-0">
+              <h2 className="text-xl font-bold text-blue-500">
+                Choose a donation amount
+              </h2>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-red-400 hover:text-red-500 "
+              >
+                <X size={23} />
+              </button>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6 space-y-4">
+              {/* Amount Selection */}
+              <div className="flex flex-wrap gap-3">
+                {predefinedAmounts.map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => handleAmountClick(amount)}
+                    className={`px-4 h-[30px] rounded-lg font-semibold text-[15px] transition-all ${
+                      selectedAmount === amount && !showCustomInput
+                        ? "bg-blue-100  text-blue-500 shadow-md"
+                        : "bg-white border-1 border-blue-500 text-blue-600 hover:border-blue-600"
+                    }`}
+                  >
+                    ₹{amount}
+                  </button>
+                ))}
+                <button
+                  onClick={handleOtherClick}
+                  className={`px-4 h-[30px] rounded-lg font-semibold text-lg transition-all ${
+                    showCustomInput
+                      ? "bg-blue-100 text-blue-500 shadow-md"
+                      : "bg-white border-1 border-blue-500 text-blue-600 hover:border-blue-600"
+                  }`}
+                >
+                  Other
+                </button>
+              </div>
+
+              {/* Custom Amount Input */}
+              {showCustomInput && (
+                <div className="animate-fadeIn">
+                  <input
+                    type="text"
+                    value={customAmount}
+                    onChange={handleCustomAmountChange}
+                    placeholder="Enter custom amount"
+                    className="w-full px-4 py-2 border-1 border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 text-lg"
+                  />
+                </div>
+              )}
+
+              {/* Name Input */}
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Your Name*"
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+              />
+
+              {/* Phone Input */}
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="Your Phone Number*"
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+              />
+
+              {/* Email Input */}
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Your Email id*"
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+              />
+
+              {/* Donation Type */}
+              <select
+                name="donationType"
+                value={formData.donationType}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+              >
+                <option value="">Select Donation Type*</option>
+                <option value="education">Education</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="food">Food & Nutrition</option>
+                <option value="environment">Environment</option>
+                <option value="general">General</option>
+              </select>
+
+              {/* Total Amount Display */}
+              <div>
+                <p className="text-lg font-bold text-gray-800">
+                  Total Amount :{" "}
+                  <span className="text-blue-600"> ₹{selectedAmount}</span>
+                </p>
+              </div>
+
+              {/* Donate Button */}
+              <div >
+                <button
+                  onClick={handleSubmit}
+                  className="w-[40%] bg-blue-100 text-blue-500 py-2 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
+                  Donate Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
