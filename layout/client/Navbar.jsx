@@ -13,11 +13,13 @@ const Navbar = () => {
                 <div className="flex justify-between items-center h-16">
                     {/* Left - Logo */}
                     <div className="flex items-center gap-2 cursor-pointer">
+                        {/* Logo Icon and Text 
                         <div className="bg-gradient-to-r from-[#2563EB] to-blue-600 p-2.5 rounded-xl shadow-lg">
                             <Heart size={26} className="text-white" fill="white" />
                         </div>
+                        */}
                         <span className="text-2xl font-bold bg-gradient-to-r from-[#2563EB] to-blue-600 bg-clip-text text-transparent">
-                            HopeChain
+                            Donation
                         </span>
                     </div>
 

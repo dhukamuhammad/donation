@@ -54,7 +54,7 @@ export async function PUT(req, { params }) {
 // DELETE
 export async function DELETE(req, { params }) {
     try {
-        const { id } = params;
+        const { id } = await params;
 
         const [[old]] = await db.query("SELECT thumbnail FROM donation_fund WHERE id = ?", [id]);
 
