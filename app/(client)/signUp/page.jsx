@@ -1,37 +1,15 @@
-// app/signup/page.tsx
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
+import axiosInstance from "@/lib/axiosinstance";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
-    password: "",
-    confirmPassword: "",
     terms: false,
   });
-
-  const [errors, setErrors] = useState({
-    passwordMismatch: false,
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Password validation
-    if (formData.password !== formData.confirmPassword) {
-      setErrors({ passwordMismatch: true });
-      return;
-    }
-
-    setErrors({ passwordMismatch: false });
-    console.log("Signup submitted:", formData);
-    // Add your signup logic here
-  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,6 +17,31 @@ export default function SignupPage() {
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.terms) {
+      alert("Please accept terms & conditions");
+      return;
+    }
+
+    try {
+      const res = await axiosInstance.post("/auth/signup", formData);
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        terms: false,
+      });
+      alert("Signup successful ✅");
+      console.log(res.data);
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.error || "Signup failed");
+    }
   };
 
   return (
@@ -54,16 +57,16 @@ export default function SignupPage() {
             {/* Name Fields */}
             <div>
               <label
-                htmlFor="firstName"
+                htmlFor="name"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
                 First Name
               </label>
               <input
                 type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="First name"

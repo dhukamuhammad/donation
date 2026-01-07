@@ -53,19 +53,18 @@ const Navbar = () => {
 
           {/* Right - Login/Signup */}
           <div className="hidden lg:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="flex items-center gap-2 text-gray-700 hover:text-[#2563EB] font-medium transition px-4 py-2 rounded-lg hover:bg-gray-50"
-            >
-              <LogIn size={18} />
-              <span>Login</span>
+            <Link href="/login">
+              <button className="flex items-center gap-2 text-gray-700 hover:text-[#2563EB] font-medium transition px-4 py-2 rounded-lg hover:bg-gray-50">
+                <LogIn size={18} />
+                <span>Login</span>
+              </button>
             </Link>
-            <Link
-              href="/signUp"
-              className="flex items-center gap-2 bg-[#2563EB] text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-md"
-            >
-              <UserPlus size={18} />
-              <span>Sign Up</span>
+
+            <Link href="/signUp">
+              <button className="flex items-center gap-2 bg-[#2563EB] text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-md">
+                <UserPlus size={18} />
+                <span>Sign Up</span>
+              </button>
             </Link>
           </div>
 
