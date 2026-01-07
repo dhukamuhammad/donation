@@ -5,18 +5,16 @@ import Link from "next/link";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    console.log(token)
     setIsLoggedIn(!!token);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    window.location.href = "/login";
-  };
+
+  if (isLoggedIn === null) return null;
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
@@ -48,7 +46,7 @@ const Navbar = () => {
           {/* Right - Login / Signup OR Profile / Logout */}
           <div className="hidden lg:flex items-center gap-3">
             {!isLoggedIn ? (
-              <div>
+              <div className="flex items-center gap-3">
                 <Link href="/login">
                   <button className="flex items-center gap-2 text-gray-700 hover:text-[#2563EB] font-medium transition px-4 py-2 rounded-lg hover:bg-gray-50">
                     <LogIn size={18} />
@@ -66,9 +64,11 @@ const Navbar = () => {
             ) : (
               <div>
                 <Link href="/profile">
-                  <button className="flex items-center gap-2 text-gray-700 hover:text-[#2563EB] font-medium transition px-4 py-2 rounded-lg hover:bg-gray-50">
+                  <button
+                    className="w-9 h-9 rounded-full bg-[#2563EB] flex items-center justify-center text-white hover:opacity-90 transition"
+                    aria-label="Profile"
+                  >
                     <User size={18} />
-                    <span>Profile</span>
                   </button>
                 </Link>
 

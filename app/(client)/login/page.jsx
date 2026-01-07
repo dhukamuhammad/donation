@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
@@ -23,14 +23,43 @@ export default function LoginPage() {
   };
 
   // STEP 1: Send OTP
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     await axiosInstance.post("/auth/login", {
+  //       email: formData.email,
+  //       phone: formData.phone,
+  //     });
+
+
+  //     console.log("userId", res.data.userId);
+
+  //     // OTP verify ke liye save
+  //     localStorage.setItem("otpUserId", res.data.userId);
+
+
+  //     alert("OTP sent to your email 📧");
+  //     setStep(2);
+  //   } catch (error) {
+  //     alert(error.response?.data?.error || "Failed to send OTP");
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await axiosInstance.post("/auth/login", {
+      const res = await axiosInstance.post("/auth/login", {
         email: formData.email,
         phone: formData.phone,
       });
+
+      const userId = res.data.userId;
+      console.log(userId);
+
+      // OTP verify ke liye save
+      localStorage.setItem("userId", userId);
 
       alert("OTP sent to your email 📧");
       setStep(2);
@@ -39,6 +68,7 @@ export default function LoginPage() {
     }
   };
 
+
   // STEP 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -46,10 +76,12 @@ export default function LoginPage() {
     try {
       const res = await axiosInstance.post("/auth/verify-otp", {
         email: formData.email,
+        phone: formData.phone,
         otp: formData.otp,
       });
 
       localStorage.setItem("token", res.data.token);
+      console.log("user_id", res.data.user_id);
       router.push("/profile");
       alert("Login successful ✅");
     } catch (error) {
