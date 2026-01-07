@@ -6,21 +6,22 @@ import { useParams, useRouter } from "next/navigation";
 
 const EditDonationFundPage = () => {
   const router = useRouter();
-  const params = useParams();
-  const { id } = params;
+  const { id } = useParams();
 
   const [categories, setCategories] = useState([]);
 
   const [formData, setFormData] = useState({
     title: "",
+    description: "",
     thumbnail: null,
+    document_img: null,
     total_amount: "",
     fun_cat: "",
     date: "",
   });
 
   useEffect(() => {
-    fetchDonationFundById()
+    fetchDonationFundById();
     fetchCategories();
   }, []);
 
@@ -39,11 +40,13 @@ const EditDonationFundPage = () => {
       const donation_fund = res.data;
 
       const parsedDate = new Date(donation_fund.date);
-      const localDateString = parsedDate.toLocaleDateString('en-CA');
+      const localDateString = parsedDate.toLocaleDateString("en-CA");
 
       setFormData({
         title: donation_fund.title,
+        description: donation_fund.description || "",
         thumbnail: null,
+        document_img: null,
         total_amount: donation_fund.total_amount,
         fun_cat: donation_fund.fun_cat,
         date: localDateString,
@@ -61,9 +64,10 @@ const EditDonationFundPage = () => {
 
   // FILE CHANGE
   const handleFileChange = (e) => {
+    const { name, files } = e.target;
     setFormData((prev) => ({
       ...prev,
-      thumbnail: e.target.files[0],
+      [name]: files[0],
     }));
   };
 
@@ -76,14 +80,17 @@ const EditDonationFundPage = () => {
       fd.append("date", formData.date);
       fd.append("total_amount", formData.total_amount);
       fd.append("fun_cat", formData.fun_cat);
-      fd.append("thumbnail", formData.thumbnail);
+      fd.append("description", formData.description);
+
+      if (formData.thumbnail) fd.append("thumbnail", formData.thumbnail);
+      if (formData.document_img)
+        fd.append("document_img", formData.document_img);
 
       await axiosInstance.put(`/donationFund/${id}`, fd, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "content-type": "multipart/form-data",
         },
       });
-
       router.back();
     } catch (err) {
       console.error("Submit error:", err);
@@ -95,7 +102,9 @@ const EditDonationFundPage = () => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Add Donation Fund</h1>
-        <p className="text-sm text-gray-500 mt-1">Create a new donation campaign</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Create a new donation campaign
+        </p>
       </div>
 
       {/* Form Card */}
@@ -118,6 +127,20 @@ const EditDonationFundPage = () => {
                 />
               </div>
 
+              {/* DESCRIPTION */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <FileText size={16} /> Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Enter description"
+                  className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                />
+              </div>
+
               {/* IMAGE */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -125,12 +148,30 @@ const EditDonationFundPage = () => {
                 </label>
                 <input
                   type="file"
+                  name="thumbnail"
                   accept="image/*"
                   onChange={handleFileChange}
                   className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
-                file:rounded-lg file:border-0
-                file:bg-blue-50 file:text-[#2563EB] file:font-medium
-                hover:file:bg-blue-100 transition cursor-pointer"
+                  file:rounded-lg file:border-0
+                  file:bg-blue-50 file:text-[#2563EB] file:font-medium
+                  hover:file:bg-blue-100 transition cursor-pointer"
+                />
+              </div>
+
+              {/* DOCUMENT IMAGE */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <Image size={16} /> Supporting Document Image
+                </label>
+                <input
+                  type="file"
+                  name="document_img"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
+                  file:rounded-lg file:border-0
+                  file:bg-blue-50 file:text-[#2563EB] file:font-medium
+                  hover:file:bg-blue-100 transition cursor-pointer"
                 />
               </div>
 
@@ -196,7 +237,7 @@ const EditDonationFundPage = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleSubmit}
+                  type="submit"
                   className="flex bg-[#2563EB] text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-blue-700 transition-colors shadow-sm"
                 >
                   Create Campaign

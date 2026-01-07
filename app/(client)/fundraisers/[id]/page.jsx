@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Heart,
   Share2,
@@ -10,14 +10,24 @@ import {
   CheckCircle,
   ArrowLeft,
   X,
+  Clock,
 } from "lucide-react";
+import { useParams } from "next/navigation";
+import axiosInstance from "@/lib/axiosinstance";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const FundraisersDetailsPage = () => {
+  const params = useParams();
+  const router = useRouter();
+  const { id } = params;
+
   const [activeTab, setActiveTab] = useState("story");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState(500);
   const [customAmount, setCustomAmount] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -26,7 +36,38 @@ const FundraisersDetailsPage = () => {
     donationType: "",
   });
 
+  const [fundraiser, setFundraiser] = useState([]);
+  console.log(fundraiser);
+
   const predefinedAmounts = [500, 1000, 1500, 2000];
+
+  useEffect(() => {
+    if (id) fetchDonationFundById();
+  }, [id]);
+
+  const fetchDonationFundById = async () => {
+    try {
+      const res = await axiosInstance.get(`/donationFund/${id}`);
+      setFundraiser(res.data);
+    } catch (err) {
+      console.error("API Error:", err);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // popup
+
+  const raised = parseInt(fundraiser.totalRaised || "0");
+  const goal = parseInt(fundraiser.goalAmount || "1");
+  const progress = Math.min((raised / goal) * 100, 100);
 
   const handleAmountClick = (amount) => {
     setSelectedAmount(amount);
@@ -46,10 +87,7 @@ const FundraisersDetailsPage = () => {
   };
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = () => {
@@ -60,7 +98,6 @@ const FundraisersDetailsPage = () => {
       formData.email
     ) {
       alert(`Donation of ₹${selectedAmount} submitted successfully!`);
-      // Reset form
       setIsOpen(false);
       setSelectedAmount(500);
       setCustomAmount("");
@@ -77,78 +114,40 @@ const FundraisersDetailsPage = () => {
     }
   };
 
-  // Sample data
-  const fundraiser = {
-    title: "Help Rahul Fight Cancer - Support His Treatment",
-    thumbnail:
-      "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=800&h=500&fit=crop",
-    organizer: "Rahman Foundation",
-    organizerInitials: "RF",
-    totalRaised: "59,993",
-    goalAmount: "1,90,000",
-    supporters: 45,
-    startDate: "23 Dec 2025",
-    taxBenefit: true,
-    verified: true,
-    badges: ["Sadaqah", "Zakat", "Lillah"],
-    story: `Rahul is a 35-year-old father of two who has been diagnosed with stage 3 cancer. He needs immediate medical treatment but his family cannot afford the high cost of chemotherapy and surgery.
-
-The estimated cost for his complete treatment is ₹1,90,000. So far, his family has managed to arrange only a small portion. Time is running out and every contribution counts.
-
-Your support can help save a life and bring hope to his family. Please donate generously and share this campaign with your friends and family.`,
-    updates: [
-      {
-        id: 1,
-        date: "2 Jan 2025",
-        title: "Treatment Started",
-        description:
-          "Rahul has started his first chemotherapy session. Thank you to all supporters!",
-      },
-      {
-        id: 2,
-        date: "28 Dec 2024",
-        title: "Hospital Admission",
-        description:
-          "Rahul has been admitted to the hospital and treatment plan is finalized.",
-      },
-    ],
-    recentDonations: [
-      { id: 1, name: "Anonymous", amount: "5,000", time: "2 hours ago" },
-      { id: 2, name: "Priya Sharma", amount: "2,000", time: "5 hours ago" },
-      { id: 3, name: "Amit Kumar", amount: "10,000", time: "1 day ago" },
-      { id: 4, name: "Anonymous", amount: "3,000", time: "2 days ago" },
-      { id: 5, name: "Neha Patel", amount: "1,000", time: "3 days ago" },
-    ],
-  };
-
-  const progress =
-    (parseInt(fundraiser.totalRaised.replace(/,/g, "")) /
-      parseInt(fundraiser.goalAmount.replace(/,/g, ""))) *
-    100;
-
   return (
-    <div className="min-h-screen  from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen">
       {/* Back Button */}
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <button className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+          >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-semibold">Back to Fundraisers</span>
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 pt-0">
+      <div className="max-w-7xl mx-auto px-6 py-8  pt-0">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content - Left Side */}
           <div className="lg:col-span-2 space-y-6">
             {/* Featured Image */}
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <img
-                src={fundraiser.thumbnail}
-                alt={fundraiser.title}
-                className="w-full h-[400px] object-cover"
-              />
+              <div className="relative w-full h-[400px]">
+                {fundraiser.thumbnail ? (
+                  <Image
+                    src={`/uploads/${fundraiser.thumbnail}`}
+                    alt={fundraiser.title}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 animate-pulse" />
+                )}
+              </div>
             </div>
 
             {/* Title & Share */}
@@ -162,16 +161,16 @@ Your support can help save a life and bring hope to his family. Please donate ge
                   <div className="flex items-center gap-2">
                     <Calendar className="w-5 h-5 text-gray-500" />
                     <span className="text-sm text-gray-600">
-                      Started From - {fundraiser.startDate}
+                      Started From - {formatDate(fundraiser.date)}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                  <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                     <Share2 className="w-5 h-5 text-gray-600" />
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                  <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                     <Flag className="w-5 h-5 text-gray-600" />
                   </button>
                 </div>
@@ -200,7 +199,8 @@ Your support can help save a life and bring hope to his family. Please donate ge
                         : "text-gray-600 hover:bg-gray-50"
                     }`}
                   >
-                    Updates ({fundraiser.updates.length})
+                    Updates
+                    {/* ({fundraiser.updates.length}) */}
                   </button>
                   <button
                     onClick={() => setActiveTab("donations")}
@@ -210,7 +210,8 @@ Your support can help save a life and bring hope to his family. Please donate ge
                         : "text-gray-600 hover:bg-gray-50"
                     }`}
                   >
-                    Donations ({fundraiser.supporters})
+                    Donations
+                    {/* ({fundraiser.supporters}) */}
                   </button>
                 </div>
               </div>
@@ -219,67 +220,82 @@ Your support can help save a life and bring hope to his family. Please donate ge
                 {/* Story Tab */}
                 {activeTab === "story" && (
                   <div className="prose max-w-none">
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                      {fundraiser.story}
-                    </p>
+                    <div
+                      className="text-gray-700 leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: fundraiser.description,
+                      }}
+                    />
                   </div>
                 )}
 
                 {/* Updates Tab */}
-                {activeTab === "updates" && (
+                {/* {activeTab === "updates" && (
                   <div className="space-y-4">
-                    {fundraiser.updates.map((update) => (
-                      <div
-                        key={update.id}
-                        className="border-l-4 border-blue-600 pl-4 py-2"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-semibold text-gray-900">
-                            {update.title}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            • {update.date}
-                          </span>
+                    {fundraiser.updates.length > 0 ? (
+                      fundraiser.updates.map((update) => (
+                        <div
+                          key={update.id}
+                          className="border-l-4 border-blue-600 pl-4 py-2"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm font-semibold text-gray-900">
+                              {update.title}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              • {update.date}
+                            </span>
+                          </div>
+                          <p className="text-gray-700">{update.description}</p>
                         </div>
-                        <p className="text-gray-700">{update.description}</p>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500 py-8">
+                        No updates yet
+                      </p>
+                    )}
                   </div>
-                )}
+              )}
 
                 {/* Donations Tab */}
-                {activeTab === "donations" && (
+                {/* {activeTab === "donations" && (
                   <div className="space-y-3">
-                    {fundraiser.recentDonations.map((donation) => (
-                      <div
-                        key={donation.id}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-                            {donation.name.charAt(0)}
+                    {fundraiser.recentDonations.length > 0 ? (
+                      fundraiser.recentDonations.map((donation) => (
+                        <div
+                          key={donation.id}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                              {donation.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {donation.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {donation.time}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-semibold text-gray-900">
-                              {donation.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {donation.time}
-                            </p>
-                          </div>
+                          <span className="text-lg font-bold text-green-600">
+                            ₹{donation.amount}
+                          </span>
                         </div>
-                        <span className="text-lg font-bold text-green-600">
-                          ₹{donation.amount}
-                        </span>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500 py-8">
+                        No donations yet
+                      </p>
+                    )}
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
 
-          {/* Donation Card - Right Side (Bottom on mobile) */}
+          {/* Donation Card - Right Side */}
           <div className="lg:col-span-1">
             <div className="sticky top-6 space-y-4">
               {/* Main Donation Card */}
@@ -287,7 +303,7 @@ Your support can help save a life and bring hope to his family. Please donate ge
                 <div className="bg-blue-100 p-6 text-center">
                   <button
                     onClick={() => setIsOpen(true)}
-                    className="w-full bg-white text-blue-600 font-bold py-4 rounded-lg hover:bg-gray-50 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-lg"
+                    className="w-full bg-white text-blue-600 font-bold py-4 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-lg"
                   >
                     <Heart className="w-6 h-6" />
                     Donate Now
@@ -299,7 +315,7 @@ Your support can help save a life and bring hope to his family. Please donate ge
                     <div className="flex items-end justify-between mb-3">
                       <div>
                         <span className="text-3xl font-bold text-gray-900">
-                          ₹{fundraiser.totalRaised}
+                          ₹{fundraiser.total_amount}
                         </span>
                       </div>
                       <span className="text-sm font-semibold text-blue-600">
@@ -310,9 +326,9 @@ Your support can help save a life and bring hope to his family. Please donate ge
                       raised out of ₹{fundraiser.goalAmount}
                     </p>
 
-                    <div className="w-full bg-gray-200 rounded-lg h-2 overflow-hidden">
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                       <div
-                        className="bg-gradient-to-r from-teal-400 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-500 shadow-sm"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -320,21 +336,25 @@ Your support can help save a life and bring hope to his family. Please donate ge
 
                   <div className="mb-6">
                     <p className="text-sm text-gray-600 mb-2">
-                      Started From - {fundraiser.startDate}
+                      Started From - {formatDate(fundraiser.date)}
                     </p>
                   </div>
 
                   {/* Badges */}
+
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {fundraiser.badges.map((badge, index) => (
-                      <span
-                        key={index}
-                        className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1"
-                      >
-                        <CheckCircle className="w-3 h-3" />
-                        {badge}
-                      </span>
-                    ))}
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      jakat
+                    </span>
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Sadkah
+                    </span>
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Lillah
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-center gap-2 pt-4 border-t border-gray-200">
@@ -370,27 +390,20 @@ Your support can help save a life and bring hope to his family. Please donate ge
         </div>
       </div>
 
-      {/* 
-      ---------------------------------------------------------------------------------------------
-      ---------------------------------------------------------------------------------------------
-      popup amount mode
-       ---------------------------------------------------------------------------------------------
-      ---------------------------------------------------------------------------------------------
-      */}
-
+      {/* Donation Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="bg-blue-100 p-4 rounded-t-lg flex justify-between items-center sticky top-0">
-              <h2 className="text-xl font-bold text-blue-500">
+            <div className="bg-blue-100 p-4 rounded-t-lg flex justify-between items-center sticky top-0 z-11">
+              <h2 className="text-xl font-bold text-blue-600">
                 Choose a donation amount
               </h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-red-400 hover:text-red-500 "
+                className="text-gray-500 hover:text-red-500 transition-colors"
               >
-                <X size={23} />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -402,10 +415,10 @@ Your support can help save a life and bring hope to his family. Please donate ge
                   <button
                     key={amount}
                     onClick={() => handleAmountClick(amount)}
-                    className={`px-4 h-[30px] rounded-lg font-semibold text-[15px] transition-all ${
+                    className={`px-4 h-[40px] rounded-lg transition-all ${
                       selectedAmount === amount && !showCustomInput
-                        ? "bg-blue-100  text-blue-500 shadow-md"
-                        : "bg-white border-1 border-blue-500 text-blue-600 hover:border-blue-600"
+                        ? "bg-blue-600 text-white shadow-lg scale-105"
+                        : "bg-white border-2 border-blue-500 text-blue-600 hover:border-blue-600 hover:bg-blue-50"
                     }`}
                   >
                     ₹{amount}
@@ -413,10 +426,10 @@ Your support can help save a life and bring hope to his family. Please donate ge
                 ))}
                 <button
                   onClick={handleOtherClick}
-                  className={`px-4 h-[30px] rounded-lg font-semibold text-lg transition-all ${
+                  className={`px-4 h-[40px] rounded-lg transition-all ${
                     showCustomInput
-                      ? "bg-blue-100 text-blue-500 shadow-md"
-                      : "bg-white border-1 border-blue-500 text-blue-600 hover:border-blue-600"
+                      ? "bg-blue-600 text-white shadow-lg scale-105"
+                      : "bg-white border-2 border-blue-500 text-blue-600 hover:border-blue-600 hover:bg-blue-50"
                   }`}
                 >
                   Other
@@ -431,7 +444,7 @@ Your support can help save a life and bring hope to his family. Please donate ge
                     value={customAmount}
                     onChange={handleCustomAmountChange}
                     placeholder="Enter custom amount"
-                    className="w-full px-4 py-2 border-1 border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 text-lg"
+                    className="w-full px-4 py-2 border-1 border-blue-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg"
                   />
                 </div>
               )}
@@ -443,7 +456,7 @@ Your support can help save a life and bring hope to his family. Please donate ge
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Your Name*"
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
               />
 
               {/* Phone Input */}
@@ -453,7 +466,7 @@ Your support can help save a life and bring hope to his family. Please donate ge
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Your Phone Number*"
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
               />
 
               {/* Email Input */}
@@ -463,7 +476,7 @@ Your support can help save a life and bring hope to his family. Please donate ge
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Your Email id*"
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
               />
 
               {/* Donation Type */}
@@ -471,7 +484,7 @@ Your support can help save a life and bring hope to his family. Please donate ge
                 name="donationType"
                 value={formData.donationType}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-lg focus:outline-none focus:border-blue-400 text-gray-700"
+                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
               >
                 <option value="">Select Donation Type*</option>
                 <option value="education">Education</option>
@@ -483,21 +496,21 @@ Your support can help save a life and bring hope to his family. Please donate ge
 
               {/* Total Amount Display */}
               <div>
-                <p className="text-lg font-bold text-gray-800">
+                <p className="text-[18px] font-bold text-gray-800">
                   Total Amount :{" "}
-                  <span className="text-blue-600"> ₹{selectedAmount}</span>
+                  <span className="text-blue-600 text-[18px]">
+                    ₹{selectedAmount}
+                  </span>
                 </p>
               </div>
 
               {/* Donate Button */}
-              <div >
-                <button
-                  onClick={handleSubmit}
-                  className="w-[40%] bg-blue-100 text-blue-500 py-2 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                >
-                  Donate Now
-                </button>
-              </div>
+              <button
+                onClick={handleSubmit}
+                className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-300"
+              >
+                Donate Now
+              </button>
             </div>
           </div>
         </div>
