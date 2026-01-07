@@ -1,26 +1,60 @@
-// app/login/page.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import axiosInstance from "@/lib/axiosinstance";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [step, setStep] = useState(1); // 1 = send OTP, 2 = verify OTP
+
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    phone: "",
+    otp: "",
   });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login submitted:", formData);
-    // Add your login logic here
-  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // STEP 1: Send OTP
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axiosInstance.post("/auth/login", {
+        email: formData.email,
+        phone: formData.phone,
+      });
+
+      alert("OTP sent to your email 📧");
+      setStep(2);
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to send OTP");
+    }
+  };
+
+  // STEP 2: Verify OTP
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axiosInstance.post("/auth/verify-otp", {
+        email: formData.email,
+        otp: formData.otp,
+      });
+
+      localStorage.setItem("token", res.data.token);
+      router.push("/profile");
+      alert("Login successful ✅");
+    } catch (error) {
+      alert(error.response?.data?.error || "Invalid OTP");
+    }
   };
 
   return (
@@ -32,65 +66,84 @@ export default function LoginPage() {
             Welcome Back
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
+          {/* STEP 1 FORM (EMAIL + PHONE) */}
+          {step === 1 && (
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Email Field */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
 
-            {/* Password Field */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
+              {/* Phone Field */}
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your phone"
+                  required
+                />
+              </div>
 
-            {/* Forgot Password Link */}
-            <div className="flex justify-end">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
               >
-                Forgot Password?
-              </Link>
-            </div>
+                Login
+              </button>
+            </form>
+          )}
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
-            >
-              Login
-            </button>
-          </form>
+          {/* STEP 2 FORM (OTP) */}
+          {step === 2 && (
+            <form onSubmit={handleVerifyOtp} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Enter OTP
+                </label>
+                <input
+                  type="text"
+                  name="otp"
+                  value={formData.otp}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter OTP"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
+              >
+                Verify OTP
+              </button>
+            </form>
+          )}
 
           {/* Divider */}
           <div className="relative my-6">
