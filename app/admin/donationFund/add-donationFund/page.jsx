@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Calendar, DollarSign, Tag, FileText, Image } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
+import { Editor } from "@tinymce/tinymce-react";
 
 const AddDonationFundPage = () => {
   const router = useRouter();
@@ -11,6 +12,8 @@ const AddDonationFundPage = () => {
   const [formData, setFormData] = useState({
     title: "",
     thumbnail: null,
+    document_img: null,
+    description: "",
     total_amount: "",
     fun_cat: "",
     date: "",
@@ -36,9 +39,10 @@ const AddDonationFundPage = () => {
 
   // FILE CHANGE
   const handleFileChange = (e) => {
+    const { name, files } = e.target;
     setFormData((prev) => ({
       ...prev,
-      thumbnail: e.target.files[0],
+      [name]: files[0],
     }));
   };
 
@@ -48,10 +52,12 @@ const AddDonationFundPage = () => {
     try {
       const fd = new FormData();
       fd.append("title", formData.title);
+      fd.append("description", formData.description);
       fd.append("date", formData.date);
       fd.append("total_amount", formData.total_amount);
       fd.append("fun_cat", formData.fun_cat);
       fd.append("thumbnail", formData.thumbnail);
+      fd.append("document_img", formData.document_img);
 
       await axiosInstance.post("/donationFund", fd, {
         headers: {
@@ -67,13 +73,13 @@ const AddDonationFundPage = () => {
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Add Donation Fund</h1>
-        <p className="text-sm text-gray-500 mt-1">Create a new donation campaign</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Create a new donation campaign
+        </p>
       </div>
 
-      {/* Form Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6">
           <form onSubmit={handleSubmit}>
@@ -93,25 +99,85 @@ const AddDonationFundPage = () => {
                 />
               </div>
 
-              {/* IMAGE */}
+              {/* DESCRIPTION */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Image size={16} /> Campaign Thumbnail
+                  <FileText size={16} /> Description
                 </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
-                file:rounded-lg file:border-0
-                file:bg-blue-50 file:text-[#2563EB] file:font-medium
-                hover:file:bg-blue-100 transition cursor-pointer"
+
+                <Editor
+                  apiKey="qssuaevgjqlacjwjc7pnyanuozwdjybgowic9j29k21cw45c"
+                  value={formData.description}
+                  onEditorChange={(content) =>
+                    setFormData((prev) => ({ ...prev, description: content }))
+                  }
+                  init={{
+                    height: 220,
+                    menubar: false,
+                    plugins: [
+                      "advlist autolink lists link image charmap preview anchor",
+                      "searchreplace visualblocks code fullscreen",
+                      "insertdatetime media table help wordcount",
+                    ],
+                    toolbar:
+                      "undo redo | formatselect | bold italic underline | " +
+                      "alignleft aligncenter alignright | bullist numlist | removeformat",
+                  }}
                 />
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* THUMBNAIL */}
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <Image size={16} /> Campaign Thumbnail
+                  </label>
+                  <input
+                    type="file"
+                    name="thumbnail"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
+      file:rounded-lg file:border-0
+      file:bg-blue-50 file:text-[#2563EB] file:font-medium
+      hover:file:bg-blue-100 transition cursor-pointer"
+                  />
+
+                  {formData.thumbnail && (
+                    <img
+                      src={URL.createObjectURL(formData.thumbnail)}
+                      className="mt-3 h-32 rounded-lg object-cover border"
+                    />
+                  )}
+                </div>
+
+                {/* DOCUMENT IMAGE */}
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <Image size={16} /> Supporting Document Image
+                  </label>
+                  <input
+                    type="file"
+                    name="document_img"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
+      file:rounded-lg file:border-0
+      file:bg-blue-50 file:text-[#2563EB] file:font-medium
+      hover:file:bg-blue-100 transition cursor-pointer"
+                  />
+
+                  {formData.document_img && (
+                    <img
+                      src={URL.createObjectURL(formData.document_img)}
+                      className="mt-3 h-32 rounded-lg object-cover border"
+                    />
+                  )}
+                </div>
               </div>
 
               {/* GRID */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* AMOUNT */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                     <DollarSign size={16} /> Target Amount (₹)
@@ -126,7 +192,6 @@ const AddDonationFundPage = () => {
                   />
                 </div>
 
-                {/* CATEGORY */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                     <Tag size={16} /> Category
@@ -146,7 +211,6 @@ const AddDonationFundPage = () => {
                   </select>
                 </div>
 
-                {/* DATE */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                     <Calendar size={16} /> Date
@@ -161,7 +225,6 @@ const AddDonationFundPage = () => {
                 </div>
               </div>
 
-              {/* ACTIONS */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
@@ -171,7 +234,7 @@ const AddDonationFundPage = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleSubmit}
+                  type="submit"
                   className="flex bg-[#2563EB] text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-blue-700 transition-colors shadow-sm"
                 >
                   Create Campaign

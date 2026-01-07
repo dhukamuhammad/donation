@@ -71,11 +71,14 @@ const DonationFundPage = () => {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 w-16">
                   ID
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 min-w-[200px]">
-                  TITLE
-                </th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 w-28">
                   THUMBNAIL
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 w-28">
+                  DOCUMENT
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 min-w-[200px]">
+                  TITLE
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 w-32">
                   TOTAL AMOUNT
@@ -99,11 +102,6 @@ const DonationFundPage = () => {
                     {fund.id}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-gray-800 font-medium text-sm">
-                      {fund.title}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
                     <div className="flex justify-center">
                       <div className="relative w-14 h-14">
                         <Image
@@ -114,6 +112,23 @@ const DonationFundPage = () => {
                         />
                       </div>
                     </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-center">
+                      <div className="relative w-14 h-14">
+                        <Image
+                          src={`/uploads/${fund.document_img}`}
+                          alt={fund.title}
+                          fill
+                          className="rounded-lg object-cover border border-gray-200 shadow-sm"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-gray-800 font-medium text-sm">
+                      {fund.title}
+                    </span>
                   </td>
 
                   <td className="px-4 py-3">
@@ -129,7 +144,9 @@ const DonationFundPage = () => {
 
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
-                      <Link href={`/admin/donationFund/edit-donationFund/${fund.id}`}>
+                      <Link
+                        href={`/admin/donationFund/edit-donationFund/${fund.id}`}
+                      >
                         <button className="flex items-center gap-1.5 text-[#2563EB] hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">
                           <Edit2 size={14} />
                         </button>
@@ -165,5 +182,3 @@ const DonationFundPage = () => {
 };
 
 export default DonationFundPage;
-
-

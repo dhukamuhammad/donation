@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tinymce/tinymce-react": "^6.3.0",
     "axios": "^1.13.2",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.562.0",

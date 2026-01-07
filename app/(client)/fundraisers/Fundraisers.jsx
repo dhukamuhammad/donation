@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Heart, Search, Clock, Users, Target, TrendingUp } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
+import Link from "next/link";
 
 const Fundraisers = () => {
   const [categories, setCategories] = useState([]);
@@ -186,9 +187,11 @@ const Fundraisers = () => {
                     <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     Donate Now
                   </button> */}
-                  <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition">
-                    Donate Now
-                  </button>
+                  <Link href={`/fundraisers/${fund.id}`}>
+                    <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition">
+                      Donate Now
+                    </button>
+                  </Link>
                 </div>
               </div>
             ))}

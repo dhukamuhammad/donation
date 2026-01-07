@@ -1,5 +1,13 @@
 "use client";
-import { Heart, Coins, Moon, Book, TrendingUp, ArrowRight } from "lucide-react";
+import {
+  Heart,
+  Coins,
+  Moon,
+  Book,
+  TrendingUp,
+  ArrowRight,
+  CheckCircle,
+} from "lucide-react";
 
 const Category = () => {
   const categories = [
@@ -64,23 +72,33 @@ const Category = () => {
                 </div>
 
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 min-h-[56px]">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
                     {category.title}
                   </h3>
 
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    <button className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 text-xs px-3 py-1.5 rounded-lg hover:from-emerald-100 hover:to-teal-100 transition-all">
-                      <Coins className="w-3.5 h-3.5" />
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <button
+                      className="bg-green-100 text-green-700 px-3 py-1
+                    rounded-full text-xs font-semibold flex items-center gap-1"
+                    >
+                    <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Sadaqah</span>
                     </button>
-                    <button className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 text-xs px-3 py-1.5 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all">
-                      <Moon className="w-3.5 h-3.5" />
+                    <button
+                      className="bg-green-100 text-green-700 px-3 py-1
+                    rounded-full text-xs font-semibold flex items-center gap-1"
+                    >
+                    <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Zakat</span>
                     </button>
-                    <button className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 text-xs px-3 py-1.5 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-all">
-                      <Book className="w-3.5 h-3.5" />
+                    <button
+                      className="bg-green-100 text-green-700 px-3 py-1
+                    rounded-full text-xs font-semibold flex items-center gap-1"
+                    >
+                    <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Lillah</span>
                     </button>
+
                   </div>
 
                   <div className="mb-4">
