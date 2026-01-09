@@ -81,7 +81,9 @@ export default function LoginPage() {
       });
 
       localStorage.setItem("token", res.data.token);
-      console.log("user_id", res.data.user_id);
+
+      window.dispatchEvent(new Event("auth-changed"));
+
       router.push("/profile");
       alert("Login successful ✅");
     } catch (error) {
