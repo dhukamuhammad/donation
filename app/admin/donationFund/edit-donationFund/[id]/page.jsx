@@ -3,6 +3,13 @@ import React, { useEffect, useState } from "react";
 import { Calendar, DollarSign, Tag, FileText, Image } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useParams, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+// ✅ TinyMCE client-only (SSR OFF)
+const TinyEditor = dynamic(
+  () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
+  { ssr: false }
+);
 
 const EditDonationFundPage = () => {
   const router = useRouter();
@@ -45,8 +52,8 @@ const EditDonationFundPage = () => {
       setFormData({
         title: donation_fund.title,
         description: donation_fund.description || "",
-        thumbnail: null,
-        document_img: null,
+        thumbnail: donation_fund.thumbnail || null,
+        document_img: donation_fund.document_img || null,
         total_amount: donation_fund.total_amount,
         fun_cat: donation_fund.fun_cat,
         date: localDateString,
@@ -132,48 +139,76 @@ const EditDonationFundPage = () => {
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                   <FileText size={16} /> Description
                 </label>
-                <textarea
-                  name="description"
+
+                <TinyEditor
+                  apiKey="bh3dkf7dq6x8qqpcumphpgwad92mar5ky71n0l1z1yc0rgu2"
                   value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Enter description"
-                  className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                  onEditorChange={(content) =>
+                    setFormData((prev) => ({ ...prev, description: content }))
+                  }
+                  init={{
+                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                  }}
+
                 />
+              </div>
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* THUMBNAIL */}
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <Image size={16} /> Campaign Thumbnail
+                  </label>
+                  <input
+                    type="file"
+                    name="thumbnail"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
+      file:rounded-lg file:border-0
+      file:bg-blue-50 file:text-[#2563EB] file:font-medium
+      hover:file:bg-blue-100 transition cursor-pointer"
+                  />
+
+                  {formData.thumbnail && (
+                    <img
+                      // src={URL.createObjectURL(formData.thumbnail)}
+
+                      src={formData.thumbnail instanceof File
+                        ? URL.createObjectURL(formData.thumbnail)
+                        : `/uploads/${formData.thumbnail}`}
+                      className="mt-3 h-32 rounded-lg object-cover border"
+                    />
+                  )}
+                </div>
+
+                {/* DOCUMENT IMAGE */}
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <Image size={16} /> Supporting Document Image
+                  </label>
+                  <input
+                    type="file"
+                    name="document_img"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
+      file:rounded-lg file:border-0
+      file:bg-blue-50 file:text-[#2563EB] file:font-medium
+      hover:file:bg-blue-100 transition cursor-pointer"
+                  />
+
+                  {formData.document_img && (
+                    <img
+                      src={formData.document_img instanceof File
+                        ? URL.createObjectURL(formData.document_img)
+                        : `/uploads/${formData.document_img}`}
+                      className="mt-3 h-32 rounded-lg object-cover border"
+                    />
+                  )}
+                </div>
               </div>
 
-              {/* IMAGE */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Image size={16} /> Campaign Thumbnail
-                </label>
-                <input
-                  type="file"
-                  name="thumbnail"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
-                  file:rounded-lg file:border-0
-                  file:bg-blue-50 file:text-[#2563EB] file:font-medium
-                  hover:file:bg-blue-100 transition cursor-pointer"
-                />
-              </div>
-
-              {/* DOCUMENT IMAGE */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Image size={16} /> Supporting Document Image
-                </label>
-                <input
-                  type="file"
-                  name="document_img"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
-                  file:rounded-lg file:border-0
-                  file:bg-blue-50 file:text-[#2563EB] file:font-medium
-                  hover:file:bg-blue-100 transition cursor-pointer"
-                />
-              </div>
 
               {/* GRID */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

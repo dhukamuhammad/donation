@@ -40,6 +40,15 @@ const FundraisersDetailsPage = () => {
     }
   };
 
+
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -51,9 +60,10 @@ const FundraisersDetailsPage = () => {
 
   // popup
 
-  const raised = parseInt(fundraiser.totalRaised || "0");
-  const goal = parseInt(fundraiser.goalAmount || "1");
-  const progress = Math.min((raised / goal) * 100, 100);
+  const getProgress = (raised, goal) => {
+    if (!goal || goal === 0) return 0;
+    return Math.min(Math.round((raised / goal) * 100), 100);
+  };
 
   return (
     <div className="min-h-screen">
@@ -124,32 +134,29 @@ const FundraisersDetailsPage = () => {
                 <div className="flex">
                   <button
                     onClick={() => setActiveTab("story")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
-                      activeTab === "story"
-                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "story"
+                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                      : "text-gray-600 hover:bg-gray-50"
+                      }`}
                   >
                     Story
                   </button>
                   <button
                     onClick={() => setActiveTab("updates")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
-                      activeTab === "updates"
-                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "updates"
+                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                      : "text-gray-600 hover:bg-gray-50"
+                      }`}
                   >
                     Updates
                     {/* ({fundraiser.updates.length}) */}
                   </button>
                   <button
                     onClick={() => setActiveTab("donations")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
-                      activeTab === "donations"
-                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "donations"
+                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                      : "text-gray-600 hover:bg-gray-50"
+                      }`}
                   >
                     Donations
                     {/* ({fundraiser.supporters}) */}
@@ -256,21 +263,24 @@ const FundraisersDetailsPage = () => {
                     <div className="flex items-end justify-between mb-3">
                       <div>
                         <span className="text-3xl font-bold text-gray-900">
-                          ₹{fundraiser.total_amount}
+                          {formatAmount(fundraiser.raised_amount)}
                         </span>
                       </div>
                       <span className="text-sm font-semibold text-blue-600">
-                        {progress.toFixed(0)}%
+                        {getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%
+
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-3">
-                      raised out of ₹{fundraiser.goalAmount}
+                      raised out of {formatAmount(fundraiser.total_amount)}
                     </p>
 
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                       <div
                         className="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-500 shadow-sm"
-                        style={{ width: `${progress}%` }}
+                        style={{
+                          width: `${getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%`,
+                        }}
                       />
                     </div>
                   </div>

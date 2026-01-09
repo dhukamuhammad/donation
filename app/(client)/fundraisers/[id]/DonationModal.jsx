@@ -29,6 +29,10 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
   const predefinedAmounts = [500, 1000, 1500, 2000];
 
   const startPayment = async () => {
+
+    const userId = localStorage.getItem("userId");
+    console.log(userId)
+
     if (
       !amount ||
       !form.name ||
@@ -64,6 +68,7 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
       handler: async function (response) {
         await axiosInstance.post("payment/save-donation", {
           fundId,
+          userId,
           amount,
           name: form.name,
           email: form.email,
@@ -118,11 +123,10 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
                   setAmount(amt);
                   setShowCustom(false);
                 }}
-                className={`px-4 h-[40px] rounded-lg transition-all ${
-                  amount === amt
+                className={`px-4 h-[40px] rounded-lg transition-all ${amount === amt
                     ? "bg-blue-600 text-white"
                     : "bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
-                }`}
+                  }`}
               >
                 ₹{amt}
               </button>
@@ -133,11 +137,10 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
                 setAmount(0);
                 setShowCustom(true);
               }}
-              className={`px-4 h-[40px] rounded-lg transition-all ${
-                showCustom
+              className={`px-4 h-[40px] rounded-lg transition-all ${showCustom
                   ? "bg-blue-600 text-white"
                   : "bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
-              }`}
+                }`}
             >
               Other
             </button>
