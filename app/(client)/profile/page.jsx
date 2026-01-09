@@ -1,12 +1,12 @@
 "use client";
 import axiosInstance from "@/lib/axiosinstance";
-import { User } from "lucide-react";
+import { Camera, Pencil, Save, User, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-    const router = useRouter()
+    const router = useRouter();
 
     const [userData, setUserData] = useState({
         name: "",
@@ -14,30 +14,37 @@ export default function ProfilePage() {
         phone: "",
         profile_img: ""
     });
-    console.log(userData)
 
+    const [isEdit, setIsEdit] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [preview, setPreview] = useState("");
+
+    /* ================= Auth Guard ================= */
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
             router.push("/login");
         }
-    }, [])
+    }, [router]);
 
-
+    /* ================= Fetch User ================= */
     useEffect(() => {
         const userId = localStorage.getItem("userId");
-        fetchUserById(userId);
+        if (userId) fetchUserById(userId);
     }, []);
 
     const fetchUserById = async (userId) => {
         try {
             const res = await axiosInstance.get(`/auth/signup/${userId}`);
             setUserData(res.data);
+            setPreview("");
+            setSelectedImage(null);
         } catch (err) {
             console.error(err);
         }
     };
 
+    /* ================= Logout ================= */
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -53,14 +60,85 @@ export default function ProfilePage() {
             );
 
             localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+
+            window.dispatchEvent(new Event("auth-changed"));
+
             router.push("/login");
             alert("Logout successful ✅");
-
-            console.log(token)
         } catch (error) {
-            alert("Logout failed");
+            alert("Logout failed ❌");
         }
     };
+
+    /* ================= Input Change ================= */
+    const handleChange = (e) => {
+        setUserData({
+            ...userData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    /* ================= Image Change ================= */
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+            setPreview(URL.createObjectURL(file));
+        }
+    };
+
+    /* ================= Save Profile ================= */
+    const handleSave = async () => {
+        try {
+            const userId = localStorage.getItem("userId");
+
+            const formData = new FormData();
+            formData.append("name", userData.name);
+            formData.append("email", userData.email);
+            formData.append("phone", userData.phone);
+
+            if (selectedImage) {
+                formData.append("profile_img", selectedImage);
+            }
+
+            const res = await axiosInstance.put(`/auth/signup/${userId}`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            alert("Profile updated ✅");
+            setIsEdit(false);
+            fetchUserById(userId);
+
+            if (res.data?.profile_img) {
+                window.dispatchEvent(
+                    new CustomEvent("profile-image-updated", {
+                        detail: res.data.profile_img,
+                    })
+                );
+            }
+
+
+        } catch (err) {
+            console.error(err);
+            alert("Update failed ❌");
+        }
+    };
+
+    const handleCancel = () => {
+        setIsEdit(false);
+        setSelectedImage(null);
+        setPreview("");
+
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+            fetchUserById(userId); // reset data
+        }
+    };
+
+
     return (
         <div className="flex gap-8 max-w-[1400px] mx-auto p-8 font-['Outfit'] text-slate-700 max-md:flex-col max-md:p-4 max-md:gap-4">
 
@@ -90,9 +168,12 @@ export default function ProfilePage() {
                         <span>My Donations</span>
                     </Link>
 
-                    <div className="flex items-center gap-3 px-4 py-3 text-[15px] text-gray-600 rounded border border-transparent cursor-pointer transition-all hover:bg-blue-500/5 hover:text-blue-500">
+                    <div
+                        className="flex items-center gap-3 px-4 py-3 text-[15px] text-gray-600 rounded border border-transparent cursor-pointer transition-all hover:bg-blue-500/5 hover:text-blue-500"
+                        onClick={handleLogout}
+                    >
                         <i className="fas fa-sign-out-alt w-5 text-center text-slate-500"></i>
-                        <span onClick={handleLogout}>Logout</span>
+                        <span>Logout</span>
                     </div>
                 </div>
             </div>
@@ -116,19 +197,54 @@ export default function ProfilePage() {
                     {/* Avatar */}
                     <div className="flex flex-col items-center p-6 bg-slate-50 rounded border border-slate-200 flex-shrink-0 w-[220px] max-md:w-full">
                         <div className="relative mb-4">
-                            <div className="w-[110px] h-[110px] rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center overflow-hidden border-[3px] border-white shadow-[0_4px_10px_rgba(37,99,235,0.2)]">
-                                <User size={56} className="text-white" />
+                            <div
+                                className="w-[110px] h-[110px] rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center overflow-hidden border-[3px] border-white shadow-[0_4px_10px_rgba(37,99,235,0.2)] cursor-pointer"
+                                onClick={() =>
+                                    isEdit && document.getElementById("profileImage").click()
+                                }
+                            >
+                                {preview || userData.profile_img ? (
+                                    <img
+                                        src={preview || `/uploads/${userData.profile_img}`}
+                                        className="w-full h-full object-cover rounded-full"
+                                    />
+                                ) : (
+                                    <User size={56} className="text-white" />
+                                )}
                             </div>
+
+                            {/* Camera Icon */}
+                            {isEdit && (
+                                <div
+                                    className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow cursor-pointer"
+                                    onClick={() =>
+                                        document.getElementById("profileImage").click()
+                                    }
+                                >
+                                    <Camera size={16} className="text-blue-600" />
+                                </div>
+                            )}
+
+                            {/* Hidden File Input */}
+                            {isEdit && (
+                                <input
+                                    type="file"
+                                    id="profileImage"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleImageChange}
+                                />
+                            )}
                         </div>
 
+
                         <h3 className="text-xl font-semibold text-gray-800 text-center">
-                            User Name
+                            {userData.name || "User Name"}
                         </h3>
                     </div>
 
                     {/* Details */}
                     <div className="flex-1">
-
                         <form>
                             {/* Row 1 */}
                             <div className="flex gap-6 mb-6 max-lg:flex-col max-lg:gap-4">
@@ -136,68 +252,90 @@ export default function ProfilePage() {
                                     <label className="block mb-2 text-sm font-medium text-slate-500">
                                         Full Name
                                     </label>
-                                    <div className="relative">
-                                        <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                                        <input
-                                            type="text"
-                                            placeholder="Enter full name"
-                                            name="name"
-                                            value={userData.name}
-                                            disabled
-                                            className="w-full pl-10 pr-4 py-3 rounded border border-slate-200 text-[15px] text-slate-700 bg-slate-100 cursor-not-allowed"
-                                        />
-                                    </div>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={userData.name}
+                                        onChange={handleChange}
+                                        disabled={!isEdit}
+                                        className="w-full px-4 py-3 rounded border border-slate-200 text-[15px] bg-slate-100"
+                                    />
                                 </div>
 
                                 <div className="flex-1">
                                     <label className="block mb-2 text-sm font-medium text-slate-500">
                                         Phone Number
                                     </label>
-                                    <div className="relative">
-                                        <i className="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                                        <input
-                                            type="tel"
-                                            placeholder="Enter phone number"
-                                            name="phone"
-                                            value={userData.phone}
-                                            disabled
-                                            className="w-full pl-10 pr-4 py-3 rounded border border-slate-200 text-[15px] text-slate-700 bg-slate-100 cursor-not-allowed"
-                                        />
-                                    </div>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={userData.phone}
+                                        onChange={handleChange}
+                                        disabled={!isEdit}
+                                        className="w-full px-4 py-3 rounded border border-slate-200 text-[15px] bg-slate-100"
+                                    />
                                 </div>
                             </div>
 
                             {/* Row 2 */}
-                            <div className="flex gap-6 mb-6">
-                                <div className="flex-1">
-                                    <label className="block mb-2 text-sm font-medium text-slate-500">
-                                        Email Address
-                                    </label>
-                                    <div className="relative">
-                                        <i className="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                                        <input
-                                            type="email"
-                                            placeholder="Enter email"
-                                            name="email"
-                                            value={userData.email}
-                                            disabled
-                                            className="w-full pl-10 pr-4 py-3 rounded border border-slate-200 text-[15px] text-slate-700 bg-slate-100 cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
+                            <div className="mb-6">
+                                <label className="block mb-2 text-sm font-medium text-slate-500">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={userData.email}
+                                    onChange={handleChange}
+                                    disabled
+                                    className="w-full px-4 py-3 rounded border border-slate-200 text-[15px] bg-slate-200"
+                                />
                             </div>
                         </form>
 
                         {/* Actions */}
                         <div className="flex gap-4 mt-8 max-sm:flex-col">
-                            <button
-                                type="button"
-                                className="px-6 py-3 rounded font-semibold flex items-center gap-2 bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow hover:shadow-lg transition-all max-sm:w-full justify-center"
-                            >
-                                <i className="fas fa-edit"></i>
-                                Edit Profile
-                            </button>
+
+                            {!isEdit && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEdit(true)}
+                                    className="px-6 py-3 rounded font-semibold flex items-center gap-2 bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow hover:shadow-lg transition-all max-sm:w-full justify-center"
+                                >
+                                    <Pencil size={18} /> Edit Profile
+                                </button>
+                            )}
+
+                            {isEdit && (
+                                <>
+                                    {/* Save Button (theme-friendly green/teal) */}
+                                    <button
+                                        type="button"
+                                        onClick={handleSave}
+                                        className="px-6 py-3 rounded font-semibold flex items-center gap-2 
+                           bg-gradient-to-br from-emerald-500 to-teal-600 
+                           text-white shadow hover:shadow-lg transition-all 
+                           max-sm:w-full justify-center"
+                                    >
+                                        <Save size={18} />
+                                        Save Changes
+                                    </button>
+
+                                    {/* Cancel Button */}
+                                    <button
+                                        type="button"
+                                        onClick={handleCancel}
+                                        className="px-6 py-3 rounded font-semibold flex items-center gap-2 
+                           border border-slate-300 text-slate-600 
+                           bg-white hover:bg-slate-100 transition-all 
+                           max-sm:w-full justify-center"
+                                    >
+                                        <X size={18} /> Cancel
+                                    </button>
+                                </>
+                            )}
                         </div>
+
 
                     </div>
                 </div>
