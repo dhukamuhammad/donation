@@ -26,17 +26,17 @@ export async function POST(req) {
     );
 
     // 2️⃣ Update donation_fund total
-    const [rows] = await db.query(
-      "SELECT total_amount FROM donation_fund WHERE id = ?",
-      [data.fundId]
-    );
+    // const [rows] = await db.query(
+    //   "SELECT total_amount FROM donation_fund WHERE id = ?",
+    //   [data.fundId]
+    // );
 
-    const newTotal = Number(rows[0].total_amount || 0) + Number(data.amount);
+    // const newTotal = Number(rows[0].total_amount || 0) + Number(data.amount);
 
-    await db.query("UPDATE donation_fund SET total_amount = ? WHERE id = ?", [
-      newTotal,
-      data.fundId,
-    ]);
+    // await db.query("UPDATE donation_fund SET total_amount = ? WHERE id = ?", [
+    //   newTotal,
+    //   data.fundId,
+    // ]);
 
     // 3️⃣ Insert / Update Users Table
     const [existingUser] = await db.query(
@@ -52,11 +52,11 @@ export async function POST(req) {
       );
     } else {
       // Existing user → update info
-      await db.query("UPDATE users SET name = ?, phone = ? WHERE email = ?", [
-        data.name,
-        data.phone,
-        data.email,
-      ]);
+      // await db.query("UPDATE users SET name = ?, phone = ? WHERE email = ?", [
+      //   data.name,
+      //   data.phone,
+      //   data.email,
+      // ]);
     }
 
     return NextResponse.json({ success: true });
