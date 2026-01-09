@@ -74,7 +74,7 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
           razorpay_signature: response.razorpay_signature,
         });
 
-        alert("Donation Successful ❤️");
+        alert("Donation Successful");
         onClose();
       },
 
