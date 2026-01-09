@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Heart, Search, Clock, Users, Target, TrendingUp } from "lucide-react";
+import { Heart, Search, Clock, Users, Target, TrendingUp, CheckCircle } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import Link from "next/link";
 
@@ -53,6 +53,7 @@ const Fundraisers = () => {
       console.error(error);
     }
   };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -61,6 +62,21 @@ const Fundraisers = () => {
       year: "numeric",
     });
   };
+
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getProgress = (raised, goal) => {
+    if (!goal || goal === 0) return 0;
+    return Math.min(Math.round((raised / goal) * 100), 100);
+  };
+
+
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto flex gap-6 px-6 py-8">
@@ -78,11 +94,10 @@ const Fundraisers = () => {
               <div className="p-4 space-y-1">
                 <button
                   onClick={() => setSelectedCategory("All")}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                    selectedCategory === "All"
-                      ? "bg-blue-50 text-blue-600 scale-105"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === "All"
+                    ? "bg-blue-50 text-blue-600 scale-105"
+                    : "text-gray-700 hover:bg-gray-50"
+                    }`}
                 >
                   <span className="flex items-center gap-3">
                     <span className="font-semibold">All Causes</span>
@@ -93,11 +108,10 @@ const Fundraisers = () => {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                      selectedCategory === category.id
-                        ? "bg-blue-50 text-blue-600 scale-105"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === category.id
+                      ? "bg-blue-50 text-blue-600 scale-105"
+                      : "text-gray-700 hover:bg-gray-50"
+                      }`}
                   >
                     <span className="">{category.title}</span>
                   </button>
@@ -153,40 +167,63 @@ const Fundraisers = () => {
                     Started — {formatDate(fund.date)}
                   </p>
 
+                  {/* Badges */}
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      jakat
+                    </span>
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Sadkah
+                    </span>
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Lillah
+                    </span>
+                  </div>
+
                   {/* Progress Section */}
                   <div className="mb-5">
                     <div className="flex items-end justify-between mb-2">
                       <div>
                         <span className="text-lg font-bold text-gray-900">
-                          ₹{fund.total_amount}
+                          {formatAmount(fund.raised_amount)}
                         </span>
-                        <span className="text-sm text-gray-500 ml-1">
-                          raised
+                        <span className=" text-sm text-gray-500 ml-1">
+                          raised out of
+                        </span>
+                        <span className=" text-sm text-gray-500 ml-1 pl-1">
+                          {formatAmount(fund.total_amount)}
                         </span>
                       </div>
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-teal-400 to-emerald-500 h-2 rounded-full transition-all duration-500"
-                        style={{ width: "40%" }}
-                      />
+                        className="bg-gradient-to-r from-teal-400 to-emerald-500 h-3 rounded-full transition-all duration-500 
+               flex items-center justify-end "
+                        style={{
+                          width: `${getProgress(fund.raised_amount, fund.total_amount)}%`,
+                        }}
+                      >
+                        <span className="text-[10px] font-semibold text-white">
+                          {getProgress(fund.raised_amount, fund.total_amount)}%
+                        </span>
+                      </div>
                     </div>
+
                   </div>
 
                   {/* Supporters */}
-                  <div className="flex items-center gap-2 text-sm mb-5 pb-5 border-b border-gray-100">
+                  <div className="flex items-center gap-2 text-sm pb-5">
                     <Users className="w-4 h-4 text-blue-600" />
-                    <span className="font-bold text-gray-900">0</span>
+                    <span className="font-bold text-gray-900">{fund.supporters}</span>
                     <span className="text-gray-500">Supporters</span>
                   </div>
 
-                  {/* Action Button */}
-                  {/* <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group">
-                    <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    Donate Now
-                  </button> */}
                   <Link href={`/fundraisers/${fund.id}`}>
                     <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition">
                       Donate Now

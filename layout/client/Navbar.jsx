@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
+import Image from "next/image";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -100,7 +101,7 @@ const Navbar = () => {
           {/* ================= Logo ================= */}
           <div className="flex items-center gap-2 cursor-pointer">
             <span className="text-2xl font-bold bg-gradient-to-r from-[#2563EB] to-blue-600 bg-clip-text text-transparent">
-              Donation
+              <Image src="/image.png" alt="Logo" width={200} height={0} />
             </span>
           </div>
 

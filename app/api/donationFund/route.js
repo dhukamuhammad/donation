@@ -3,14 +3,34 @@ import db from "@/lib/db";
 import { uploadImage } from "@/lib/uploadImage";
 
 // GET Category
+// export async function GET() {
+//   try {
+//     const [rows] = await db.query("SELECT * FROM donation_fund");
+//     return NextResponse.json(rows);
+//   } catch (error) {
+//     return NextResponse.json({ error: error.message }, { status: 500 });
+//   }
+// }
+
+
 export async function GET() {
   try {
-    const [rows] = await db.query("SELECT * FROM donation_fund");
+    const [rows] = await db.query(`
+      SELECT 
+        df.*,
+        IFNULL(SUM(di.amount), 0) AS raised_amount,
+        COUNT(di.id) AS supporters
+      FROM donation_fund df
+      LEFT JOIN donation_info di ON di.fund_id = df.id
+      GROUP BY df.id
+    `);
+
     return NextResponse.json(rows);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 
 export async function POST(req) {
   try {

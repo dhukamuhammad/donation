@@ -3,7 +3,13 @@ import React, { useEffect, useState } from "react";
 import { Calendar, DollarSign, Tag, FileText, Image } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
-import { Editor } from "@tinymce/tinymce-react";
+import dynamic from "next/dynamic";
+
+// ✅ TinyMCE client-only (SSR OFF)
+const TinyEditor = dynamic(
+  () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
+  { ssr: false }
+);
 
 const AddDonationFundPage = () => {
   const router = useRouter();
@@ -105,24 +111,17 @@ const AddDonationFundPage = () => {
                   <FileText size={16} /> Description
                 </label>
 
-                <Editor
-                  apiKey="qssuaevgjqlacjwjc7pnyanuozwdjybgowic9j29k21cw45c"
+                <TinyEditor
+                  apiKey="bh3dkf7dq6x8qqpcumphpgwad92mar5ky71n0l1z1yc0rgu2"
                   value={formData.description}
                   onEditorChange={(content) =>
                     setFormData((prev) => ({ ...prev, description: content }))
                   }
                   init={{
-                    height: 220,
-                    menubar: false,
-                    plugins: [
-                      "advlist autolink lists link image charmap preview anchor",
-                      "searchreplace visualblocks code fullscreen",
-                      "insertdatetime media table help wordcount",
-                    ],
-                    toolbar:
-                      "undo redo | formatselect | bold italic underline | " +
-                      "alignleft aligncenter alignright | bullist numlist | removeformat",
+                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
                   }}
+
                 />
               </div>
 
