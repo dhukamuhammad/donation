@@ -9,13 +9,12 @@ import {
   Users,
   CheckCircle,
   ArrowLeft,
-  X,
-  Clock,
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import DonationModal from "./DonationModal";
 
 const FundraisersDetailsPage = () => {
   const params = useParams();
@@ -24,22 +23,9 @@ const FundraisersDetailsPage = () => {
 
   const [activeTab, setActiveTab] = useState("story");
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedAmount, setSelectedAmount] = useState(500);
-  const [customAmount, setCustomAmount] = useState("");
-  const [showCustomInput, setShowCustomInput] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    pan: "",
-    donationType: "",
-  });
 
   const [fundraiser, setFundraiser] = useState([]);
   console.log(fundraiser);
-
-  const predefinedAmounts = [500, 1000, 1500, 2000];
 
   useEffect(() => {
     if (id) fetchDonationFundById();
@@ -68,51 +54,6 @@ const FundraisersDetailsPage = () => {
   const raised = parseInt(fundraiser.totalRaised || "0");
   const goal = parseInt(fundraiser.goalAmount || "1");
   const progress = Math.min((raised / goal) * 100, 100);
-
-  const handleAmountClick = (amount) => {
-    setSelectedAmount(amount);
-    setShowCustomInput(false);
-    setCustomAmount("");
-  };
-
-  const handleOtherClick = () => {
-    setShowCustomInput(true);
-    setSelectedAmount(0);
-  };
-
-  const handleCustomAmountChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setCustomAmount(value);
-    setSelectedAmount(value ? parseInt(value) : 0);
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = () => {
-    if (
-      selectedAmount > 0 &&
-      formData.name &&
-      formData.phone &&
-      formData.email
-    ) {
-      alert(`Donation of ₹${selectedAmount} submitted successfully!`);
-      setIsOpen(false);
-      setSelectedAmount(500);
-      setCustomAmount("");
-      setShowCustomInput(false);
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        pan: "",
-        donationType: "",
-      });
-    } else {
-      alert("Please fill all required fields");
-    }
-  };
 
   return (
     <div className="min-h-screen">
@@ -391,130 +332,11 @@ const FundraisersDetailsPage = () => {
       </div>
 
       {/* Donation Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="bg-blue-100 p-4 rounded-t-lg flex justify-between items-center sticky top-0 z-11">
-              <h2 className="text-xl font-bold text-blue-600">
-                Choose a donation amount
-              </h2>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-gray-500 hover:text-red-500 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Form Content */}
-            <div className="p-6 space-y-4">
-              {/* Amount Selection */}
-              <div className="flex flex-wrap gap-3">
-                {predefinedAmounts.map((amount) => (
-                  <button
-                    key={amount}
-                    onClick={() => handleAmountClick(amount)}
-                    className={`px-4 h-[40px] rounded-lg transition-all ${
-                      selectedAmount === amount && !showCustomInput
-                        ? "bg-blue-600 text-white shadow-lg scale-105"
-                        : "bg-white border-2 border-blue-500 text-blue-600 hover:border-blue-600 hover:bg-blue-50"
-                    }`}
-                  >
-                    ₹{amount}
-                  </button>
-                ))}
-                <button
-                  onClick={handleOtherClick}
-                  className={`px-4 h-[40px] rounded-lg transition-all ${
-                    showCustomInput
-                      ? "bg-blue-600 text-white shadow-lg scale-105"
-                      : "bg-white border-2 border-blue-500 text-blue-600 hover:border-blue-600 hover:bg-blue-50"
-                  }`}
-                >
-                  Other
-                </button>
-              </div>
-
-              {/* Custom Amount Input */}
-              {showCustomInput && (
-                <div className="animate-fadeIn">
-                  <input
-                    type="text"
-                    value={customAmount}
-                    onChange={handleCustomAmountChange}
-                    placeholder="Enter custom amount"
-                    className="w-full px-4 py-2 border-1 border-blue-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-lg"
-                  />
-                </div>
-              )}
-
-              {/* Name Input */}
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Your Name*"
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
-              />
-
-              {/* Phone Input */}
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Your Phone Number*"
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
-              />
-
-              {/* Email Input */}
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Your Email id*"
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
-              />
-
-              {/* Donation Type */}
-              <select
-                name="donationType"
-                value={formData.donationType}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 text-gray-700"
-              >
-                <option value="">Select Donation Type*</option>
-                <option value="education">Education</option>
-                <option value="healthcare">Healthcare</option>
-                <option value="food">Food & Nutrition</option>
-                <option value="environment">Environment</option>
-                <option value="general">General</option>
-              </select>
-
-              {/* Total Amount Display */}
-              <div>
-                <p className="text-[18px] font-bold text-gray-800">
-                  Total Amount :{" "}
-                  <span className="text-blue-600 text-[18px]">
-                    ₹{selectedAmount}
-                  </span>
-                </p>
-              </div>
-
-              {/* Donate Button */}
-              <button
-                onClick={handleSubmit}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-300"
-              >
-                Donate Now
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DonationModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        fundId={id}
+      />
     </div>
   );
 };
