@@ -8,6 +8,7 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react";
+import Link from "next/link";
 
 const Category = () => {
   const categories = [
@@ -81,24 +82,23 @@ const Category = () => {
                       className="bg-green-100 text-green-700 px-3 py-1
                     rounded-full text-xs font-semibold flex items-center gap-1"
                     >
-                    <CheckCircle className="w-3 h-3" />
+                      <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Sadaqah</span>
                     </button>
                     <button
                       className="bg-green-100 text-green-700 px-3 py-1
                     rounded-full text-xs font-semibold flex items-center gap-1"
                     >
-                    <CheckCircle className="w-3 h-3" />
+                      <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Zakat</span>
                     </button>
                     <button
                       className="bg-green-100 text-green-700 px-3 py-1
                     rounded-full text-xs font-semibold flex items-center gap-1"
                     >
-                    <CheckCircle className="w-3 h-3" />
+                      <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Lillah</span>
                     </button>
-
                   </div>
 
                   <div className="mb-4">
@@ -148,13 +148,15 @@ const Category = () => {
         </div>
 
         <div className="flex justify-center mt-8">
-          <button className="group flex items-center gap-2 text-blue-600 font-semibold py-2.5 px-6 rounded-lg hover:text-blue-700 transition">
-            View All
-            <ArrowRight
-              size={18}
-              className="transition-transform duration-300 group-hover:translate-x-3"
-            />
-          </button>
+          <Link href="/fundraisers">
+            <button className="group flex items-center gap-2 text-blue-600 font-semibold py-2.5 px-6 rounded-lg hover:text-blue-700 transition">
+              View All
+              <ArrowRight
+                size={18}
+                className="transition-transform duration-300 group-hover:translate-x-3"
+              />
+            </button>
+          </Link>
         </div>
       </div>
     </div>
