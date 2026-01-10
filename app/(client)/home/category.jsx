@@ -99,7 +99,6 @@ const Category = () => {
                       <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Lillah</span>
                     </button>
-
                   </div>
 
                   <div className="mb-4">
