@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
     //   id,
     // ]);
 
-        const [rows] = await db.query(`
+    const [rows] = await db.query(`
       SELECT 
         df.*,
         IFNULL(SUM(di.amount), 0) AS raised_amount,
@@ -117,3 +117,6 @@ export async function DELETE(req, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+
+// GET with ID

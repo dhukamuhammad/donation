@@ -59,7 +59,7 @@ export async function POST(req) {
       // ]);
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true ,fundId: data.fundId});
   } catch (err) {
     console.error("Save donation error:", err);
     return NextResponse.json({ error: "DB insert failed" }, { status: 500 });

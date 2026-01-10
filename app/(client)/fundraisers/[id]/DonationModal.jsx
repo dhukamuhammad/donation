@@ -66,7 +66,7 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
       // Razorpay handler
 
       handler: async function (response) {
-        await axiosInstance.post("payment/save-donation", {
+        const res = await axiosInstance.post("payment/save-donation", {
           fundId,
           userId,
           amount,
@@ -79,6 +79,9 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
           razorpay_signature: response.razorpay_signature,
         });
 
+        const data = res.data.fundId;
+        console.log(data);
+        localStorage.setItem("donatedFundId", data);
         alert("Donation Successful");
         onClose();
       },
@@ -124,8 +127,8 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
                   setShowCustom(false);
                 }}
                 className={`px-4 h-[40px] rounded-lg transition-all ${amount === amt
-                    ? "bg-blue-600 text-white"
-                    : "bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
                   }`}
               >
                 ₹{amt}
@@ -138,8 +141,8 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
                 setShowCustom(true);
               }}
               className={`px-4 h-[40px] rounded-lg transition-all ${showCustom
-                  ? "bg-blue-600 text-white"
-                  : "bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+                ? "bg-blue-600 text-white"
+                : "bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
                 }`}
             >
               Other
