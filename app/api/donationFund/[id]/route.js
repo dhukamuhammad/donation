@@ -119,4 +119,3 @@ export async function DELETE(req, { params }) {
 }
 
 
-// GET with ID
