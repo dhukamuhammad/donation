@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Heart, Search, Clock, Users, Target, TrendingUp, CheckCircle } from "lucide-react";
+import {
+  Heart,
+  Search,
+  Clock,
+  Users,
+  Target,
+  TrendingUp,
+  CheckCircle,
+} from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import Link from "next/link";
 
@@ -76,7 +84,6 @@ const Fundraisers = () => {
     return Math.min(Math.round((raised / goal) * 100), 100);
   };
 
-
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto flex gap-6 px-6 py-8">
@@ -94,10 +101,11 @@ const Fundraisers = () => {
               <div className="p-4 space-y-1">
                 <button
                   onClick={() => setSelectedCategory("All")}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === "All"
-                    ? "bg-blue-50 text-blue-600 scale-105"
-                    : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
+                    selectedCategory === "All"
+                      ? "bg-blue-50 text-blue-600 scale-105"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
                 >
                   <span className="flex items-center gap-3">
                     <span className="font-semibold">All Causes</span>
@@ -108,10 +116,11 @@ const Fundraisers = () => {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === category.id
-                      ? "bg-blue-50 text-blue-600 scale-105"
-                      : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
+                      selectedCategory === category.id
+                        ? "bg-blue-50 text-blue-600 scale-105"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
                   >
                     <span className="">{category.title}</span>
                   </button>
@@ -146,7 +155,7 @@ const Fundraisers = () => {
                 {/* Image Container */}
                 <div className="relative overflow-hidden">
                   <img
-                    src={fund.thumbnail}
+                    src={`/uploads/${fund.thumbnail}`}
                     alt={fund.title}
                     className="w-full h-52 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
@@ -206,7 +215,10 @@ const Fundraisers = () => {
                         className="bg-gradient-to-r from-teal-400 to-emerald-500 h-3 rounded-full transition-all duration-500 
                flex items-center justify-end "
                         style={{
-                          width: `${getProgress(fund.raised_amount, fund.total_amount)}%`,
+                          width: `${getProgress(
+                            fund.raised_amount,
+                            fund.total_amount
+                          )}%`,
                         }}
                       >
                         <span className="text-[10px] font-semibold text-white">
@@ -214,13 +226,14 @@ const Fundraisers = () => {
                         </span>
                       </div>
                     </div>
-
                   </div>
 
                   {/* Supporters */}
                   <div className="flex items-center gap-2 text-sm pb-5">
                     <Users className="w-4 h-4 text-blue-600" />
-                    <span className="font-bold text-gray-900">{fund.supporters}</span>
+                    <span className="font-bold text-gray-900">
+                      {fund.supporters}
+                    </span>
                     <span className="text-gray-500">Supporters</span>
                   </div>
 

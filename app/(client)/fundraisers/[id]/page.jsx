@@ -9,6 +9,8 @@ import {
   Users,
   CheckCircle,
   ArrowLeft,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import axiosInstance from "@/lib/axiosinstance";
@@ -20,15 +22,20 @@ const FundraisersDetailsPage = () => {
   const params = useParams();
   const router = useRouter();
   const { id } = params;
+  const [expanded, setExpanded] = useState(false);
+  const [showDoc, setShowDoc] = useState(false);
 
-  const [activeTab, setActiveTab] = useState("story");
+  const [activeTab, setActiveTab] = useState("description");
   const [isOpen, setIsOpen] = useState(false);
 
-  const [fundraiser, setFundraiser] = useState([]);
+  const [fundraiser, setFundraiser] = useState({});
+  const [supporters, setSupporters] = useState([]);
+
   console.log(fundraiser);
 
   useEffect(() => {
     if (id) fetchDonationFundById();
+    fetchSupportersById();
   }, [id]);
 
   const fetchDonationFundById = async () => {
@@ -40,6 +47,14 @@ const FundraisersDetailsPage = () => {
     }
   };
 
+  const fetchSupportersById = async () => {
+    try {
+      const res = await axiosInstance.get(`/donationFund/by-fund/${id}`);
+      setSupporters(res.data);
+    } catch (err) {
+      console.error("API Error:", err);
+    }
+  };
 
   const formatAmount = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -65,6 +80,11 @@ const FundraisersDetailsPage = () => {
     return Math.min(Math.round((raised / goal) * 100), 100);
   };
 
+  const isLongDescription = (html) => {
+    if (!html) return false;
+    const text = html.replace(/<[^>]*>/g, ""); // remove HTML tags
+    return text.split("\n").length > 10 || text.length > 500;
+  };
   return (
     <div className="min-h-screen">
       {/* Back Button */}
@@ -133,116 +153,149 @@ const FundraisersDetailsPage = () => {
               <div className="border-b border-gray-200">
                 <div className="flex">
                   <button
-                    onClick={() => setActiveTab("story")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "story"
-                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                      : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                    onClick={() => setActiveTab("description")}
+                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
+                      activeTab === "description"
+                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
                   >
-                    Story
+                    Description
                   </button>
                   <button
-                    onClick={() => setActiveTab("updates")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "updates"
-                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                      : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                    onClick={() => setActiveTab("documents")}
+                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
+                      activeTab === "documents"
+                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
                   >
-                    Updates
-                    {/* ({fundraiser.updates.length}) */}
+                    Documents
                   </button>
                   <button
-                    onClick={() => setActiveTab("donations")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "donations"
-                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                      : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                    onClick={() => setActiveTab("supporters")}
+                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${
+                      activeTab === "supporters"
+                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
                   >
-                    Donations
-                    {/* ({fundraiser.supporters}) */}
+                    Supporters
                   </button>
                 </div>
               </div>
 
               <div className="p-6">
-                {/* Story Tab */}
-                {activeTab === "story" && (
-                  <div className="prose max-w-none">
-                    <div
-                      className="text-gray-700 leading-relaxed"
-                      dangerouslySetInnerHTML={{
-                        __html: fundraiser.description,
-                      }}
-                    />
+                {/* description Tab */}
+                {activeTab === "description" && (
+                  <div className="prose max-w-none relative">
+                    {fundraiser.description ? (
+                      <>
+                        <div
+                          className={`text-gray-700 leading-relaxed overflow-hidden transition-all duration-500 ${
+                            expanded &&
+                            isLongDescription(fundraiser.description)
+                              ? "max-h-[2000px]"
+                              : "max-h-[220px]"
+                          }`}
+                          dangerouslySetInnerHTML={{
+                            __html: fundraiser.description,
+                          }}
+                        />
+
+                        {/* Fade effect */}
+                        {!expanded &&
+                          isLongDescription(fundraiser.description) && (
+                            <div className="absolute bottom-12 left-0 w-full h-20 bg-gradient-to-t from-white to-transparent"></div>
+                          )}
+
+                        {/* Read More Button */}
+                        {isLongDescription(fundraiser.description) && (
+                          <div className="flex justify-center mt-6">
+                            <button
+                              onClick={() => setExpanded(!expanded)}
+                              className="flex items-center gap-2 text-blue-500 hover:underline underline-offset-4 transition"
+                            >
+                              {expanded ? (
+                                <>
+                                  Read Less <ChevronUp size={16} />
+                                </>
+                              ) : (
+                                <>
+                                  Read More <ChevronDown size={16} />
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-center text-gray-500 py-8">
+                        No description available.
+                      </p>
+                    )}
                   </div>
                 )}
 
-                {/* Updates Tab */}
-                {/* {activeTab === "updates" && (
-                  <div className="space-y-4">
-                    {fundraiser.updates.length > 0 ? (
-                      fundraiser.updates.map((update) => (
-                        <div
-                          key={update.id}
-                          className="border-l-4 border-blue-600 pl-4 py-2"
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm font-semibold text-gray-900">
-                              {update.title}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              • {update.date}
-                            </span>
-                          </div>
-                          <p className="text-gray-700">{update.description}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-center text-gray-500 py-8">
-                        No updates yet
-                      </p>
-                    )}
-                  </div>
-              )}
+                {/* Documents Tab */}
+                {activeTab === "documents" && (
+                  <>
+                    <div
+                      className="relative w-[17%] h-[180px] cursor-pointer"
+                      onClick={() => setShowDoc(true)}
+                    >
+                      <Image
+                        src={`/uploads/${fundraiser.document_img}`}
+                        alt={fundraiser.title}
+                        fill
+                        className="rounded-lg object-cover border border-gray-200 shadow-sm hover:scale-105 transition"
+                        priority
+                      />
+                    </div>
 
-                {/* Donations Tab */}
-                {/* {activeTab === "donations" && (
-                  <div className="space-y-3">
-                    {fundraiser.recentDonations.length > 0 ? (
-                      fundraiser.recentDonations.map((donation) => (
-                        <div
-                          key={donation.id}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                              {donation.name.charAt(0)}
-                            </div>
-                            <div>
-                              <p className="font-semibold text-gray-900">
-                                {donation.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {donation.time}
-                              </p>
-                            </div>
-                          </div>
-                          <span className="text-lg font-bold text-green-600">
-                            ₹{donation.amount}
-                          </span>
+                    {/* Popup Preview */}
+                    {showDoc && (
+                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                        <div className="relative bg-white rounded-xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl">
+                          <button
+                            onClick={() => setShowDoc(false)}
+                            className="absolute -top-3 -right-3 bg-white text-red-500 rounded-full px-2 py-1 shadow hover:scale-110 transition"
+                          >
+                            ✕
+                          </button>
+
+                          <img
+                            src={`/uploads/${fundraiser.document_img}`}
+                            className="max-w-full max-h-[80vh] rounded-lg"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* supporters Tab */}
+                {activeTab === "supporters" && (
+                  <div className="prose max-w-none relative space-y-4 h-[220px] overflow-y-auto">
+                    {supporters.length > 0 ? (
+                      supporters.map((supporter, i) => (
+                        <div key={i} className="p-3 bg-gray-50 rounded-lg">
+                          <p className="font-semibold text-gray-900">
+                            {supporter.name}
+                          </p>
+                          <p className="text-green-600">₹{supporter.amount}</p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-center text-gray-500 py-8">
-                        No donations yet
+                      <p className="text-center text-gray-500">
+                        No supporters yet
                       </p>
                     )}
                   </div>
-                )} */}
+                )}
               </div>
             </div>
           </div>
-
           {/* Donation Card - Right Side */}
           <div className="lg:col-span-1">
             <div className="sticky top-6 space-y-4">
@@ -267,8 +320,11 @@ const FundraisersDetailsPage = () => {
                         </span>
                       </div>
                       <span className="text-sm font-semibold text-blue-600">
-                        {getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%
-
+                        {getProgress(
+                          fundraiser.raised_amount,
+                          fundraiser.total_amount
+                        )}
+                        %
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-3">
@@ -279,7 +335,10 @@ const FundraisersDetailsPage = () => {
                       <div
                         className="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-500 shadow-sm"
                         style={{
-                          width: `${getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%`,
+                          width: `${getProgress(
+                            fundraiser.raised_amount,
+                            fundraiser.total_amount
+                          )}%`,
                         }}
                       />
                     </div>

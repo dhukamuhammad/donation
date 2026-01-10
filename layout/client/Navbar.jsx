@@ -101,12 +101,12 @@ const Navbar = () => {
           {/* ================= Logo ================= */}
           <div className="flex items-center gap-2 cursor-pointer">
             <span className="text-2xl font-bold bg-gradient-to-r from-[#2563EB] to-blue-600 bg-clip-text text-transparent">
-              <Image src="/image.png" alt="Logo" width={200} height={0} />
+              <Image src="/image.png" alt="Logo" width={170} height={0} />
             </span>
           </div>
 
           {/* ================= Desktop Links ================= */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8 ml-[-7rem]">
             <Link href="/" className="text-gray-700 hover:text-[#2563EB] font-medium transition">
               Home
             </Link>
