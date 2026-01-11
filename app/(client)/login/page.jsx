@@ -5,6 +5,8 @@ import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
 
+import { showSuccess, showError } from "@/components/Toaster";
+
 export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = useState(1); // 1 = send OTP, 2 = verify OTP
@@ -32,17 +34,15 @@ export default function LoginPage() {
   //       phone: formData.phone,
   //     });
 
-
   //     console.log("userId", res.data.userId);
 
   //     // OTP verify ke liye save
   //     localStorage.setItem("otpUserId", res.data.userId);
 
-
-  //     alert("OTP sent to your email 📧");
+  //     showSuccess("OTP sent to your email 📧");
   //     setStep(2);
   //   } catch (error) {
-  //     alert(error.response?.data?.error || "Failed to send OTP");
+  //     showError(error.response?.data?.error || "Failed to send OTP");
   //   }
   // };
 
@@ -61,13 +61,12 @@ export default function LoginPage() {
       // OTP verify ke liye save
       localStorage.setItem("userId", userId);
 
-      alert("OTP sent to your email 📧");
+      showSuccess("OTP sent to your email 📧");
       setStep(2);
     } catch (error) {
-      alert(error.response?.data?.error || "Failed to send OTP");
+      showError(error.response?.data?.error || "Failed to send OTP");
     }
   };
-
 
   // STEP 2: Verify OTP
   const handleVerifyOtp = async (e) => {
@@ -85,9 +84,9 @@ export default function LoginPage() {
       window.dispatchEvent(new Event("auth-changed"));
 
       router.push("/profile");
-      alert("Login successful ✅");
+      showSuccess("Login successful ✅");
     } catch (error) {
-      alert(error.response?.data?.error || "Invalid OTP");
+      showError(error.response?.data?.error || "Invalid OTP");
     }
   };
 

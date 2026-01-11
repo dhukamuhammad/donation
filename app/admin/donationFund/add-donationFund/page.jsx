@@ -4,6 +4,7 @@ import { Calendar, DollarSign, Tag, FileText, Image } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { showSuccess, showError } from "@/components/Toaster";
 
 // ✅ TinyMCE client-only (SSR OFF)
 const TinyEditor = dynamic(
@@ -70,9 +71,10 @@ const AddDonationFundPage = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-
+      showSuccess("Donation fund created successfully");
       router.push("/admin/donationFund");
     } catch (err) {
+      showError("Failed to create donation fund");
       console.error("Submit error:", err);
     }
   };
@@ -118,10 +120,11 @@ const AddDonationFundPage = () => {
                     setFormData((prev) => ({ ...prev, description: content }))
                   }
                   init={{
-                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                    plugins:
+                      "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
+                    toolbar:
+                      "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
                   }}
-
                 />
               </div>
 
