@@ -13,7 +13,7 @@ const loadRazorpay = () => {
   });
 };
 
-const DonationModal = ({ isOpen, onClose, fundId }) => {
+const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
   const [amount, setAmount] = useState(0);
   const [showCustom, setShowCustom] = useState(false);
 
@@ -83,6 +83,7 @@ const DonationModal = ({ isOpen, onClose, fundId }) => {
         console.log(data);
         localStorage.setItem("donatedFundId", data);
         alert("Donation Successful");
+        onsuccess();
         onClose();
       },
 

@@ -84,6 +84,20 @@ const Fundraisers = () => {
     return Math.min(Math.round((raised / goal) * 100), 100);
   };
 
+  const isFundCompleted = (raised, goal) => {
+    console.log(raised, goal)
+    if (!goal || goal === 0) return false;
+    return raised >= goal;
+  };
+
+  const truncateText = (text, maxLength = 50) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? text.slice(0, maxLength) + "..."
+      : text;
+  };
+
+
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto flex gap-6 px-6 py-8">
@@ -101,11 +115,10 @@ const Fundraisers = () => {
               <div className="p-4 space-y-1">
                 <button
                   onClick={() => setSelectedCategory("All")}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                    selectedCategory === "All"
-                      ? "bg-blue-50 text-blue-600 scale-105"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === "All"
+                    ? "bg-blue-50 text-blue-600 scale-105"
+                    : "text-gray-700 hover:bg-gray-50"
+                    }`}
                 >
                   <span className="flex items-center gap-3">
                     <span className="font-semibold">All Causes</span>
@@ -116,11 +129,10 @@ const Fundraisers = () => {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                      selectedCategory === category.id
-                        ? "bg-blue-50 text-blue-600 scale-105"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === category.id
+                      ? "bg-blue-50 text-blue-600 scale-105"
+                      : "text-gray-700 hover:bg-gray-50"
+                      }`}
                   >
                     <span className="">{category.title}</span>
                   </button>
@@ -154,6 +166,7 @@ const Fundraisers = () => {
               >
                 {/* Image Container */}
                 <div className="relative overflow-hidden">
+
                   <img
                     src={`/uploads/${fund.thumbnail}`}
                     alt={fund.title}
@@ -167,7 +180,7 @@ const Fundraisers = () => {
                 <div className="p-6">
                   {/* Title */}
                   <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {fund.title}
+                    {truncateText(fund.title, 25)}
                   </h3>
 
                   {/* Date */}
@@ -201,7 +214,7 @@ const Fundraisers = () => {
                           {formatAmount(fund.raised_amount)}
                         </span>
                         <span className=" text-sm text-gray-500 ml-1">
-                          raised out of
+                          raised out of 
                         </span>
                         <span className=" text-sm text-gray-500 ml-1 pl-1">
                           {formatAmount(fund.total_amount)}
@@ -237,11 +250,22 @@ const Fundraisers = () => {
                     <span className="text-gray-500">Supporters</span>
                   </div>
 
-                  <Link href={`/fundraisers/${fund.id}`}>
-                    <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition">
-                      Donate Now
-                    </button>
-                  </Link>
+                  {isFundCompleted(fund.raised_amount, fund.total_amount) ? (
+                    <Link href={`/fundraisers/${fund.id}`}>
+                      <button
+                        // disabled
+                        className="w-full bg-green-600 text-white font-semibold py-2.5 px-4 rounded-lg cursor-not-allowed opacity-80"
+                      >
+                        Successfully Funded
+                      </button>
+                    </Link>
+                  ) : (
+                    <Link href={`/fundraisers/${fund.id}`}>
+                      <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition">
+                        Donate Now
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}
