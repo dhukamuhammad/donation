@@ -85,18 +85,15 @@ const Fundraisers = () => {
   };
 
   const isFundCompleted = (raised, goal) => {
-    console.log(raised, goal)
+    console.log(raised, goal);
     if (!goal || goal === 0) return false;
     return raised >= goal;
   };
 
   const truncateText = (text, maxLength = 50) => {
     if (!text) return "";
-    return text.length > maxLength
-      ? text.slice(0, maxLength) + "..."
-      : text;
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
-
 
   return (
     <div className="min-h-screen">
@@ -115,10 +112,11 @@ const Fundraisers = () => {
               <div className="p-4 space-y-1">
                 <button
                   onClick={() => setSelectedCategory("All")}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === "All"
-                    ? "bg-blue-50 text-blue-600 scale-105"
-                    : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
+                    selectedCategory === "All"
+                      ? "bg-blue-50 text-blue-600 scale-105"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
                 >
                   <span className="flex items-center gap-3">
                     <span className="font-semibold">All Causes</span>
@@ -129,10 +127,11 @@ const Fundraisers = () => {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${selectedCategory === category.id
-                      ? "bg-blue-50 text-blue-600 scale-105"
-                      : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
+                      selectedCategory === category.id
+                        ? "bg-blue-50 text-blue-600 scale-105"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
                   >
                     <span className="">{category.title}</span>
                   </button>
@@ -166,7 +165,6 @@ const Fundraisers = () => {
               >
                 {/* Image Container */}
                 <div className="relative overflow-hidden">
-
                   <img
                     src={`/uploads/${fund.thumbnail}`}
                     alt={fund.title}
@@ -214,7 +212,7 @@ const Fundraisers = () => {
                           {formatAmount(fund.raised_amount)}
                         </span>
                         <span className=" text-sm text-gray-500 ml-1">
-                          raised out of 
+                          raised out of
                         </span>
                         <span className=" text-sm text-gray-500 ml-1 pl-1">
                           {formatAmount(fund.total_amount)}

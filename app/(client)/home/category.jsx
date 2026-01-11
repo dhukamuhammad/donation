@@ -7,6 +7,7 @@ import {
   TrendingUp,
   ArrowRight,
   CheckCircle,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -62,7 +63,7 @@ const Category = () => {
             return (
               <div
                 key={category.id}
-                className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                className="group bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
               >
                 <div className="relative overflow-hidden">
                   <img
@@ -72,28 +73,28 @@ const Category = () => {
                   />
                 </div>
 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                <div className="p-3">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                     {category.title}
                   </h3>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-2">
                     <button
-                      className="bg-green-100 text-green-700 px-3 py-1
+                      className="bg-green-100 px-3
                     rounded-full text-xs font-semibold flex items-center gap-1"
                     >
                       <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Sadaqah</span>
                     </button>
                     <button
-                      className="bg-green-100 text-green-700 px-3 py-1
+                      className="bg-green-100  px-3 py-1
                     rounded-full text-xs font-semibold flex items-center gap-1"
                     >
                       <CheckCircle className="w-3 h-3" />
                       <span className="font-semibold">Zakat</span>
                     </button>
                     <button
-                      className="bg-green-100 text-green-700 px-3 py-1
+                      className="bg-green-100  px-3 py-1
                     rounded-full text-xs font-semibold flex items-center gap-1"
                     >
                       <CheckCircle className="w-3 h-3" />
@@ -102,7 +103,7 @@ const Category = () => {
                   </div>
 
                   <div className="mb-4">
-                    <div className="flex items-baseline gap-2 mb-2">
+                    <div className="flex items-baseline gap-2 mb-1">
                       <span className="text-2xl font-bold text-gray-900">
                         ₹{category.amount.toLocaleString("en-IN")}
                       </span>
@@ -117,14 +118,11 @@ const Category = () => {
                         style={{ width: `${Math.min(percentage, 100)}%` }}
                       ></div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {percentage.toFixed(1)}% funded
-                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-5 pb-5 border-b border-gray-100">
+                  <div className="flex items-center gap-2 mb-3 border-gray-100">
                     <div className="flex items-center gap-1">
-                      <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                      <Users className="w-4 h-4 text-blue-600 mr-1" />
                       <span className="text-sm text-gray-700 font-semibold">
                         {category.supporters}
                       </span>
@@ -132,15 +130,9 @@ const Category = () => {
                     <span className="text-sm text-gray-500">Supporters</span>
                   </div>
 
-                  <div className="flex gap-3">
-                    <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition">
-                      Donate Now
-                    </button>
-
-                    <button className="w-full bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg hover:bg-gray-300 transition">
-                      View Details
-                    </button>
-                  </div>
+                  <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition">
+                    View Details
+                  </button>
                 </div>
               </div>
             );
