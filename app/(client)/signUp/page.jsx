@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
+import { showSuccess, showError } from "@/components/Toaster";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ export default function SignupPage() {
     e.preventDefault();
 
     if (!formData.terms) {
-      alert("Please accept terms & conditions");
+      showError("Please accept terms & conditions");
       return;
     }
 
@@ -36,11 +37,11 @@ export default function SignupPage() {
         phone: "",
         terms: false,
       });
-      alert("Signup successful ✅");
+      showSuccess("Signup successful ✅");
       console.log(res.data);
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.error || "Signup failed");
+      showError(error.response?.data?.error || "Signup failed");
     }
   };
 

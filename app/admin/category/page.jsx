@@ -2,12 +2,17 @@
 import axiosInstance from "@/lib/axiosinstance";
 import { Edit2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import DeleteModal from "@/components/CustomModel";
 
+import { showSuccess, showError } from "@/components/Toaster";
 
 const CategoryPage = () => {
   // ================= STATE =================
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ title: "" });
+
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   // ================= FETCH =================
   useEffect(() => {
@@ -25,47 +30,55 @@ const CategoryPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
-    setError(''); // Clear error on input change
+    setError(""); // Clear error on input change
   };
 
   const handleFileChange = (e) => {
-    const { name, files } = e.target
+    const { name, files } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: files[0]
-    }))
-  }
+      [name]: files[0],
+    }));
+  };
 
   // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title) return;
+    if (!form.title) return showError("Title is required");
 
     try {
       if (form.id) {
         await axiosInstance.put(`/category/${form.id}`, form);
+        showSuccess("Category updated successfully");
       } else {
         await axiosInstance.post("/category", form);
+        showSuccess("Category added successfully");
       }
 
       setForm({ title: "" });
       fetchCategories();
     } catch (error) {
+      showError("Operation failed");
       console.error(error);
     }
   };
 
   // ================= DELETE =================
-  const handleDelete = async (id) => {
+  const confirmDelete = async () => {
     try {
-      await axiosInstance.delete(`/category/${id}`);
+      await axiosInstance.delete(`/category/${deleteId}`);
+      showSuccess("Category deleted successfully");
+
+      setShowDelete(false);
+      setDeleteId(null);
       fetchCategories();
     } catch (error) {
+      showError("Failed to delete category");
       console.error(error);
     }
   };
@@ -85,7 +98,7 @@ const CategoryPage = () => {
 
       <div className="flex gap-5 lg:flex-row flex-col">
         {/* ================= TABLE ================= */}
-        <div className="flex-[2] bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200" >
+        <div className="flex-[2] bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
           <table className="w-full ">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 ">
@@ -108,7 +121,10 @@ const CategoryPage = () => {
                       <Edit2 size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(cat.id)}
+                      onClick={() => {
+                        setDeleteId(cat.id);
+                        setShowDelete(true);
+                      }}
                       className="text-red-600 p-2"
                     >
                       <Trash2 size={16} />
@@ -129,15 +145,12 @@ const CategoryPage = () => {
           <input
             type="text"
             value={form.title}
-            onChange={(e) =>
-              setForm({ ...form, title: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
             placeholder="Enter category title"
             className="w-full border px-4 py-2 rounded mb-4"
           />
 
           <div className="flex gap-4">
-
             {form.id && (
               <button
                 onClick={() => setForm({ title: "" })}
@@ -156,6 +169,13 @@ const CategoryPage = () => {
           </div>
         </div>
       </div>
+      <DeleteModal
+        isOpen={showDelete}
+        onClose={() => setShowDelete(false)}
+        onConfirm={confirmDelete}
+        title="Delete Category"
+        description="Are you sure you want to delete this category? This action cannot be undone."
+      />
     </div>
   );
 };

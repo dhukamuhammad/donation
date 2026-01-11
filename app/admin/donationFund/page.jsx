@@ -4,9 +4,14 @@ import { Plus, Edit2, Trash2, Calendar, CloudDownload } from "lucide-react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
+import DeleteModal from "@/components/CustomModel";
+import { showSuccess, showError } from "@/components/Toaster";
 
 const DonationFundPage = () => {
   const [funds, setFunds] = useState([]);
+
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     fetchDonationFund();
@@ -20,15 +25,20 @@ const DonationFundPage = () => {
       console.error(error);
     }
   };
-  const handleDelete = async (id) => {
-    console.log(id);
+  const confirmDelete = async () => {
     try {
-      await axiosInstance.delete(`/donationFund/${id}`);
+      await axiosInstance.delete(`/donationFund/${deleteId}`);
+
+      showSuccess("Donation fund deleted successfully");
+
+      setShowDelete(false);
+      setDeleteId(null);
       fetchDonationFund();
     } catch (error) {
+      showError("Failed to delete donation fund");
       console.error(error);
     }
-  };
+  };  
 
   const formatAmount = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -152,8 +162,11 @@ const DonationFundPage = () => {
                         </button>
                       </Link>
                       <button
-                        onClick={() => handleDelete(fund.id)}
-                        className="flex items-center gap-1.5 text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors"
+                        onClick={() => {
+                          setDeleteId(fund.id);
+                          setShowDelete(true);
+                        }}
+                        className="flex items-center gap-1.5 text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -177,6 +190,13 @@ const DonationFundPage = () => {
           </div>
         )}
       </div>
+      <DeleteModal
+        isOpen={showDelete}
+        onClose={() => setShowDelete(false)}
+        onConfirm={confirmDelete}
+        title="Delete Donation Fund"
+        description="Are you sure you want to delete this donation fund? This action cannot be undone."
+      />
     </div>
   );
 };

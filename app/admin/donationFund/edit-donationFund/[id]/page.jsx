@@ -4,6 +4,7 @@ import { Calendar, DollarSign, Tag, FileText, Image } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { showSuccess, showError } from "@/components/Toaster";
 
 // ✅ TinyMCE client-only (SSR OFF)
 const TinyEditor = dynamic(
@@ -98,8 +99,11 @@ const EditDonationFundPage = () => {
           "content-type": "multipart/form-data",
         },
       });
+      showSuccess("Donation fund updated successfully");
+
       router.back();
     } catch (err) {
+      showError("Failed to update donation fund");
       console.error("Submit error:", err);
     }
   };
@@ -147,10 +151,11 @@ const EditDonationFundPage = () => {
                     setFormData((prev) => ({ ...prev, description: content }))
                   }
                   init={{
-                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                    plugins:
+                      "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
+                    toolbar:
+                      "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
                   }}
-
                 />
               </div>
               <div className="flex flex-col md:flex-row gap-6">
@@ -174,9 +179,11 @@ const EditDonationFundPage = () => {
                     <img
                       // src={URL.createObjectURL(formData.thumbnail)}
 
-                      src={formData.thumbnail instanceof File
-                        ? URL.createObjectURL(formData.thumbnail)
-                        : `/uploads/${formData.thumbnail}`}
+                      src={
+                        formData.thumbnail instanceof File
+                          ? URL.createObjectURL(formData.thumbnail)
+                          : `/uploads/${formData.thumbnail}`
+                      }
                       className="mt-3 h-32 rounded-lg object-cover border"
                     />
                   )}
@@ -200,15 +207,16 @@ const EditDonationFundPage = () => {
 
                   {formData.document_img && (
                     <img
-                      src={formData.document_img instanceof File
-                        ? URL.createObjectURL(formData.document_img)
-                        : `/uploads/${formData.document_img}`}
+                      src={
+                        formData.document_img instanceof File
+                          ? URL.createObjectURL(formData.document_img)
+                          : `/uploads/${formData.document_img}`
+                      }
                       className="mt-3 h-32 rounded-lg object-cover border"
                     />
                   )}
                 </div>
               </div>
-
 
               {/* GRID */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
