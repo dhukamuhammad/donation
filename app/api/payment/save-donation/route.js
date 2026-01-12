@@ -3,14 +3,34 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const data = await req.json();
+    const data = await req.json();   // 👈 sabse upar
 
-    // 1️⃣ Save Donation Info
+    // 1️⃣ Check if user exists
+    const [existingUser] = await db.query(
+      "SELECT id FROM users WHERE email = ?",
+      [data.email]
+    );
+
+    let userId;
+
+    if (existingUser.length === 0) {
+      // 2️⃣ Create new user
+      const [result] = await db.query(
+        "INSERT INTO users (name, email, phone) VALUES (?, ?, ?)",
+        [data.name, data.email, data.phone]
+      );
+
+      userId = result.insertId;  // 👈 YEH SABSE IMPORTANT LINE
+    } else {
+      userId = existingUser[0].id;
+    }
+
+    // 3️⃣ Save Donation
     await db.query(
       `INSERT INTO donation_info
-      (name, email, amount, mobile_no, donation_type, fund_id, 
+      (name, email, amount, mobile_no, donation_type, fund_id, user_id,
        razorpay_order_id, razorpay_payment_id, razorpay_signature)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.email,
@@ -18,47 +38,15 @@ export async function POST(req) {
         data.phone,
         data.donationType,
         data.fundId,
+        userId,  // 👈 guaranteed NOT NULL now
         data.razorpay_order_id,
         data.razorpay_payment_id,
         data.razorpay_signature,
       ]
     );
 
-    // 2️⃣ Update donation_fund total
-    // const [rows] = await db.query(
-    //   "SELECT total_amount FROM donation_fund WHERE id = ?",
-    //   [data.fundId]
-    // );
+    return NextResponse.json({ success: true, fundId: data.fundId, userId });
 
-    // const newTotal = Number(rows[0].total_amount || 0) + Number(data.amount);
-
-    // await db.query("UPDATE donation_fund SET total_amount = ? WHERE id = ?", [
-    //   newTotal,
-    //   data.fundId,
-    // ]);
-
-    // 3️⃣ Insert / Update Users Table
-    const [existingUser] = await db.query(
-      "SELECT id FROM users WHERE email = ?",
-      [data.email]
-    );
-
-    if (existingUser.length === 0) {
-      // New user
-      await db.query(
-        "INSERT INTO users (name, email, phone) VALUES (?, ?, ?)",
-        [data.name, data.email, data.phone]
-      );
-    } else {
-      // Existing user → update info
-      // await db.query("UPDATE users SET name = ?, phone = ? WHERE email = ?", [
-      //   data.name,
-      //   data.phone,
-      //   data.email,
-      // ]);
-    }
-
-    return NextResponse.json({ success: true ,fundId: data.fundId});
   } catch (err) {
     console.error("Save donation error:", err);
     return NextResponse.json({ error: "DB insert failed" }, { status: 500 });
