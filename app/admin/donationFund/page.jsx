@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Plus, Edit2, Trash2, Calendar, CloudDownload } from "lucide-react";
+import { Plus, Edit2, Trash2, Calendar, FileText, Image as ImageIcon, Search } from "lucide-react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
@@ -9,7 +9,6 @@ import { showSuccess, showError } from "@/components/Toaster";
 
 const DonationFundPage = () => {
   const [funds, setFunds] = useState([]);
-
   const [showDelete, setShowDelete] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
@@ -22,23 +21,21 @@ const DonationFundPage = () => {
       const res = await axiosInstance.get("/donationFund");
       setFunds(res.data);
     } catch (error) {
-      console.error(error);
+      console.error("Fetch Error:", error);
     }
   };
+
   const confirmDelete = async () => {
     try {
       await axiosInstance.delete(`/donationFund/${deleteId}`);
-
-      showSuccess("Donation fund deleted successfully");
-
+      showSuccess("Campaign deleted successfully");
       setShowDelete(false);
       setDeleteId(null);
       fetchDonationFund();
     } catch (error) {
-      showError("Failed to delete donation fund");
-      console.error(error);
+      showError("Failed to delete campaign");
     }
-  };  
+  };
 
   const formatAmount = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -58,107 +55,110 @@ const DonationFundPage = () => {
   };
 
   return (
-    <div className="p-6">
-      {/* Header Section */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Donation Fund Management
-        </h1>
+    <div className="p-6 lg:p-10 bg-slate-50/50 min-h-screen font-['Outfit']">
+      
+      {/* --- Dashboard Header --- */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Campaign Management</h1>
+          <p className="text-sm text-slate-500 mt-1">Review and manage all live donation fundraisers.</p>
+        </div>
+        
         <Link href="/admin/donationFund/add-donationFund">
-          <button className="flex items-center gap-2 bg-[#2563EB] text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm">
-            <Plus size={18} />
-            <span className="font-medium">Add Donation Fund</span>
+          <button className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-sm font-bold text-sm active:scale-95">
+            <Plus size={18} strokeWidth={2.5} />
+            <span>Launch New Fund</span>
           </button>
         </Link>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 w-16">
-                  ID
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 w-28">
-                  THUMBNAIL
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 w-28">
-                  DOCUMENT
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 min-w-[200px]">
-                  TITLE
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 w-32">
-                  TOTAL AMOUNT
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 w-32">
-                  START DATE
-                </th>
+      {/* --- Data Table Container --- */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        
+        {/* Table Toolbar */}
+        <div className="p-4 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center">
+           <div className="flex items-center gap-2 text-slate-400">
+              <Search size={16} />
+              <span className="text-xs font-bold uppercase tracking-widest">Active Campaigns</span>
+           </div>
+           <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">
+             Total: {funds.length}
+           </span>
+        </div>
 
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 w-36">
-                  ACTIONS
-                </th>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200">
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-16 text-center">ID</th>
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Visuals</th>
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest min-w-[20px]">Campaign Title</th>
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Target Amount</th>
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Start Date</th>
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            
+            <tbody className="divide-y divide-slate-100">
               {funds.map((fund) => (
-                <tr
-                  key={fund.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-4 py-3 text-gray-800 font-medium text-sm">
-                    {fund.id}
+                <tr key={fund.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <td className="p-4 text-xs font-bold text-slate-400 text-center">
+                    #{fund.id}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center">
-                      <div className="relative w-14 h-14">
+                  
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      {/* Thumbnail Preview */}
+                      <div className="group/img relative w-10 h-10 rounded border border-slate-200 bg-slate-50 overflow-hidden shadow-sm">
                         <Image
                           src={`/uploads/${fund.thumbnail}`}
-                          alt={fund.title}
+                          alt="Thumbnail"
                           fill
-                          className="rounded-lg object-cover border border-gray-200 shadow-sm"
+                          className="object-cover"
                         />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                           <ImageIcon size={12} className="text-white" />
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center">
-                      <div className="relative w-14 h-14">
+                      {/* Document Preview */}
+                      <div className="group/img relative w-10 h-10 rounded border border-slate-200 bg-slate-50 overflow-hidden shadow-sm">
                         <Image
                           src={`/uploads/${fund.document_img}`}
-                          alt={fund.title}
+                          alt="Doc"
                           fill
-                          className="rounded-lg object-cover border border-gray-200 shadow-sm"
+                          className="object-cover"
                         />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                           <FileText size={12} className="text-white" />
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="text-gray-800 font-medium text-sm">
+
+                  <td className="p-4">
+                    <span className=" text-sm font-semibold text-slate-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
                       {fund.title}
                     </span>
                   </td>
 
-                  <td className="px-4 py-3">
-                    <span className="text-gray-800 font-semibold text-sm">
+                  <td className="p-4 text-right">
+                    <span className="text-sm font-bold text-slate-900">
                       {formatAmount(fund.total_amount)}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 text-gray-700 text-sm">
+
+                  <td className="p-4 text-center">
+                    <div className="inline-flex items-center gap-1.5 text-slate-500 text-[13px] font-medium">
+                      <Calendar size={14} className="text-blue-500" />
                       <span>{formatDate(fund.date)}</span>
                     </div>
                   </td>
 
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <Link
-                        href={`/admin/donationFund/edit-donationFund/${fund.id}`}
-                      >
-                        <button className="flex items-center gap-1.5 text-[#2563EB] hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition-colors">
-                          <Edit2 size={14} />
+                  <td className="p-4">
+                    <div className="flex items-center justify-center gap-1">
+                      <Link href={`/admin/donationFund/edit-donationFund/${fund.id}`}>
+                        <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit Campaign">
+                          <Edit2 size={16} />
                         </button>
                       </Link>
                       <button
@@ -166,9 +166,10 @@ const DonationFundPage = () => {
                           setDeleteId(fund.id);
                           setShowDelete(true);
                         }}
-                        className="flex items-center gap-1.5 text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                        title="Delete Campaign"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>
@@ -178,24 +179,26 @@ const DonationFundPage = () => {
           </table>
         </div>
 
-        {/* Empty State */}
+        {/* Empty State Overlay */}
         {funds.length === 0 && (
-          <div className="text-center py-10">
-            <p className="text-gray-500 text-base">
-              No donation funds available
-            </p>
-            <p className="text-gray-400 text-xs mt-1">
-              Click "Add Donation Fund" to create one
-            </p>
+          <div className="text-center py-20 bg-white">
+            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+               <FileText className="text-slate-300" size={32} />
+            </div>
+            <p className="text-slate-800 font-bold">No active fundraisers found</p>
+            <p className="text-slate-400 text-sm mt-1">Get started by creating your first campaign.</p>
           </div>
         )}
       </div>
+
+      {/* --- Delete Confirmation --- */}
       <DeleteModal
         isOpen={showDelete}
         onClose={() => setShowDelete(false)}
         onConfirm={confirmDelete}
-        title="Delete Donation Fund"
-        description="Are you sure you want to delete this donation fund? This action cannot be undone."
+        title="Remove Campaign"
+        description="Are you sure you want to delete this fundraiser? All associated records will be permanently removed from the system."
+        Delete="Delete Permanently"
       />
     </div>
   );

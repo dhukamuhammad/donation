@@ -1,41 +1,45 @@
 "use client";
 import React from 'react';
-import { DollarSign, Users, TrendingUp, Heart, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { 
+  DollarSign, 
+  Users, 
+  TrendingUp, 
+  Heart, 
+  ArrowUpRight, 
+  ArrowDownRight,
+  Activity,
+  ArrowRight
+} from 'lucide-react';
+import Link from 'next/link';
 
 const DashboardPage = () => {
   const stats = [
     {
       id: 1,
-      title: 'Total Donations',
+      title: 'Total Collections',
       value: '₹12,45,000',
       change: '+12.5%',
       isPositive: true,
       icon: DollarSign,
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-[#2563EB]',
-      borderColor: 'border-blue-100'
+      color: 'blue'
     },
     {
       id: 2,
-      title: 'Active Donors',
+      title: 'Verified Donors',
       value: '2,847',
       change: '+8.2%',
       isPositive: true,
       icon: Users,
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600',
-      borderColor: 'border-green-100'
+      color: 'emerald'
     },
     {
       id: 3,
-      title: 'Active Campaigns',
+      title: 'Live Campaigns',
       value: '24',
-      change: '+3',
+      change: '+3 new',
       isPositive: true,
-      icon: TrendingUp,
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600',
-      borderColor: 'border-purple-100'
+      icon: Activity,
+      color: 'indigo'
     },
     {
       id: 4,
@@ -44,17 +48,15 @@ const DashboardPage = () => {
       change: '-2.4%',
       isPositive: false,
       icon: Heart,
-      bgColor: 'bg-pink-50',
-      iconColor: 'text-pink-600',
-      borderColor: 'border-pink-100'
+      color: 'rose'
     }
   ];
 
   const recentDonations = [
-    { id: 1, donor: 'Rahul Sharma', amount: '₹5,000', campaign: 'Medical Treatment', time: '2 hours ago' },
-    { id: 2, donor: 'Priya Patel', amount: '₹10,000', campaign: 'Education Support', time: '4 hours ago' },
-    { id: 3, donor: 'Amit Kumar', amount: '₹3,500', campaign: 'Emergency Help', time: '6 hours ago' },
-    { id: 4, donor: 'Sneha Gupta', amount: '₹7,500', campaign: 'Medical Treatment', time: '8 hours ago' }
+    { id: 1, donor: 'Rahul Sharma', amount: '₹5,000', campaign: 'Medical Treatment', time: '2 hours ago', initial: 'RS' },
+    { id: 2, donor: 'Priya Patel', amount: '₹10,000', campaign: 'Education Support', time: '4 hours ago', initial: 'PP' },
+    { id: 3, donor: 'Amit Kumar', amount: '₹3,500', campaign: 'Emergency Help', time: '6 hours ago', initial: 'AK' },
+    { id: 4, donor: 'Sneha Gupta', amount: '₹7,500', campaign: 'Medical Treatment', time: '8 hours ago', initial: 'SG' }
   ];
 
   const topCampaigns = [
@@ -64,102 +66,120 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Welcome back! Here's what's happening today.</p>
+    <div className="p-6 lg:p-10 bg-[#F8FAFC] min-h-screen font-['Outfit']">
+      
+      {/* --- Page Header --- */}
+      <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Executive Dashboard</h1>
+          <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
+            Real-time insights and monitoring for <strong>DonateCare</strong>.
+          </p>
+        </div>
+        <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 flex items-center gap-3 shadow-sm">
+           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Live System Status</span>
+        </div>
       </div>
 
-      {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+      {/* --- Stats Cards Grid --- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div
-              key={stat.id}
-              className={`bg-white rounded-lg shadow-sm border ${stat.borderColor} p-5 hover:shadow-md transition-shadow`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className={`${stat.bgColor} p-3 rounded-lg`}>
-                  <Icon size={24} className={stat.iconColor} />
+            <div key={stat.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all group">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-2.5 rounded-lg bg-slate-50 group-hover:bg-blue-600 group-hover:text-white transition-colors text-slate-400`}>
+                  <Icon size={20} />
                 </div>
-                <div className={`flex items-center gap-1 text-sm font-medium ${
-                  stat.isPositive ? 'text-green-600' : 'text-red-600'
+                <div className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-bold ${
+                  stat.isPositive ? 'bg-green-50 text-green-600' : 'bg-rose-50 text-rose-600'
                 }`}>
-                  {stat.isPositive ? (
-                    <ArrowUpRight size={16} />
-                  ) : (
-                    <ArrowDownRight size={16} />
-                  )}
+                  {stat.isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                   <span>{stat.change}</span>
                 </div>
               </div>
-              <h3 className="text-sm text-gray-600 font-medium mb-1">{stat.title}</h3>
-              <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.title}</h3>
+              <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
             </div>
           );
         })}
       </div>
 
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Recent Donations */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-200">
-            <h3 className="text-base font-semibold text-gray-800">Recent Donations</h3>
-          </div>
-          <div className="p-4">
-            <div className="space-y-3">
-              {recentDonations.map((donation) => (
-                <div
-                  key={donation.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex-1">
-                    <p className="text-base font-medium text-gray-800">{donation.donor}</p>
-                    <p className="text-sm text-gray-500">{donation.campaign}</p>
+      {/* --- Two Column Detailed View --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left Column: Recent Activity (2 Span) */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+              <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Recent Donations</h3>
+              <button className="text-xs font-bold text-blue-600 hover:underline">Download CSV</button>
+            </div>
+            <div className="p-2">
+              <div className="space-y-1">
+                {recentDonations.map((donation) => (
+                  <div key={donation.id} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-lg transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                        {donation.initial}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">{donation.donor}</p>
+                        <p className="text-[11px] font-medium text-slate-400 uppercase tracking-tight">{donation.campaign}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-blue-600">{donation.amount}</p>
+                      <p className="text-[10px] text-slate-400 font-medium">{donation.time}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-base font-semibold text-[#2563EB]">{donation.amount}</p>
-                    <p className="text-sm text-gray-400">{donation.time}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <Link href="/admin/donations" className="block text-center py-3 border-t border-slate-50 text-xs font-bold text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
+                View All Transactions
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Top Campaigns */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-200">
-            <h3 className="text-base font-semibold text-gray-800">Top Campaigns</h3>
-          </div>
-          <div className="p-4">
-            <div className="space-y-4">
+        {/* Right Column: Campaign Progress (1 Span) */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
+            <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+              <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Top Campaigns</h3>
+            </div>
+            <div className="p-6 space-y-8">
               {topCampaigns.map((campaign) => (
-                <div key={campaign.id} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-base font-medium text-gray-800">{campaign.name}</p>
-                    <span className="text-sm font-semibold text-gray-600">{campaign.progress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                    <div
-                      className="bg-[#2563EB] h-2.5 rounded-full transition-all"
-                      style={{ width: `${campaign.progress}%` }}
-                    ></div>
-                  </div>
+                <div key={campaign.id} className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
-                      Raised: <span className="font-semibold text-gray-800">{campaign.raised}</span>
-                    </span>
-                    <span className="text-sm text-gray-500">Goal: {campaign.goal}</span>
+                    <p className="text-sm font-bold text-slate-800 truncate pr-4">{campaign.name}</p>
+                    <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{campaign.progress}%</span>
+                  </div>
+                  
+                  {/* Thin Industrial Progress Bar */}
+                  <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-full rounded-full transition-all duration-1000 ease-out"
+                      style={{ width: `${campaign.progress}%` }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] font-medium">
+                    <span className="text-slate-400 uppercase tracking-tighter">Raised: <span className="text-slate-700 font-bold">{campaign.raised}</span></span>
+                    <span className="text-slate-400 uppercase tracking-tighter italic">Goal: {campaign.goal}</span>
                   </div>
                 </div>
               ))}
+
+              <Link href="/admin/donationFund" className="flex items-center justify-center gap-2 w-full mt-4 py-3 bg-slate-50 rounded-lg text-xs font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-100">
+                Manage All Funds
+                <ArrowRight size={14} />
+              </Link>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

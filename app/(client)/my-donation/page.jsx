@@ -9,8 +9,8 @@ import jsPDF from "jspdf";
 
 // Components & Icons
 import InvoiceTemplate from "@/app/(client)/invoice/[id]/page";
-import { HandHeart, LogOut, User } from "lucide-react";
-import CustomModel from "@/components/CustomModel"; // Import CustomModel
+import { HandHeart, LogOut, User, FileText, Calendar, Wallet } from "lucide-react";
+import CustomModel from "@/components/CustomModel";
 
 const MyDonation = () => {
     const router = useRouter();
@@ -19,7 +19,7 @@ const MyDonation = () => {
     const [donations, setDonations] = useState([]);
     const [selectedInvoice, setSelectedInvoice] = useState(null);
     const [isDownloading, setIsDownloading] = useState(null);
-    const [showLogoutModal, setShowLogoutModal] = useState(false); // Modal State
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const invoiceRef = useRef(null);
 
     /* ================= Auth Guard ================= */
@@ -86,7 +86,6 @@ const MyDonation = () => {
             }, 600);
         } catch (err) {
             console.error("Download Error:", err);
-            alert("Download fail ho gaya!");
             setIsDownloading(null);
         }
     };
@@ -102,9 +101,9 @@ const MyDonation = () => {
             localStorage.removeItem("userId");
             window.dispatchEvent(new Event("auth-changed"));
             router.push("/login");
-            setShowLogoutModal(false); // Modal close karein
+            setShowLogoutModal(false);
         } catch {
-            alert("Logout failed ❌");
+            setShowLogoutModal(false);
         }
     };
 
@@ -116,85 +115,108 @@ const MyDonation = () => {
     };
 
     return (
-        <div className="flex gap-8 max-w-[1400px] mx-auto p-8 font-['Outfit'] text-slate-700 max-md:flex-col bg-white">
+        <div className="flex gap-8 max-w-[1400px] mx-auto p-8 font-['Outfit'] text-slate-700 max-md:flex-col bg-white min-h-screen">
 
             {/* HIDDEN INVOICE TEMPLATE */}
             <InvoiceTemplate ref={invoiceRef} invoice={selectedInvoice} />
 
-            {/* ================= Sidebar ================= */}
-            <div className="w-[280px] bg-white rounded border border-slate-200 p-7 h-fit sticky top-[90px] max-md:w-full max-md:static shadow-sm">
-                <div className="pb-5 mb-5 border-b border-slate-200">
-                    <h3 className="text-sm font-bold tracking-widest text-slate-400">USER MENU</h3>
+            {/* ================= Sidebar (Normal & Professional) ================= */}
+            <div className="w-[280px] bg-white rounded-lg border border-slate-200 p-6 h-fit sticky top-[100px] max-md:w-full max-md:static shadow-sm">
+                <div className="pb-4 mb-4 border-b border-slate-100">
+                    <h3 className="text-[11px] font-bold tracking-widest text-slate-400 uppercase">User Dashboard</h3>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
                     <Link
                         href="/profile"
-                        className={`px-4 py-3 rounded transition-all flex items-center gap-3 border ${pathname === "/profile"
-                            ? "bg-blue-600/10 text-blue-600 border-blue-600/20 font-semibold"
-                            : "hover:bg-blue-600/5 text-slate-600 border-transparent"
+                        className={`px-4 py-2.5 rounded-md transition-colors flex items-center gap-3 text-sm ${pathname === "/profile"
+                            ? "bg-blue-600 text-white font-bold"
+                            : "text-slate-600 hover:bg-slate-50 border border-transparent"
                             }`}
                     >
-                        <User size={20} className={pathname === "/profile" ? "text-blue-600" : "text-slate-400"} />
+                        <User size={18} />
                         <span>My Profile</span>
                     </Link>
 
                     <Link
                         href="/my-donation"
-                        className={`px-4 py-3 rounded transition-all flex items-center gap-3 border ${pathname === "/my-donation"
-                            ? "bg-blue-600/10 text-blue-600 border-blue-600/20 font-semibold"
-                            : "hover:bg-blue-600/5 text-slate-600 border-transparent"
+                        className={`px-4 py-2.5 rounded-md transition-colors flex items-center gap-3 text-sm ${pathname === "/my-donation"
+                            ? "bg-blue-600 text-white font-bold"
+                            : "text-slate-600 hover:bg-slate-50 border border-transparent"
                             }`}
                     >
-                        <HandHeart size={20} className={pathname === "/my-donation" ? "text-blue-600" : "text-slate-400"} />
+                        <HandHeart size={18} />
                         <span>My Donations</span>
                     </Link>
 
-                    {/* Trigger Logout Modal */}
-                    <div
-                        onClick={() => setShowLogoutModal(true)}
-                        className="px-4 py-3 rounded cursor-pointer hover:bg-red-50 text-red-600 transition-all flex items-center gap-3 mt-2 border border-transparent"
-                    >
-                        <LogOut size={20} className="text-red-500" />
-                        <span>Logout</span>
+                    <div className="my-2 border-t border-slate-50 pt-2">
+                        <button
+                            onClick={() => setShowLogoutModal(true)}
+                            className="w-full px-4 py-2.5 rounded-md text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3 text-sm font-semibold"
+                        >
+                            <LogOut size={18} />
+                            <span>Logout Account</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* ================= Main Content ================= */}
-            <div className="flex-1 bg-white rounded border border-slate-200 p-8">
-                <h2 className="text-2xl font-bold mb-6 text-blue-600">My Donations</h2>
+            {/* ================= Main Content (Clean Grid) ================= */}
+            <div className="flex-1 bg-white rounded-xl border border-slate-200 p-8 shadow-sm">
+                <div className="mb-8 pb-6 border-b border-slate-100">
+                    <h2 className="text-2xl font-bold text-slate-800 mb-1">My Donations</h2>
+                    <p className="text-sm text-slate-500">Track all your contributions and download official receipts.</p>
+                </div>
 
-                <div className="flex flex-col gap-5">
-                    {donations.length === 0 && <p className="text-slate-500">No donations found.</p>}
+                <div className="flex flex-col gap-4">
+                    {donations.length === 0 && (
+                        <div className="py-20 text-center border-2 border-dashed border-slate-100 rounded-xl">
+                            <p className="text-slate-400 font-medium">No donations found in your history.</p>
+                        </div>
+                    )}
 
                     {donations.map((item) => (
-                        <div key={item.id} className="flex gap-6 p-5 rounded border border-slate-200 hover:shadow-md transition-all bg-white">
-                            <Image
-                                src={`/uploads/${item.thumbnail}`}
-                                alt={item.title} width={120} height={90}
-                                className="rounded object-cover border border-slate-100"
-                            />
-
-                            <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-slate-800">{item.title}</h3>
-                                <p className="text-sm text-slate-500 mt-1">
-                                    Amount Donated: <span className="font-semibold text-blue-600">₹{item.amount}</span>
-                                </p>
-                                <p className="text-xs mt-2 text-slate-400 font-medium">Date: {formatDate(item.created_date)}</p>
+                        <div key={item.id} className="flex gap-6 p-5 rounded-lg border border-slate-200 hover:border-blue-200 transition-colors bg-white items-center max-sm:flex-col max-sm:items-start">
+                            {/* Thumbnail */}
+                            <div className="w-32 h-24 flex-shrink-0 rounded-md overflow-hidden border border-slate-100">
+                                <Image
+                                    src={`/uploads/${item.thumbnail}`}
+                                    alt={item.title} width={128} height={96}
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
 
-                            <div className="flex flex-col gap-3 items-end">
-                                <span className="px-3 py-1 text-xs rounded bg-green-100 text-green-700 font-bold uppercase tracking-wider">Successful</span>
+                            {/* Details */}
+                            <div className="flex-1 space-y-2">
+                                <h3 className="text-base font-bold text-slate-800 line-clamp-1">{item.title}</h3>
+                                <div className="flex items-center gap-4 text-xs font-medium text-slate-500">
+                                    <div className="flex items-center gap-1.5">
+                                        <Wallet size={14} className="text-blue-600" />
+                                        <span>Amount: <span className="text-slate-800 font-bold">₹{item.amount.toLocaleString('en-IN')}</span></span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar size={14} className="text-blue-600" />
+                                        <span>{formatDate(item.created_date)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-col gap-2 items-end max-sm:w-full max-sm:items-center max-sm:flex-row max-sm:justify-between">
+                                <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded text-[10px] font-bold uppercase border border-green-100">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                    Successful
+                                </div>
 
                                 <button
                                     onClick={() => handleDownload(item.id)}
                                     disabled={isDownloading === item.id}
-                                    className={`px-4 py-2 text-xs font-semibold rounded text-white shadow-sm transition-all ${isDownloading === item.id
-                                        ? "bg-slate-400 cursor-not-allowed"
-                                        : "bg-blue-600 hover:bg-blue-700 active:scale-95"
+                                    className={`flex items-center gap-2 px-5 py-2 text-xs font-bold rounded shadow-sm transition-all border ${isDownloading === item.id
+                                        ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                                        : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 active:scale-95"
                                         }`}
                                 >
-                                    {isDownloading === item.id ? "Processing..." : "Download Invoice"}
+                                    <FileText size={14} />
+                                    {isDownloading === item.id ? "Generating..." : "Download Receipt"}
                                 </button>
                             </div>
                         </div>
@@ -208,8 +230,8 @@ const MyDonation = () => {
                 onClose={() => setShowLogoutModal(false)}
                 onConfirm={handleLogout}
                 title="Confirm Logout"
-                description="Are you sure you want to logout from this website?"
-                Delete="Logout"
+                description="Are you sure you want to logout? You will need to login again to view your dashboard."
+                Delete="Logout Account"
             />
         </div>
     );
