@@ -56,7 +56,6 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
         handler: async function (response) {
           const res = await axiosInstance.post("payment/save-donation", {
             fundId,
-            userId,
             amount,
             name: form.name,
             email: form.email,

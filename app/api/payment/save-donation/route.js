@@ -8,9 +8,9 @@ export async function POST(req) {
     // 1️⃣ Save Donation Info
     await db.query(
       `INSERT INTO donation_info
-      (name, email, amount, mobile_no, donation_type, fund_id, user_id,
+      (name, email, amount, mobile_no, donation_type, fund_id, 
        razorpay_order_id, razorpay_payment_id, razorpay_signature)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.email,
@@ -18,7 +18,6 @@ export async function POST(req) {
         data.phone,
         data.donationType,
         data.fundId,
-        data.userId,
         data.razorpay_order_id,
         data.razorpay_payment_id,
         data.razorpay_signature,
