@@ -5,17 +5,20 @@ import {
   Share2,
   Flag,
   Calendar,
-  Target,
   Users,
   CheckCircle,
   ArrowLeft,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
+  FileText,
+  Facebook,
+  Twitter,
+  MessageCircle,
 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import DonationModal from "./DonationModal";
 
 const FundraisersDetailsPage = () => {
@@ -24,18 +27,16 @@ const FundraisersDetailsPage = () => {
   const { id } = params;
   const [expanded, setExpanded] = useState(false);
   const [showDoc, setShowDoc] = useState(false);
-
   const [activeTab, setActiveTab] = useState("description");
   const [isOpen, setIsOpen] = useState(false);
-
   const [fundraiser, setFundraiser] = useState({});
   const [supporters, setSupporters] = useState([]);
 
-  console.log(fundraiser);
-
   useEffect(() => {
-    if (id) fetchDonationFundById();
-    fetchSupportersById();
+    if (id) {
+      fetchDonationFundById();
+      fetchSupportersById();
+    }
   }, [id]);
 
   const fetchDonationFundById = async () => {
@@ -73,8 +74,6 @@ const FundraisersDetailsPage = () => {
     });
   };
 
-  // popup
-
   const getProgress = (raised, goal) => {
     if (!goal || goal === 0) return 0;
     return Math.min(Math.round((raised / goal) * 100), 100);
@@ -82,339 +81,257 @@ const FundraisersDetailsPage = () => {
 
   const isLongDescription = (html) => {
     if (!html) return false;
-    const text = html.replace(/<[^>]*>/g, ""); // remove HTML tags
-    return text.split("\n").length > 10 || text.length > 500;
+    const text = html.replace(/<[^>]*>/g, "");
+    return text.length > 600;
   };
-
-  const isFundCompleted = (raised, goal) => {
-    if (!goal || goal === 0) return false;
-    return raised >= goal;
-  };
-
 
   return (
-    <div className="min-h-screen">
-      {/* Back Button */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+    <div className="min-h-screen bg-white font-['Outfit']">
+      {/* --- Breadcrumb/Back --- */}
+      <div className="border-b border-slate-100 bg-slate-50/50">
+        <div className="max-w-7xl mx-auto px-4 py-3">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors text-sm font-semibold"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-semibold">Back to Fundraisers</span>
+            <ArrowLeft size={16} />
+            <span>Back to Fundraisers</span>
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8  pt-0">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content - Left Side */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Featured Image */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="relative w-full h-[400px]">
-                {fundraiser.thumbnail ? (
-                  <Image
-                    src={`/uploads/${fundraiser.thumbnail}`}
-                    alt={fundraiser.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 animate-pulse" />
-                )}
-              </div>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-12">
 
-            {/* Title & Share */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          {/* --- Left Column: Story & Details --- */}
+          <div className="lg:col-span-2 space-y-8">
+
+            <header className="space-y-4">
+              <h1 className="text-3xl font-bold text-slate-900 leading-snug">
                 {fundraiser.title}
               </h1>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    <span className="text-sm text-gray-600">
-                      Started From - {formatDate(fundraiser.date)}
-                    </span>
-                  </div>
-                </div>
-
+              <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500 font-medium">
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                    <Share2 className="w-5 h-5 text-gray-600" />
-                  </button>
-                  <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                    <Flag className="w-5 h-5 text-gray-600" />
-                  </button>
+                  <Calendar size={16} className="text-blue-600" />
+                  <span>Started on {formatDate(fundraiser.date)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-blue-600" />
+                  <span>Verified Campaign</span>
                 </div>
               </div>
+            </header>
+
+            {/* Featured Image */}
+            <div className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm">
+              {fundraiser.thumbnail ? (
+                <Image
+                  src={`/uploads/${fundraiser.thumbnail}`}
+                  alt={fundraiser.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full animate-pulse" />
+              )}
             </div>
 
-            {/* Tabs */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="border-b border-gray-200">
-                <div className="flex">
+            {/* Content Tabs */}
+            <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="flex bg-slate-50 border-b border-slate-200">
+                {[
+                  { id: "description", label: "Story", icon: FileText },
+                  { id: "documents", label: "Verification", icon: ShieldCheck },
+                  { id: "supporters", label: "Donors", icon: Users },
+                ].map((tab) => (
                   <button
-                    onClick={() => setActiveTab("description")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "description"
-                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                      : "text-gray-600 hover:bg-gray-50"
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-colors ${activeTab === tab.id
+                        ? "bg-white text-blue-600 border-b-2 border-blue-600"
+                        : "text-slate-500 hover:text-slate-800"
                       }`}
                   >
-                    Description
+                    <tab.icon size={16} />
+                    {tab.label}
                   </button>
-                  <button
-                    onClick={() => setActiveTab("documents")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "documents"
-                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                      : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                  >
-                    Documents
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("supporters")}
-                    className={`flex-1 px-6 py-4 text-center font-semibold transition-colors ${activeTab === "supporters"
-                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                      : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                  >
-                    Supporters
-                  </button>
-                </div>
+                ))}
               </div>
 
-              <div className="p-6">
-                {/* description Tab */}
+              <div className="p-6 md:p-8">
                 {activeTab === "description" && (
-                  <div className="prose max-w-none relative">
-                    {fundraiser.description ? (
-                      <div>
-                        <div
-                          className={`text-gray-700 leading-relaxed overflow-hidden transition-all duration-500 ${expanded &&
-                            isLongDescription(fundraiser.description)
-                            ? "max-h-[2000px]"
-                            : "max-h-[220px]"
-                            }`}
-                          dangerouslySetInnerHTML={{
-                            __html: fundraiser.description,
-                          }}
-                        />
-
-                        {/* Fade effect */}
-                        {!expanded &&
-                          isLongDescription(fundraiser.description) && (
-                            <div className="absolute bottom-12 left-0 w-full h-20 bg-gradient-to-t from-white to-transparent"></div>
-                          )}
-
-                        {/* Read More Button */}
-                        {isLongDescription(fundraiser.description) && (
-                          <div className="flex justify-center mt-6">
-                            <button
-                              onClick={() => setExpanded(!expanded)}
-                              className="flex items-center gap-2 text-blue-500 hover:underline underline-offset-4 transition"
-                            >
-                              {expanded ? (
-                                <div>
-                                  Read Less <ChevronUp size={16} />
-                                </div>
-                              ) : (
-                                <div>
-                                  Read More <ChevronDown size={16} />
-                                </div>
-                              )}
-                            </button>
-                          </div>
-                        )}
+                  <div className="relative">
+                    <div
+                      className={`prose prose-slate max-w-none text-slate-600 leading-relaxed overflow-hidden transition-all duration-500 ${expanded ? "max-h-full" : "max-h-[350px]"
+                        }`}
+                      dangerouslySetInnerHTML={{ __html: fundraiser.description }}
+                    />
+                    {!expanded && isLongDescription(fundraiser.description) && (
+                      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent flex items-end justify-center">
+                        <button
+                          onClick={() => setExpanded(true)}
+                          className="text-blue-600 font-bold text-sm flex items-center gap-1 hover:underline mb-2"
+                        >
+                          Read Full Story <ChevronDown size={16} />
+                        </button>
                       </div>
-                    ) : (
-                      <p className="text-center text-gray-500 py-8">
-                        No description available.
-                      </p>
+                    )}
+                    {expanded && (
+                      <button
+                        onClick={() => setExpanded(false)}
+                        className="text-blue-600 font-bold text-sm flex items-center gap-1 hover:underline mt-6 mx-auto"
+                      >
+                        Show Less <ChevronUp size={16} />
+                      </button>
                     )}
                   </div>
                 )}
 
-                {/* Documents Tab */}
                 {activeTab === "documents" && (
-                  <div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     <div
-                      className="relative w-[17%] h-[180px] cursor-pointer"
+                      className="group relative aspect-[3/4] cursor-pointer rounded-lg overflow-hidden border border-slate-200"
                       onClick={() => setShowDoc(true)}
                     >
                       <Image
                         src={`/uploads/${fundraiser.document_img}`}
-                        alt={fundraiser.title}
+                        alt="Document"
                         fill
-                        className="rounded-lg object-cover border border-gray-200 shadow-sm hover:scale-105 transition"
-                        priority
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                    </div>
-
-                    {/* Popup Preview */}
-                    {showDoc && (
-                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                        <div className="relative bg-white rounded-xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl">
-                          <button
-                            onClick={() => setShowDoc(false)}
-                            className="absolute -top-3 -right-3 bg-white text-red-500 rounded-full px-2 py-1 shadow hover:scale-110 transition"
-                          >
-                            ✕
-                          </button>
-
-                          <img
-                            src={`/uploads/${fundraiser.document_img}`}
-                            className="max-w-full max-h-[80vh] rounded-lg"
-                          />
-                        </div>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <span className="text-white text-xs font-bold">View Full Image</span>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
 
-                {/* supporters Tab */}
                 {activeTab === "supporters" && (
-                  <div className="prose max-w-none relative space-y-4 h-[220px] overflow-y-auto">
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                     {supporters.length > 0 ? (
-                      supporters.map((supporter, i) => (
-                        <div key={i} className="p-3 bg-gray-50 rounded-lg">
-                          <p className="font-semibold text-gray-900">
-                            {supporter.name}
-                          </p>
-                          <p className="text-green-600">₹{supporter.amount}</p>
+                      supporters.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold uppercase">
+                              {item.name.charAt(0)}
+                            </div>
+                            <span className="font-bold text-slate-800 text-sm">{item.name}</span>
+                          </div>
+                          <span className="font-bold text-blue-600 text-sm">{formatAmount(item.amount)}</span>
                         </div>
                       ))
                     ) : (
-                      <p className="text-center text-gray-500">
-                        No supporters yet
-                      </p>
+                      <p className="text-center text-slate-400 py-8 italic">No donations yet. Be the first to help!</p>
                     )}
                   </div>
                 )}
               </div>
             </div>
           </div>
-          {/* Donation Card - Right Side */}
+
+          {/* --- Right Column: Donation Card --- */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6 space-y-4">
-              {/* Main Donation Card */}
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className="bg-blue-100 p-6 text-center">
-                  {isFundCompleted(fundraiser.raised_amount, fundraiser.total_amount) ? (
-                    <button
-                      disabled
-                      className="w-full bg-green-600 text-white font-bold py-4 rounded-xl cursor-not-allowed opacity-80 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-lg"
-                    >
-                      <Heart className="w-6 h-6" />
+            <div className="sticky top-24 space-y-6">
+
+              {/* Main Widget */}
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-6 md:p-8 space-y-6">
+                  <div>
+                    <div className="flex justify-between items-baseline mb-2">
+                      <span className="text-3xl font-bold text-slate-900">
+                        {formatAmount(fundraiser.raised_amount)}
+                      </span>
+                      <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                        {getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-500 font-medium">
+                      raised out of <span className="text-slate-800 font-bold">{formatAmount(fundraiser.total_amount)}</span> goal
+                    </p>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-600 rounded-full transition-all duration-1000"
+                      style={{ width: `${getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%` }}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm text-slate-600 font-semibold py-4 border-y border-slate-100">
+                    <Users size={18} className="text-blue-600" />
+                    <span>{fundraiser.supporters || 0} People have donated</span>
+                  </div>
+
+                  {/* CTA */}
+                  {fundraiser.raised_amount >= fundraiser.total_amount ? (
+                    <button disabled className="w-full bg-slate-100 text-slate-500 font-bold py-3.5 rounded-lg cursor-not-allowed border border-slate-200">
                       Successfully Funded
                     </button>
                   ) : (
                     <button
                       onClick={() => setIsOpen(true)}
-                      className="w-full bg-white text-blue-600 font-bold py-4 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-lg"
+                      className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 group"
                     >
-                      <Heart className="w-6 h-6" />
+                      <Heart size={20} className="group-hover:scale-110 transition-transform" />
                       Donate Now
                     </button>
                   )}
 
-                </div>
+                  <div className="flex flex-wrap justify-center gap-3 mt-5 font-['Outfit']">
+                    {['Zakat ', 'Sadqah', 'Lillah'].map((tag) => (
+                      <div
+                        key={tag}
+                        className="flex items-center gap-1.5 border border-slate-200 px-3 py-1.5 rounded-full transition-colors hover:border-blue-200 hover:bg-blue-50/50"
+                      >
+                        {/* Premium Lucide Icon */}
+                        <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
 
-                <div className="p-6">
-                  <div className="mb-6">
-                    <div className="flex items-end justify-between mb-3">
-                      <div>
-                        <span className="text-3xl font-bold text-gray-900">
-                          {formatAmount(fundraiser.raised_amount)}
+                        {/* Badge Text */}
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                          {tag}
                         </span>
                       </div>
-                      <span className="text-sm font-semibold text-blue-600">
-                        {getProgress(
-                          fundraiser.raised_amount,
-                          fundraiser.total_amount
-                        )}
-                        %
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">
-                      raised out of {formatAmount(fundraiser.total_amount)}
-                    </p>
-
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
-                      <div
-                        className="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-500 shadow-sm"
-                        style={{
-                          width: `${getProgress(
-                            fundraiser.raised_amount,
-                            fundraiser.total_amount
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <p className="text-sm text-gray-600 mb-2">
-                      Started From - {formatDate(fundraiser.date)}
-                    </p>
-                  </div>
-
-                  {/* Badges */}
-
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      jakat
-                    </span>
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Sadkah
-                    </span>
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Lillah
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-2 pt-4 border-t border-gray-200">
-                    <Users className="w-5 h-5 text-blue-600" />
-                    <span className="font-bold text-gray-900">
-                      {fundraiser.supporters}
-                    </span>
-                    <span className="text-gray-600">Supporters</span>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              {/* Share Card */}
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Share2 className="w-5 h-5 text-blue-600" />
-                  Share This Campaign
+              {/* Share Widget */}
+              <div className="p-6 bg-slate-50 rounded-xl border border-slate-200">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Share2 size={14} /> Help by Sharing
                 </h3>
-                <div className="grid grid-cols-3 gap-3">
-                  <button className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold">
-                    Facebook
+                <div className="grid grid-cols-3 gap-2">
+                  <button className="flex justify-center p-3 bg-white border border-slate-200 rounded-lg hover:text-blue-600 transition-colors">
+                    <Facebook size={20} />
                   </button>
-                  <button className="p-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors text-sm font-semibold">
-                    Twitter
+                  <button className="flex justify-center p-3 bg-white border border-slate-200 rounded-lg hover:text-sky-400 transition-colors">
+                    <Twitter size={20} />
                   </button>
-                  <button className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold">
-                    WhatsApp
+                  <button className="flex justify-center p-3 bg-white border border-slate-200 rounded-lg hover:text-green-500 transition-colors">
+                    <MessageCircle size={20} />
                   </button>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* Donation Modal */}
+      {/* --- Modal Preview (Document) --- */}
+      {showDoc && (
+        <div className="fixed inset-0 z-[100] bg-slate-900/90 flex items-center justify-center p-6" onClick={() => setShowDoc(false)}>
+          <div className="relative max-w-4xl w-full bg-white p-2 rounded-lg">
+            <button className="absolute -top-10 right-0 text-white font-bold flex items-center gap-1">✕ Close</button>
+            <img src={`/uploads/${fundraiser.document_img}`} className="w-full h-auto rounded shadow-2xl" />
+          </div>
+        </div>
+      )}
+
+      {/* --- Donation Modal --- */}
       <DonationModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

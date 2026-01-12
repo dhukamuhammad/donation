@@ -1,164 +1,158 @@
 "use client";
-import { Heart, Menu, X, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, ChevronRight } from 'lucide-react';
+import {
+    Heart,
+    Mail,
+    MapPin,
+    Facebook,
+    Twitter,
+    Instagram,
+    Linkedin,
+    ChevronRight,
+    ShieldCheck,
+    Send
+} from 'lucide-react';
+import Link from 'next/link';
 
 const Footer = () => {
     const quickLinks = [
-        { name: 'About Us', href: '/about' },
+        { name: 'About Our Mission', href: '/about' },
         { name: 'How It Works', href: '/how-it-works' },
-        { name: 'Success Stories', href: '/stories' },
-        { name: 'FAQ', href: '/faq' }
-    ];
-
-    const supportLinks = [
-        { name: 'Help Center', href: '/help' },
-        { name: 'Privacy Policy', href: '/privacy' },
-        { name: 'Terms of Service', href: '/terms' },
-        { name: 'Contact Us', href: '/contact' }
+        { name: 'Impact Stories', href: '/stories' },
+        { name: 'Become a Volunteer', href: '/volunteer' }
     ];
 
     const categories = [
-        { name: 'Medical Treatment', href: '/category/medical' },
+        { name: 'Monthly Ration Kits', href: '/category/ration' },
+        { name: 'Medical Emergencies', href: '/category/medical' },
         { name: 'Education Support', href: '/category/education' },
-        { name: 'Emergency Help', href: '/category/emergency' },
-        { name: 'Disaster Relief', href: '/category/disaster' }
+        { name: 'Widow Pension', href: '/category/widow' }
+    ];
+
+    const supportLinks = [
+        { name: 'Privacy Policy', href: '/privacy' },
+        { name: 'Terms of Service', href: '/terms' },
+        { name: 'Refund Policy', href: '/refund' },
+        { name: 'Contact Support', href: '/contact' }
     ];
 
     return (
-        <footer className="bg-gray-900 text-white">
-            {/* Main Footer Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-                    {/* Brand Section */}
-                    <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            {/* Logo Icon and Text 
-                            <div className="bg-[#2563EB] p-2 rounded-lg">
-                                <Heart size={20} fill="white" className="text-white" />
+        <footer className=" bg-white text-slate-900 font-['Outfit'] ">
+
+
+
+            {/* --- Main Footer Content --- */}
+            <div className="max-w-7xl mx-auto px-6 py-8 md:py-10 border-t border-blue-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+
+                    {/* Column 1: Brand */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-2">
+                            <div className="bg-blue-600 p-1.5 rounded-lg shadow-sm">
+                                <Heart size={18} fill="white" stroke="none" />
                             </div>
-                            */}
-                            <span className="text-xl font-bold">Donation</span>
+                            <span className="text-xl font-bold tracking-tight text-slate-900">DonateCare</span>
                         </div>
-                        <p className="text-gray-400 text-sm mb-4">
-                            Connecting compassionate donors with meaningful causes to create lasting impact and positive change.
+                        <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                            Dedicated to bringing transparency and efficiency to social welfare. We bridge the gap between compassionate donors and verified causes.
                         </p>
                         <div className="flex gap-3">
-                            <a href="#" className="bg-gray-800 p-2 rounded-lg hover:bg-[#2563EB] transition">
-                                <Facebook size={18} />
-                            </a>
-                            <a href="#" className="bg-gray-800 p-2 rounded-lg hover:bg-[#2563EB] transition">
-                                <Twitter size={18} />
-                            </a>
-                            <a href="#" className="bg-gray-800 p-2 rounded-lg hover:bg-[#2563EB] transition">
-                                <Instagram size={18} />
-                            </a>
-                            <a href="#" className="bg-gray-800 p-2 rounded-lg hover:bg-[#2563EB] transition">
-                                <Linkedin size={18} />
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Quick Links */}
-                    <div>
-                        <h3 className="font-bold text-lg mb-4">Quick Links</h3>
-                        <div className="space-y-2">
-                            {quickLinks.map((link, index) => (
-                                <a
-                                    key={index}
-                                    href={link.href}
-                                    className="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm group"
-                                >
-                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition" />
-                                    {link.name}
+                            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
+                                <a key={i} href="#" className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all">
+                                    <Icon size={16} />
                                 </a>
                             ))}
                         </div>
                     </div>
 
-                    {/* Categories */}
+                    {/* Column 2: Quick Links */}
                     <div>
-                        <h3 className="font-bold text-lg mb-4">Categories</h3>
-                        <div className="space-y-2">
-                            {categories.map((category, index) => (
-                                <a
-                                    key={index}
-                                    href={category.href}
-                                    className="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm group"
-                                >
-                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition" />
-                                    {category.name}
-                                </a>
+                        <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 mb-8">Quick Links</h4>
+                        <ul className="space-y-3">
+                            {quickLinks.map((link, i) => (
+                                <li key={i}>
+                                    <Link href={link.href} className="text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1.5 text-sm font-semibold">
+                                        <ChevronRight size={14} className="text-slate-300" />
+                                        {link.name}
+                                    </Link>
+                                </li>
                             ))}
-                        </div>
+                        </ul>
                     </div>
 
-                    {/* Contact Info */}
+                    {/* Column 3: Categories */}
                     <div>
-                        <h3 className="font-bold text-lg mb-4">Contact Us</h3>
-                        <div className="space-y-3 text-sm text-gray-400">
-                            <div className="flex items-start gap-3">
-                                <Mail size={18} className="mt-0.5 text-[#2563EB]" />
-                                <div>
-                                    <p className="text-white font-medium">Email</p>
-                                    <a href="mailto:support@hopechain.org" className="hover:text-white transition">
-                                        support@hopechain.org
-                                    </a>
+                        <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 mb-8">Support Causes</h4>
+                        <ul className="space-y-3">
+                            {categories.map((link, i) => (
+                                <li key={i}>
+                                    <Link href={link.href} className="text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1.5 text-sm font-semibold">
+                                        <ChevronRight size={14} className="text-slate-300" />
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Column 4: Contact & Verification */}
+                    <div className="space-y-6">
+                        <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 mb-8">Get In Touch</h4>
+                        <div className="space-y-5">
+                            <div className="flex gap-3 items-start text-sm text-slate-500">
+                                <div className="p-2 bg-blue-50 rounded-lg shrink-0">
+                                    <MapPin size={16} className="text-blue-600" />
                                 </div>
+                                <span className="font-medium">Mahi Village, Vadgam Taluka,<br /> Banaskantha, Gujarat, India</span>
                             </div>
-                            <div className="flex items-start gap-3">
-                                <Phone size={18} className="mt-0.5 text-[#2563EB]" />
-                                <div>
-                                    <p className="text-white font-medium">Phone</p>
-                                    <a href="tel:+919876543210" className="hover:text-white transition">
-                                        +91 98765 43210
-                                    </a>
+                            <div className="flex gap-3 items-center text-sm text-slate-500">
+                                <div className="p-2 bg-blue-50 rounded-lg shrink-0">
+                                    <Mail size={16} className="text-blue-600" />
                                 </div>
+                                <a href="mailto:support@donatecare.org" className="hover:text-blue-600 transition-colors font-medium">support@donatecare.org</a>
                             </div>
-                            <div className="flex items-start gap-3">
-                                <MapPin size={18} className="mt-0.5 text-[#2563EB]" />
-                                <div>
-                                    <p className="text-white font-medium">Address</p>
-                                    <p>Mumbai, Maharashtra, India</p>
+                            <div className="pt-2">
+                                <div className="inline-flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-lg border border-green-100 shadow-sm shadow-green-600/5">
+                                    <ShieldCheck size={14} />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider">Verified NGO Profile</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Newsletter Section */}
-                <div className="border-t border-gray-800 pt-8 pb-8">
-                    <div className="max-w-xl mx-auto text-center">
-                        <h3 className="font-bold text-xl mb-2">Stay Updated</h3>
-                        <p className="text-gray-400 text-sm mb-4">
-                            Subscribe to our newsletter for latest campaigns and updates
-                        </p>
-                        <div className="flex gap-2">
+            {/* --- Newsletter Section (Subtle Light Background) --- */}
+            <div className="bg-blue-50/50 border-b border-slate-100 ">
+                <div className="max-w-7xl mx-auto px-6 py-12">
+                    <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+                        <div className="text-center lg:text-left">
+                            <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">Subscribe to our newsletter</h3>
+                            <p className="text-slate-500 text-sm">Stay updated with our latest campaigns and social impact reports.</p>
+                        </div>
+                        <div className="w-full max-w-md flex gap-2">
                             <input
                                 type="email"
-                                placeholder="Enter your email"
-                                className="flex-1 px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#2563EB] transition"
+                                placeholder="Enter your email address"
+                                className="flex-1 bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all"
                             />
-                            <button className="bg-[#2563EB] text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition font-medium whitespace-nowrap">
-                                Subscribe
+                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 shadow-lg shadow-blue-600/10 active:scale-95">
+                                Subscribe <Send size={14} />
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Bottom Bar */}
-                <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-gray-400 text-sm">
-                        © 2025 HopeChain. All rights reserved.
+            {/* --- Bottom Bar --- */}
+            <div className="border-t border-slate-100 bg-slate-50/30 py-8">
+                <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <p className="text-slate-400 text-[11px] font-medium">
+                        © 2026 <span className="text-slate-600 font-bold">DonateCare Foundation</span>. All rights reserved.
                     </p>
-                    <div className="flex gap-6 text-sm">
-                        <a href="/privacy" className="text-gray-400 hover:text-white transition">
-                            Privacy Policy
-                        </a>
-                        <a href="/terms" className="text-gray-400 hover:text-white transition">
-                            Terms of Service
-                        </a>
-                        <a href="/cookies" className="text-gray-400 hover:text-white transition">
-                            Cookie Policy
-                        </a>
+                    <div className="flex flex-wrap justify-center items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <span className="text-blue-600/80">80G TAX EXEMPTION AVAILABLE</span>
+                        <span className="hidden md:inline text-slate-200">|</span>
+                        <span>Ahmedabad, Gujarat</span>
                     </div>
                 </div>
             </div>
@@ -166,5 +160,4 @@ const Footer = () => {
     );
 };
 
-
-export default Footer
+export default Footer;

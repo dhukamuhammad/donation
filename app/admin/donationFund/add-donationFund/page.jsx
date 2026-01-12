@@ -1,12 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Calendar, DollarSign, Tag, FileText, Image } from "lucide-react";
+import { 
+  Calendar, 
+  DollarSign, 
+  Tag, 
+  FileText, 
+  Image as ImageIcon, 
+  Plus, 
+  ChevronLeft,
+  Upload,
+  Info
+} from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { showSuccess, showError } from "@/components/Toaster";
 
-// ✅ TinyMCE client-only (SSR OFF)
+// ✅ TinyMCE client-only
 const TinyEditor = dynamic(
   () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
   { ssr: false }
@@ -15,6 +25,7 @@ const TinyEditor = dynamic(
 const AddDonationFundPage = () => {
   const router = useRouter();
   const [categories, setCategories] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -32,19 +43,17 @@ const AddDonationFundPage = () => {
         const res = await axiosInstance.get("/category");
         setCategories(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Category fetch error:", err);
       }
     };
     fetchCategories();
   }, []);
 
-  // TEXT CHANGE
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // FILE CHANGE
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     setFormData((prev) => ({
@@ -55,196 +64,232 @@ const AddDonationFundPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const fd = new FormData();
-      fd.append("title", formData.title);
-      fd.append("description", formData.description);
-      fd.append("date", formData.date);
-      fd.append("total_amount", formData.total_amount);
-      fd.append("fun_cat", formData.fun_cat);
-      fd.append("thumbnail", formData.thumbnail);
-      fd.append("document_img", formData.document_img);
+      Object.keys(formData).forEach(key => {
+        fd.append(key, formData[key]);
+      });
 
       await axiosInstance.post("/donationFund", fd, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      showSuccess("Donation fund created successfully");
+      
+      showSuccess("Campaign launched successfully ✅");
       router.push("/admin/donationFund");
     } catch (err) {
-      showError("Failed to create donation fund");
-      console.error("Submit error:", err);
+      showError("Submission failed. Check all fields.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Add Donation Fund</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Create a new donation campaign
-        </p>
+    <div className="p-6 lg:p-10 bg-slate-50/50 min-h-screen font-['Outfit']">
+      
+      {/* --- Page Header --- */}
+      <div className="max-w-5xl mx-auto mb-8 flex items-center justify-between">
+        <div>
+          <button 
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-slate-400 hover:text-blue-600 transition-colors text-xs font-bold uppercase tracking-widest mb-2"
+          >
+            <ChevronLeft size={14} /> Back to listing
+          </button>
+          <h1 className="text-2xl font-bold text-slate-800">Launch New Campaign</h1>
+          <p className="text-sm text-slate-500 mt-1">Provide accurate details to start a verified donation fund.</p>
+        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-6">
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-6">
-              {/* TITLE */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <FileText size={16} /> Campaign Title
+      <div className="max-w-5xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          
+          {/* Section 1: Basic Info */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+              <FileText size={16} className="text-blue-600" />
+              <h2 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Campaign Overview</h2>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Campaign Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="title"
+                  required
                   value={formData.title}
                   onChange={handleInputChange}
-                  placeholder="Enter campaign title"
-                  className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                  placeholder="e.g. Help Rahul for Heart Surgery"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 transition-all outline-none font-medium"
                 />
               </div>
 
-              {/* DESCRIPTION */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <FileText size={16} /> Description
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Campaign Story & Details
                 </label>
-
-                <TinyEditor
-                  apiKey="bh3dkf7dq6x8qqpcumphpgwad92mar5ky71n0l1z1yc0rgu2"
-                  value={formData.description}
-                  onEditorChange={(content) =>
-                    setFormData((prev) => ({ ...prev, description: content }))
-                  }
-                  init={{
-                    plugins:
-                      "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
-                    toolbar:
-                      "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
-                  }}
-                />
+                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  <TinyEditor
+                    apiKey="bh3dkf7dq6x8qqpcumphpgwad92mar5ky71n0l1z1yc0rgu2"
+                    value={formData.description}
+                    onEditorChange={(content) =>
+                      setFormData((prev) => ({ ...prev, description: content }))
+                    }
+                    init={{
+                      height: 350,
+                      menubar: false,
+                      plugins: "link lists table wordcount",
+                      toolbar: "undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | link table | removeformat",
+                      content_style: "body { font-family:Outfit,Arial,sans-serif; font-size:14px }",
+                    }}
+                  />
+                </div>
               </div>
+            </div>
+          </div>
 
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* THUMBNAIL */}
-                <div className="flex-1">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <Image size={16} /> Campaign Thumbnail
-                  </label>
+          {/* Section 2: Visual Assets & Documents */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Thumbnail */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+                <ImageIcon size={14} className="text-blue-600" /> Cover Image
+              </label>
+              <div className="space-y-4">
+                <div className="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-blue-400 transition-all text-center">
                   <input
                     type="file"
                     name="thumbnail"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
-      file:rounded-lg file:border-0
-      file:bg-blue-50 file:text-[#2563EB] file:font-medium
-      hover:file:bg-blue-100 transition cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-
-                  {formData.thumbnail && (
-                    <img
-                      src={URL.createObjectURL(formData.thumbnail)}
-                      className="mt-3 h-32 rounded-lg object-cover border"
-                    />
-                  )}
+                  <Upload size={24} className="mx-auto text-slate-300 mb-2 group-hover:text-blue-500" />
+                  <p className="text-xs text-slate-500 font-medium">Click to upload thumbnail</p>
                 </div>
+                {formData.thumbnail && (
+                  <div className="relative h-40 rounded-lg overflow-hidden border border-slate-200">
+                    <img src={URL.createObjectURL(formData.thumbnail)} className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+            </div>
 
-                {/* DOCUMENT IMAGE */}
-                <div className="flex-1">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <Image size={16} /> Supporting Document Image
-                  </label>
+            {/* Support Document */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+                <FileText size={14} className="text-blue-600" /> Verification Doc
+              </label>
+              <div className="space-y-4">
+                <div className="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-blue-400 transition-all text-center">
                   <input
                     type="file"
                     name="document_img"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4
-      file:rounded-lg file:border-0
-      file:bg-blue-50 file:text-[#2563EB] file:font-medium
-      hover:file:bg-blue-100 transition cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-
-                  {formData.document_img && (
-                    <img
-                      src={URL.createObjectURL(formData.document_img)}
-                      className="mt-3 h-32 rounded-lg object-cover border"
-                    />
-                  )}
+                  <Upload size={24} className="mx-auto text-slate-300 mb-2 group-hover:text-blue-500" />
+                  <p className="text-xs text-slate-500 font-medium">Click to upload medical doc</p>
                 </div>
+                {formData.document_img && (
+                  <div className="relative h-40 rounded-lg overflow-hidden border border-slate-200">
+                    <img src={URL.createObjectURL(formData.document_img)} className="w-full h-full object-cover" />
+                  </div>
+                )}
               </div>
+            </div>
+          </div>
 
-              {/* GRID */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <DollarSign size={16} /> Target Amount (₹)
-                  </label>
+          {/* Section 3: Financials & Classification */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Target Amount (₹)
+                </label>
+                <div className="relative">
+                  <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="number"
                     name="total_amount"
+                    required
                     value={formData.total_amount}
                     onChange={handleInputChange}
-                    placeholder="Enter target amount"
-                    className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <Tag size={16} /> Category
-                  </label>
-                  <select
-                    name="fun_cat"
-                    value={formData.fun_cat}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
-                  >
-                    <option value="">Select category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                    <Calendar size={16} /> Date
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
+                    placeholder="5,00,000"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all font-bold"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Campaign Category
+                </label>
+                <div className="relative">
+                  <Tag size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <select
+                    name="fun_cat"
+                    required
+                    value={formData.fun_cat}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all font-medium appearance-none"
+                  >
+                    <option value="">Select category</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.title}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Target Date
+                </label>
+                <div className="relative">
+                  <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="date"
+                    name="date"
+                    required
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all font-medium"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Bar */}
+          <div className="flex items-center justify-between p-6 bg-slate-800 rounded-xl shadow-lg shadow-slate-200">
+             <div className="flex items-center gap-2 text-slate-300 text-xs font-medium">
+               <Info size={14} />
+               <span>Campaign will go live immediately after creation.</span>
+             </div>
+             <div className="flex gap-4">
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="px-8 py-3 rounded-lg text-base font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                  className="px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex bg-[#2563EB] text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                  disabled={isSubmitting}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md active:scale-95 transition-all flex items-center gap-2"
                 >
-                  Create Campaign
+                  {isSubmitting ? "Launching..." : <><Plus size={16} /> Launch Campaign</>}
                 </button>
-              </div>
-            </div>
-          </form>
-        </div>
+             </div>
+          </div>
+
+        </form>
       </div>
     </div>
   );

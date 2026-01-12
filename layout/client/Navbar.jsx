@@ -1,7 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Heart, Menu, X, LogIn, UserPlus, User, LogOut } from "lucide-react";
+import { 
+  Heart, 
+  Menu, 
+  X, 
+  LogIn, 
+  UserPlus, 
+  User, 
+  LogOut, 
+  ChevronDown 
+} from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
 import CustomModel from "@/components/CustomModel";
@@ -13,14 +23,14 @@ import {
 } from "@/components/Toaster";
 
 const Navbar = () => {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  /* ================= Auth ================= */
+  /* ================= Auth Logic ================= */
   useEffect(() => {
     const updateAuth = () => {
       const token = localStorage.getItem("token");
@@ -36,29 +46,20 @@ const Navbar = () => {
 
     updateAuth();
     window.addEventListener("auth-changed", updateAuth);
-
-    return () => {
-      window.removeEventListener("auth-changed", updateAuth);
-    };
+    return () => window.removeEventListener("auth-changed", updateAuth);
   }, []);
 
-  /* ================= Profile API ================= */
   const fetchUserById = async (userId) => {
     try {
       const res = await axiosInstance.get(`/auth/signup/${userId}`);
       setProfileImage(res.data?.profile_img || null);
     } catch (err) {
-      console.error(err);
       setProfileImage(null);
     }
   };
 
-  /* ================= Real-time Same-tab Update ================= */
   useEffect(() => {
-    const handler = (e) => {
-      setProfileImage(e.detail);
-    };
-
+    const handler = (e) => setProfileImage(e.detail);
     window.addEventListener("profile-image-updated", handler);
     return () => window.removeEventListener("profile-image-updated", handler);
   }, []);
@@ -66,213 +67,193 @@ const Navbar = () => {
   /* ================= Outside Click Close ================= */
   useEffect(() => {
     const closeMenu = (e) => {
-      if (!e.target.closest(".profile-menu")) {
+      if (!e.target.closest(".profile-menu-container")) {
         setShowProfileMenu(false);
       }
     };
-
-    if (showProfileMenu) {
-      window.addEventListener("click", closeMenu);
-    }
-
+    if (showProfileMenu) window.addEventListener("click", closeMenu);
     return () => window.removeEventListener("click", closeMenu);
   }, [showProfileMenu]);
 
   /* ================= Logout ================= */
-  // const handleLogout = () => {
-
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("userId");
-
-  //   setIsLoggedIn(false);
-  //   setShowProfileMenu(false);
-  //   setProfileImage(null);
-
-  //   window.dispatchEvent(new Event("auth-changed"));
-  //   window.location.href = "/";
-  //   setShowLogoutModal(false);
-  // };
-
   const handleLogout = async () => {
-    const loading = showLoading("Logging out...");
-
+    showLoading("Logging out...");
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
-
       setIsLoggedIn(false);
       setShowProfileMenu(false);
       setProfileImage(null);
-
       window.dispatchEvent(new Event("auth-changed"));
-
       dismissToast();
       showSuccess("Logged out successfully");
-
       setShowLogoutModal(false);
-
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 500);
+      setTimeout(() => { window.location.href = "/"; }, 500);
     } catch (err) {
       dismissToast();
       showError("Logout failed");
     }
   };
 
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Fundraisers", href: "/fundraisers" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
+
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-      <div className="max-w-7xl mx-auto sm:px-6 lg:px-5">
-        <div className="flex justify-between items-center h-16">
-          {/* ================= Logo ================= */}
-          <div className="flex items-center gap-2 cursor-pointer">
-            <span className="text-2xl font-bold bg-gradient-to-r from-[#2563EB] to-blue-600 bg-clip-text text-transparent">
-              <Image src="/image.png" alt="Logo" width={170} height={0} />
-            </span>
-          </div>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 h-16 font-['Outfit']">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex justify-between items-center">
+        
+        {/* ================= Logo ================= */}
+        <Link href="/" className="flex items-center flex-shrink-0">
+          <Image src="/image.png" alt="DonateCare Logo" width={150} height={35} priority />
+        </Link>
 
-          {/* ================= Desktop Links ================= */}
-          <div className="hidden lg:flex items-center gap-8 ml-[-7rem]">
+        {/* ================= Desktop Navigation ================= */}
+        <div className="hidden lg:flex items-center gap-8">
+          {navLinks.map((link) => (
             <Link
-              href="/"
-              className="text-gray-700 hover:text-[#2563EB] font-medium transition"
+              key={link.name}
+              href={link.href}
+              className={`text-sm font-semibold transition-colors ${
+                pathname === link.href ? "text-blue-600" : "text-slate-600 hover:text-blue-600"
+              }`}
             >
-              Home
+              {link.name}
             </Link>
-            <Link
-              href="/fundraisers"
-              className="text-gray-700 hover:text-[#2563EB] font-medium transition"
-            >
-              Fundraisers
-            </Link>
-            <Link
-              href="/about"
-              className="text-gray-700 hover:text-[#2563EB] font-medium transition"
-            >
-              About
-            </Link>
-            <Link
-              href="/contact"
-              className="text-gray-700 hover:text-[#2563EB] font-medium transition"
-            >
-              Contact
-            </Link>
-          </div>
+          ))}
+        </div>
 
-          {/* ================= Right Section ================= */}
-          <div className="hidden lg:flex items-center gap-3">
+        {/* ================= Right Section (Desktop) ================= */}
+        <div className="hidden lg:flex items-center gap-4">
+          {!isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <Link href="/login">
+                <button className="text-slate-600 hover:text-blue-600 text-sm font-bold px-4 py-2 rounded-md transition-colors">
+                  Login
+                </button>
+              </Link>
+              <Link href="/signUp">
+                <button className="bg-blue-600 text-white text-sm font-bold px-5 py-2 rounded-md hover:bg-blue-700 shadow-sm transition-all flex items-center gap-2">
+                  <UserPlus size={16} />
+                  Join Now
+                </button>
+              </Link>
+            </div>
+          ) : (
+            <div className="relative profile-menu-container">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center gap-2 p-1 pl-2 border border-slate-200 rounded-full hover:bg-slate-50 transition-all"
+              >
+                <span className="text-xs font-bold text-slate-600">Menu</span>
+                <div className="w-8 h-8 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                  {profileImage ? (
+                    <img src={`/uploads/${profileImage}`} className="w-full h-full object-cover" alt="User" />
+                  ) : (
+                    <User size={16} className="m-2 text-slate-400" />
+                  )}
+                </div>
+                <ChevronDown size={14} className={`text-slate-400 mr-1 transition-transform ${showProfileMenu ? "rotate-180" : ""}`} />
+              </button>
+
+              {/* Profile Dropdown */}
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-xl py-1 z-[60] overflow-hidden">
+                  <Link
+                    href="/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    <User size={16} className="text-slate-400" />
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/my-donation"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    <Heart size={16} className="text-slate-400" />
+                    My Donations
+                  </Link>
+                  <div className="h-px bg-slate-100 my-1"></div>
+                  <button
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      setShowLogoutModal(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-bold transition-colors"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ================= Mobile Menu Button ================= */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="lg:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 transition-all"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* ================= Mobile Menu Panel ================= */}
+      {isMenuOpen && (
+        <div className="lg:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-200 py-4 shadow-lg animate-in slide-in-from-top duration-200">
+          <div className="flex flex-col gap-1 px-4">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className={`px-4 py-3 rounded-md text-sm font-bold transition-all ${
+                  pathname === link.href ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+            
             {!isLoggedIn ? (
-              <div className="flex ">
-                <Link href="/login">
-                  <button className="flex items-center gap-2 text-gray-700 hover:text-[#2563EB] font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition">
-                    <LogIn size={18} />
-                    Login
-                  </button>
+              <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-100">
+                <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                  <button className="w-full py-2.5 rounded-md font-bold text-slate-600 border border-slate-200 text-sm">Login</button>
                 </Link>
-
-                <Link href="/signUp">
-                  <button className="flex items-center gap-2 bg-[#2563EB] text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium shadow-md">
-                    <UserPlus size={18} />
-                    Sign Up
-                  </button>
+                <Link href="/signUp" onClick={() => setIsMenuOpen(false)}>
+                  <button className="w-full py-2.5 rounded-md font-bold text-white bg-blue-600 text-sm">Sign Up</button>
                 </Link>
               </div>
             ) : (
-              <div className="relative profile-menu">
-                {/* Avatar */}
-                <button
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="w-9 h-9 rounded-full bg-[#2563EB] flex items-center justify-center text-white hover:opacity-90 transition"
-                >
-                  {profileImage ? (
-                    <img
-                      src={`/uploads/${profileImage}`}
-                      className="w-full h-full object-cover rounded-full"
-                      alt="Profile"
-                    />
-                  ) : (
-                    <User size={18} />
-                  )}
+              <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-1">
+                <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 text-sm font-bold text-slate-600 flex items-center gap-3">
+                  <User size={18}/> My Profile
+                </Link>
+                <Link href="/my-donation" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 text-sm font-bold text-slate-600 flex items-center gap-3">
+                  <Heart size={18}/> My Donations
+                </Link>
+                <button onClick={() => setShowLogoutModal(true)} className="px-4 py-3 text-sm font-bold text-red-600 flex items-center gap-3">
+                  <LogOut size={18}/> Logout Account
                 </button>
-
-                {/* ================= Profile Popup ================= */}
-                {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
-                    <Link
-                      href="/profile"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
-                    >
-                      <User size={16} />
-                      My Profile
-                    </Link>
-
-                    <Link
-                      href="/my-donation"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
-                    >
-                      <Heart size={16} />
-                      My Donations
-                    </Link>
-
-                    <button
-                      onClick={() => setShowLogoutModal(true)}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut size={16} />
-                      Logout
-                    </button>
-                  </div>
-                )}
               </div>
             )}
           </div>
-
-          {/* ================= Mobile Menu Button ================= */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden text-gray-700 hover:text-[#2563EB] p-2"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
+      )}
 
-        {/* ================= Mobile Menu ================= */}
-        {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col gap-3">
-              <Link href="/" className="px-4 py-2 hover:bg-gray-50 rounded">
-                Home
-              </Link>
-              <Link
-                href="/fundraisers"
-                className="px-4 py-2 hover:bg-gray-50 rounded"
-              >
-                Fundraisers
-              </Link>
-              <Link
-                href="/about"
-                className="px-4 py-2 hover:bg-gray-50 rounded"
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="px-4 py-2 hover:bg-gray-50 rounded"
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Logout Confirmation */}
       <CustomModel
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
-        title="Confirm Logout"
-        description="Are you sure you want to logout from this website?"
+        title="Logout Account"
+        description="Are you sure you want to log out? You will need to login again to view your donor dashboard."
         Delete="Logout"
       />
     </nav>
