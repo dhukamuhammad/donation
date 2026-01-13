@@ -39,7 +39,7 @@ const Category = () => {
   return (
     <section className="py-16 bg-slate-50 font-['Outfit']">
       <div className="max-w-7xl mx-auto px-6">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
@@ -54,7 +54,7 @@ const Category = () => {
               Urgent causes that need your immediate support and attention.
             </p>
           </div>
-          
+
           <Link href="/fundraisers" className="hidden md:block">
             <button className="flex items-center gap-2 text-blue-600 font-bold text-sm hover:underline underline-offset-4 transition-all">
               View All Campaigns
@@ -93,15 +93,30 @@ const Category = () => {
                     {item.title}
                   </h3>
 
-                  {/* Trust Badges */}
-                  <div className="flex flex-wrap gap-2 mb-5">
-                    {['Sadaqah', 'Zakat', 'Lillah'].map((tag) => (
-                      <span key={tag} className="flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                        <CheckCircle size={10} className="text-green-600" />
-                        {tag}
-                      </span>
-                    ))}
+                  <div className="flex items-center gap-3 mb-5">
+                    {/* Zakat */}
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                      <span>Zakat</span>
+                    </div>
+
+                    <span className="w-px h-3 bg-slate-200"></span> {/* Vertical Divider */}
+
+                    {/* Sadaqah */}
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                      <span>Sadaqah</span>
+                    </div>
+
+                    <span className="w-px h-3 bg-slate-200"></span> {/* Vertical Divider */}
+
+                    {/* Lillah */}
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                      <span>Lillah</span>
+                    </div>
                   </div>
+
 
                   {/* Progress Data */}
                   <div className="mt-auto">

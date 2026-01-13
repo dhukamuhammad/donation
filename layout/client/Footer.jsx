@@ -11,6 +11,7 @@ import {
     ShieldCheck,
     Send
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 const Footer = () => {
@@ -46,12 +47,10 @@ const Footer = () => {
 
                     {/* Column 1: Brand */}
                     <div className="space-y-6">
-                        <div className="flex items-center gap-2">
-                            <div className="bg-blue-600 p-1.5 rounded-lg shadow-sm">
-                                <Heart size={18} fill="white" stroke="none" />
-                            </div>
-                            <span className="text-xl font-bold tracking-tight text-slate-900">DonateCare</span>
-                        </div>
+                        <Link href="/" className="flex items-center flex-shrink-0">
+                            <Image src="/donatecare.png" alt="DonateCare Logo" width={160} height={35} priority />
+                        </Link>
+
                         <p className="text-slate-500 text-sm leading-relaxed font-medium">
                             Dedicated to bringing transparency and efficiency to social welfare. We bridge the gap between compassionate donors and verified causes.
                         </p>

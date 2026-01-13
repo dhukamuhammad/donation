@@ -159,8 +159,6 @@ const Fundraisers = () => {
                   </div>
 
                   {/* Body Area */}
-                  {/* Body Area */}
-                  {/* Body Area */}
                   <div className="p-5 flex-1 flex flex-col font-['Outfit']">
 
                     {/* Campaign Title */}

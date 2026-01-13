@@ -4,8 +4,10 @@ import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
 import { showSuccess, showError } from "@/components/Toaster";
 import { User, Mail, Phone, ShieldCheck, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,20 +41,24 @@ export default function SignupPage() {
         terms: false,
       });
       showSuccess("Signup successful ✅");
-      console.log(res.data);
+      router.push("/login");
     } catch (error) {
-      console.error(error);
-      showError(error.response?.data?.error || "Signup failed");
+      if (error.response) {
+        showError(error.response.data.error);
+      }
+      else {
+        showError(error.response?.data?.error || "Signup failed");
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-['Outfit']">
       <div className="w-full max-w-[450px]">
-        
+
         {/* Signup Card */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 md:p-10">
-          
+
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Create Account</h2>
@@ -60,7 +66,7 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            
+
             {/* Name Field */}
             <div className="space-y-1.5">
               <label htmlFor="name" className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
