@@ -72,7 +72,7 @@ const Navbar = ({ toggleSidebar }) => {
             </div>
             
             <div className="hidden lg:block text-left">
-              <p className="text-sm font-bold text-slate-800 leading-none">System Admin</p>
+              <p className="text-sm font-bold text-slate-800 leading-none">Admin</p>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-1">Superuser</p>
             </div>
             <ChevronDown size={14} className="text-slate-400 group-hover:text-blue-600 transition-colors" />
