@@ -71,7 +71,7 @@ const CategoryPage = () => {
   };
 
   return (
-    <div className="p-6 lg:p-10 bg-slate-50/50 min-h-screen font-['Outfit']">
+    <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
       
       {/* --- Page Header --- */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -185,7 +185,7 @@ const CategoryPage = () => {
                     className="flex-[2] bg-blue-600 text-white py-2.5 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                   >
                     {form.id ? <CheckCircle size={14} /> : <Plus size={14} />}
-                    {form.id ? "Update Category" : "Save Category"}
+                    {form.id ? "Update " : "Save Category"}
                   </button>
                 </div>
               </form>

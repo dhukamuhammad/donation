@@ -66,7 +66,7 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="p-6 lg:p-10 bg-[#F8FAFC] min-h-screen font-['Outfit']">
+    <div className="p-6 lg:p-6 bg-[#F8FAFC] min-h-screen font-['Outfit']">
       
       {/* --- Page Header --- */}
       <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">

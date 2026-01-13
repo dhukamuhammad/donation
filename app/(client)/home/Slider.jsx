@@ -101,7 +101,7 @@ const Slider = () => {
                 </div>
             ))}
 
-            {/* Navigation Arrows - Standard Solid Style */}
+            {/* Navigation Arrows - Standard Solid Style 
             <div className="hidden md:flex absolute inset-x-6 top-1/2 -translate-y-1/2 justify-between pointer-events-none">
                 <button 
                     onClick={prevSlide}
@@ -118,6 +118,7 @@ const Slider = () => {
                     <ChevronRight size={24} />
                 </button>
             </div>
+            */}
 
             {/* Minimalist Indicators */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">

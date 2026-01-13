@@ -10,14 +10,16 @@ import {
   KeyRound, 
   ShieldCheck, 
   ArrowRight, 
-  ChevronLeft 
+  ChevronLeft,
+  Loader2 
 } from "lucide-react";
 
 import { showSuccess, showError } from "@/components/Toaster";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState(1); // 1 = send OTP, 2 = verify OTP
+  const [step, setStep] = useState(1); 
+  const [loading, setLoading] = useState(false); 
 
   const [formData, setFormData] = useState({
     email: "",
@@ -35,6 +37,7 @@ export default function LoginPage() {
   /* ================= STEP 1: Send OTP ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); 
     try {
       const res = await axiosInstance.post("/auth/login", {
         email: formData.email,
@@ -48,12 +51,15 @@ export default function LoginPage() {
       setStep(2);
     } catch (error) {
       showError(error.response?.data?.error || "Failed to send OTP");
+    } finally {
+      setLoading(false); 
     }
   };
 
   /* ================= STEP 2: Verify OTP ================= */
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    setLoading(true); 
     try {
       const res = await axiosInstance.post("/auth/verify-otp", {
         email: formData.email,
@@ -68,6 +74,8 @@ export default function LoginPage() {
       showSuccess("Login successful ✅");
     } catch (error) {
       showError(error.response?.data?.error || "Invalid OTP");
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -81,7 +89,7 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              {step === 1 ? "Welcome Back" : "Verify OTP"}
+              {step === 1 ? "Welcome Back" : "Verify Identity"}
             </h2>
             <p className="text-sm text-slate-500 font-medium">
               {step === 1 
@@ -107,6 +115,7 @@ export default function LoginPage() {
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all"
                     placeholder="name@example.com"
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -125,16 +134,27 @@ export default function LoginPage() {
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all"
                     placeholder="+91 00000 00000"
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-bold text-sm hover:bg-blue-700 shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-bold text-sm hover:bg-blue-700 shadow-sm active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Send Verification Code
-                <ArrowRight size={18} />
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Sending OTP...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <span>Send Verification Code</span>
+                    <ArrowRight size={18} />
+                  </div>
+                )}
               </button>
             </form>
           )}
@@ -157,6 +177,7 @@ export default function LoginPage() {
                     placeholder="000000"
                     maxLength={6}
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -164,14 +185,25 @@ export default function LoginPage() {
               <div className="space-y-3">
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-bold text-sm hover:bg-blue-700 shadow-sm active:scale-[0.98] transition-all"
+                  disabled={loading}
+                  className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-bold text-sm hover:bg-blue-700 shadow-sm active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Verify & Login
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 size={18} className="animate-spin" />
+                      <span>Verifying...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <span>Verify & Login</span>
+                    </div>
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
                   className="w-full flex items-center justify-center gap-1 text-slate-400 hover:text-slate-600 text-xs font-bold transition-colors"
+                  disabled={loading}
                 >
                   <ChevronLeft size={14} />
                   Back to login info
@@ -180,7 +212,7 @@ export default function LoginPage() {
             </form>
           )}
 
-          {/* Footer Link */}
+          {/* Footer Decoration */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-100"></div>

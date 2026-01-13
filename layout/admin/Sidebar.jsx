@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react"; // Added useState
 import {
   FileText,
   LayoutDashboard,
@@ -10,13 +10,20 @@ import {
   X,
   ChevronRight,
   ShieldCheck,
-  Users
+  Users,
+  Receipt,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import axiosInstance from "@/lib/axiosinstance";
+import CustomModal from "@/components/CustomModel"; // Import your CustomModal
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // ================= STATE =================
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const menuItems = [
     {
@@ -37,35 +44,50 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       label: "Manage Funds",
       path: "/admin/donationFund",
     },
-    { 
-      id: "reports", 
-      icon: FileText, 
-      label: "Impact Reports", 
-      path: "/admin/reports" 
+    {
+      id: "users",
+      icon: Users, // Professional User Management Icon
+      label: "User Directory",
+      path: "/admin/users",
     },
-    { 
-      id: "settings", 
-      icon: Settings, 
-      label: "Admin Settings", 
-      path: "/admin/settings" 
+    {
+      id: "payment_info",
+      icon: Receipt, // Financial/Invoice Icon for payments
+      label: "Financial Ledger",
+      path: "/admin/payment_info",
+    }, {
+      id: "settings",
+      icon: Settings,
+      label: "Admin Settings",
+      path: "/admin/settings",
     },
   ];
+
+  // ================= LOGOUT LOGIC =================
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/auth/admin/logout");
+      setShowLogoutModal(false); // Close modal
+      router.replace("/admin/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   return (
     <>
       {/* --- Mobile Overlay --- */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[90] lg:hidden transition-opacity"
+        <div
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-[2px] z-[90] lg:hidden transition-opacity"
           onClick={toggleSidebar}
         />
       )}
 
-      <aside 
+      <aside
         className={`fixed top-0 left-0 h-screen w-64 bg-white border-r border-slate-200 z-[100] font-['Outfit'] transition-transform duration-300 ease-in-out lg:translate-x-0 
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        
         {/* --- Sidebar Header --- */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 bg-white">
           <Link href="/admin/dashboard" className="flex items-center gap-2">
@@ -76,7 +98,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               Admin<span className="text-blue-600">Portal</span>
             </span>
           </Link>
-          <button 
+          <button
             onClick={toggleSidebar}
             className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
           >
@@ -99,22 +121,25 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                   <li key={item.id}>
                     <Link
                       href={item.path}
-                      onClick={() => { if(window.innerWidth < 1024) toggleSidebar(); }}
-                      className={`group flex items-center justify-between px-4 py-3 rounded-lg transition-all text-[14px] font-semibold ${
-                        isActive
-                          ? "bg-blue-50 text-blue-600 border border-blue-100/50"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
-                      }`}
+                      onClick={() => {
+                        if (window.innerWidth < 1024) toggleSidebar();
+                      }}
+                      className={`group flex items-center justify-between px-4 py-3 rounded-lg transition-all text-[14px] font-semibold ${isActive
+                        ? "bg-blue-50 text-blue-600 border border-blue-100/50"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
+                        }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon 
-                          size={18} 
+                        <Icon
+                          size={18}
                           strokeWidth={isActive ? 2.5 : 2}
-                          className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"} 
+                          className={isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
                         />
                         <span>{item.label}</span>
                       </div>
-                      {isActive && <div className="w-1.5 h-1.5 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.4)]" />}
+                      {isActive && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.4)]" />
+                      )}
                     </Link>
                   </li>
                 );
@@ -122,9 +147,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </ul>
           </nav>
 
-          {/* --- Bottom Section: Admin Status & Logout --- */}
+          {/* --- Bottom Section --- */}
           <div className="mt-auto pt-4 border-t border-slate-100">
-            {/* Admin Badge Card */}
+            {/* Admin Badge */}
             <div className="mb-4 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
               <div className="relative">
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
@@ -138,14 +163,31 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </div>
             </div>
 
-            {/* Logout Button */}
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-all font-bold text-[14px] group">
-              <LogOut size={18} className="group-hover:-translate-x-0.5 transition-transform" strokeWidth={2.5} />
+            {/* Logout Button (Triggers Modal) */}
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-all font-bold text-[14px] group"
+            >
+              <LogOut
+                size={18}
+                className="group-hover:-translate-x-0.5 transition-transform"
+                strokeWidth={2.5}
+              />
               <span>Logout Session</span>
             </button>
           </div>
         </div>
       </aside>
+
+      {/* ================= MODAL INTEGRATION ================= */}
+      <CustomModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        title="Confirm Secure Logout"
+        description="Are you sure you want to end your current session? You will need to re-authenticate to access the admin control panel."
+        Delete="Logout Now"
+      />
     </>
   );
 };

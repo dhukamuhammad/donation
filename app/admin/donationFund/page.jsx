@@ -55,7 +55,7 @@ const DonationFundPage = () => {
   };
 
   return (
-    <div className="p-6 lg:p-10 bg-slate-50/50 min-h-screen font-['Outfit']">
+    <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
       
       {/* --- Dashboard Header --- */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -93,7 +93,7 @@ const DonationFundPage = () => {
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-16 text-center">ID</th>
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Visuals</th>
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest min-w-[20px]">Campaign Title</th>
-                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Target Amount</th>
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-left">Target Amount</th>
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Start Date</th>
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Actions</th>
               </tr>
@@ -141,7 +141,7 @@ const DonationFundPage = () => {
                     </span>
                   </td>
 
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-left">
                     <span className="text-sm font-bold text-slate-900">
                       {formatAmount(fund.total_amount)}
                     </span>

@@ -120,7 +120,7 @@ const EditDonationFundPage = () => {
   };
 
   return (
-    <div className="p-6 lg:p-10 bg-slate-50/50 min-h-screen font-['Outfit']">
+    <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
       
       {/* --- Page Header --- */}
       <div className="max-w-5xl mx-auto mb-8 flex items-center justify-between">
