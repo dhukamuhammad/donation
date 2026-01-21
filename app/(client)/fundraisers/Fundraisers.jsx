@@ -27,16 +27,37 @@ const Fundraisers = () => {
     fetchDonationFund();
   }, []);
 
+  // useEffect(() => {
+  //   let data = donationFunds;
+  //   if (selectedCategory !== "All") {
+  //     data = data.filter((fund) => fund.fun_cat === selectedCategory);
+  //   }
+  //   if (searchTerm.trim() !== "") {
+  //     data = data.filter((fund) =>
+  //       fund.title.toLowerCase().includes(searchTerm.toLowerCase())
+  //     );
+  //   }
+  //   setFilteredFunds(data);
+  // }, [selectedCategory, searchTerm, donationFunds]);
+
   useEffect(() => {
     let data = donationFunds;
+
+    // ✅ ONLY ACTIVE CAMPAIGNS
+    data = data.filter((fund) => fund.status === 1);
+
+    // Category filter
     if (selectedCategory !== "All") {
       data = data.filter((fund) => fund.fun_cat === selectedCategory);
     }
+
+    // Search filter
     if (searchTerm.trim() !== "") {
       data = data.filter((fund) =>
-        fund.title.toLowerCase().includes(searchTerm.toLowerCase())
+        fund.title.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
+
     setFilteredFunds(data);
   }, [selectedCategory, searchTerm, donationFunds]);
 
@@ -62,13 +83,17 @@ const Fundraisers = () => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
-      day: "2-digit", month: "short", year: "numeric",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const formatAmount = (amount) => {
     return new Intl.NumberFormat("en-IN", {
-      style: "currency", currency: "INR", maximumFractionDigits: 0,
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -80,22 +105,24 @@ const Fundraisers = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-['Outfit']">
       <div className="max-w-7xl mx-auto flex gap-8 px-4 py-12 max-lg:flex-col">
-
         {/* Sidebar - Professional Category Filter */}
         <aside className="w-72 shrink-0 max-lg:w-full">
           <div className="sticky top-24 bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-slate-100 flex items-center gap-2 bg-slate-50/50">
               <Filter className="w-4 h-4 text-blue-600" />
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Filter Causes</h2>
+              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                Filter Causes
+              </h2>
             </div>
 
             <div className="p-2 space-y-1">
               <button
                 onClick={() => setSelectedCategory("All")}
-                className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${selectedCategory === "All"
-                  ? "bg-blue-600 text-white font-bold"
-                  : "text-slate-600 hover:bg-slate-100"
-                  }`}
+                className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${
+                  selectedCategory === "All"
+                    ? "bg-blue-600 text-white font-bold"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
               >
                 <span>All Causes</span>
                 {selectedCategory === "All" && <ChevronRight size={14} />}
@@ -105,13 +132,16 @@ const Fundraisers = () => {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${selectedCategory === category.id
-                    ? "bg-blue-600 text-white font-bold"
-                    : "text-slate-600 hover:bg-slate-100"
-                    }`}
+                  className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${
+                    selectedCategory === category.id
+                      ? "bg-blue-600 text-white font-bold"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
                 >
                   <span>{category.title}</span>
-                  {selectedCategory === category.id && <ChevronRight size={14} />}
+                  {selectedCategory === category.id && (
+                    <ChevronRight size={14} />
+                  )}
                 </button>
               ))}
             </div>
@@ -136,7 +166,10 @@ const Fundraisers = () => {
           {/* Cards Grid - Clean Dashboard Style */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFunds.map((fund) => {
-              const progress = getProgress(fund.raised_amount, fund.total_amount);
+              const progress = getProgress(
+                fund.raised_amount,
+                fund.total_amount,
+              );
               const isCompleted = fund.raised_amount >= fund.total_amount;
 
               return (
@@ -160,7 +193,6 @@ const Fundraisers = () => {
 
                   {/* Body Area */}
                   <div className="p-5 flex-1 flex flex-col font-['Outfit']">
-
                     {/* Campaign Title */}
                     <h3 className="font-bold text-slate-800 text-[17px] leading-snug  line-clamp-2 h-11 group-hover:text-blue-600 transition-colors">
                       {fund.title}
@@ -170,23 +202,33 @@ const Fundraisers = () => {
                     <div className="flex items-center gap-3 mb-5">
                       {/* Zakat */}
                       <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                        <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                        <CheckCircle
+                          size={14}
+                          className="text-blue-600"
+                          strokeWidth={2.5}
+                        />
                         <span>Zakat</span>
                       </div>
-
-                      <span className="w-px h-3 bg-slate-200"></span> {/* Vertical Divider */}
-
+                      <span className="w-px h-3 bg-slate-200"></span>{" "}
+                      {/* Vertical Divider */}
                       {/* Sadaqah */}
                       <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                        <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                        <CheckCircle
+                          size={14}
+                          className="text-blue-600"
+                          strokeWidth={2.5}
+                        />
                         <span>Sadaqah</span>
                       </div>
-
-                      <span className="w-px h-3 bg-slate-200"></span> {/* Vertical Divider */}
-
+                      <span className="w-px h-3 bg-slate-200"></span>{" "}
+                      {/* Vertical Divider */}
                       {/* Lillah */}
                       <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                        <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                        <CheckCircle
+                          size={14}
+                          className="text-blue-600"
+                          strokeWidth={2.5}
+                        />
                         <span>Lillah</span>
                       </div>
                     </div>
@@ -207,12 +249,20 @@ const Fundraisers = () => {
                     <div className="mt-auto">
                       <div className="flex justify-between items-end mb-2">
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Raised Amount</span>
-                          <span className="text-lg font-black text-slate-900">{formatAmount(fund.raised_amount)}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            Raised Amount
+                          </span>
+                          <span className="text-lg font-black text-slate-900">
+                            {formatAmount(fund.raised_amount)}
+                          </span>
                         </div>
                         <div className="text-right">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Goal: {formatAmount(fund.total_amount)}</span>
-                          <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{progress}%</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                            Goal: {formatAmount(fund.total_amount)}
+                          </span>
+                          <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                            {progress}%
+                          </span>
                         </div>
                       </div>
 
@@ -249,8 +299,12 @@ const Fundraisers = () => {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
                 <Search className="w-8 h-8 text-slate-300" />
               </div>
-              <h3 className="text-lg font-bold text-slate-800">No campaigns found</h3>
-              <p className="text-slate-500 text-sm mt-1">Try adjusting your filters or search keywords.</p>
+              <h3 className="text-lg font-bold text-slate-800">
+                No campaigns found
+              </h3>
+              <p className="text-slate-500 text-sm mt-1">
+                Try adjusting your filters or search keywords.
+              </p>
             </div>
           )}
         </main>
