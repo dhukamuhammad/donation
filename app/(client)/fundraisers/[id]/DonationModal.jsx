@@ -1,11 +1,21 @@
 "use client";
 import React, { useState } from "react";
-import { 
-  X, User, Phone, Mail, ShieldCheck, Heart, 
-  CheckCircle2, Loader2, ArrowRight, CreditCard 
+import {
+  X,
+  User,
+  Phone,
+  Mail,
+  ShieldCheck,
+  Heart,
+  CheckCircle2,
+  Loader2,
+  ArrowRight,
+  CreditCard,
+  ChevronDown,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
+import { showError } from "@/components/Toaster";
 
 const loadRazorpay = () => {
   return new Promise((resolve) => {
@@ -37,8 +47,19 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
   const predefinedAmounts = [500, 1000, 2500, 5000];
 
   const startPayment = async () => {
-    if (!amount || !form.name || !form.phone || !form.email || !form.donationType) {
-      alert("Please provide all required contributor details.");
+    if (
+      !amount ||
+      !form.name ||
+      !form.phone ||
+      !form.email ||
+      !form.donationType
+    ) {
+      showError("Please provide all required contributor details.");
+      return;
+    }
+
+    if (amount < 10) {
+      showError("Minimum donation amount is ₹10.");
       return;
     }
 
@@ -51,7 +72,9 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
     }
 
     try {
-      const orderRes = await axiosInstance.post("payment/create-order", { amount });
+      const orderRes = await axiosInstance.post("payment/create-order", {
+        amount,
+      });
       const order = orderRes.data;
 
       const options = {
@@ -78,13 +101,17 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
             setTxnDetails({
               id: response.razorpay_payment_id,
               amount: amount,
-              date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+              date: new Date().toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              }),
             });
-            
+
             setStep("success"); // Transition to Thank You View
             onsuccess();
           } catch (err) {
-            alert("Error logging the transaction.");
+            showError("Error logging the transaction.");
           } finally {
             setLoading(false);
           }
@@ -98,20 +125,27 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
       rzp.open();
     } catch (err) {
       console.error(err);
-      alert("Server sync failed.");
+      showError("Server sync failed.");
       setLoading(false);
     }
   };
 
-  const returnFundraiser = () => {
-    onClose();
-    router.push(`/fundraisers/${fundId}`);
-  }
+  const resetModal = () => {
+    setStep("form");
+    setAmount(0);
+    setShowCustom(false);
+    setTxnDetails(null);
+    setForm({
+      name: "",
+      phone: "",
+      email: "",
+      donationType: "",
+    });
+  };
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] font-['Outfit']">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200">
-        
         {/* --- STEP 1: DONATION FORM --- */}
         {step === "form" && (
           <div className="flex flex-col h-full transition-all duration-300">
@@ -121,9 +155,14 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
                 <div className="bg-blue-600 p-1.5 rounded-lg">
                   <CreditCard size={18} className="text-white" />
                 </div>
-                <h2 className="text-[15px] font-black text-slate-800 uppercase tracking-wider">Transaction Portal</h2>
+                <h2 className="text-[15px] font-black text-slate-800 uppercase tracking-wider">
+                  Transaction Portal
+                </h2>
               </div>
-              <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-900 transition-colors">
+              <button
+                onClick={onClose}
+                className="p-1 text-slate-400 hover:text-slate-900 transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -131,12 +170,17 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
             <div className="p-6 md:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
               {/* Amount Selection */}
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-0.5">Select Amount (INR)</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-0.5">
+                  Select Amount (INR)
+                </label>
                 <div className="grid grid-cols-5 gap-2">
                   {predefinedAmounts.map((amt) => (
                     <button
                       key={amt}
-                      onClick={() => { setAmount(amt); setShowCustom(false); }}
+                      onClick={() => {
+                        setAmount(amt);
+                        setShowCustom(false);
+                      }}
                       className={`py-2 text-xs font-bold rounded border transition-all ${
                         amount === amt && !showCustom
                           ? "bg-blue-600 text-white border-blue-600 shadow-sm"
@@ -147,9 +191,14 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
                     </button>
                   ))}
                   <button
-                    onClick={() => { setAmount(0); setShowCustom(true); }}
+                    onClick={() => {
+                      setAmount(0);
+                      setShowCustom(true);
+                    }}
                     className={`py-2 text-xs font-bold rounded border transition-all ${
-                      showCustom ? "bg-blue-600 text-white border-blue-600" : "bg-white border-slate-200 text-slate-600"
+                      showCustom
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white border-slate-200 text-slate-600"
                     }`}
                   >
                     Other
@@ -157,7 +206,9 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
                 </div>
                 {showCustom && (
                   <div className="relative mt-3">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">₹</span>
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">
+                      ₹
+                    </span>
                     <input
                       type="number"
                       onChange={(e) => setAmount(Number(e.target.value) || 0)}
@@ -170,27 +221,72 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
 
               {/* Contributor Information */}
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-0.5">Contributor Registry</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-0.5">
+                  Contributor Registry
+                </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="relative group">
-                    <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600" />
-                    <input type="text" placeholder="Full Name" className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm focus:bg-white focus:border-blue-600 outline-none transition-all" onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                    <User
+                      size={14}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm focus:bg-white focus:border-blue-600 outline-none transition-all"
+                      onChange={(e) =>
+                        setForm({ ...form, name: e.target.value })
+                      }
+                    />
                   </div>
                   <div className="relative group">
-                    <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600" />
-                    <input type="tel" placeholder="Mobile No." className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm focus:bg-white focus:border-blue-600 outline-none transition-all" onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                    <Phone
+                      size={14}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600"
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Mobile No."
+                      className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm focus:bg-white focus:border-blue-600 outline-none transition-all"
+                      onChange={(e) =>
+                        setForm({ ...form, phone: e.target.value })
+                      }
+                    />
                   </div>
                 </div>
                 <div className="relative group">
-                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600" />
-                  <input type="email" placeholder="Email Address" className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm focus:bg-white focus:border-blue-600 outline-none transition-all" onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                  <Mail
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm focus:bg-white focus:border-blue-600 outline-none transition-all"
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                  />
                 </div>
-                <select className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm font-bold text-slate-600 focus:bg-white focus:border-blue-600 outline-none transition-all appearance-none" onChange={(e) => setForm({ ...form, donationType: e.target.value })}>
-                  <option value="">Choose Donation Category</option>
-                  <option value="Sadaqah">Sadaqah (Voluntary)</option>
-                  <option value="Zakat">Zakat (Obligatory)</option>
-                  <option value="Lillah">Lillah (Path of Allah)</option>
-                </select>
+                <div className="relative">
+                  <select
+                    className="w-full px-3 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded text-sm font-bold text-slate-600 focus:bg-white focus:border-blue-600 outline-none transition-all appearance-none"
+                    onChange={(e) =>
+                      setForm({ ...form, donationType: e.target.value })
+                    }
+                  >
+                    <option value="">Choose Donation Category</option>
+                    <option value="Sadaqah">Sadaqah (Voluntary)</option>
+                    <option value="Zakat">Zakat (Obligatory)</option>
+                    <option value="Lillah">Lillah (Path of Allah)</option>
+                  </select>
+
+                  {/* End Icon */}
+                  <ChevronDown
+                    size={16}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                  />
+                </div>
               </div>
 
               {/* Action Button */}
@@ -200,11 +296,18 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
                   disabled={loading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-600/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:bg-blue-400"
                 >
-                  {loading ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
-                  {loading ? "Initializing Secure Gateway..." : `Confirm Payment: ₹${amount.toLocaleString('en-IN')}`}
+                  {loading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <ShieldCheck size={16} />
+                  )}
+                  {loading
+                    ? "Initializing Secure Gateway..."
+                    : `Confirm Payment: ₹${amount.toLocaleString("en-IN")}`}
                 </button>
                 <p className="mt-4 text-[9px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center gap-1.5">
-                  <ShieldCheck size={12} className="text-green-500" /> Secure 256-bit SSL encrypted contribution
+                  <ShieldCheck size={12} className="text-green-500" /> Secure
+                  256-bit SSL encrypted contribution
                 </p>
               </div>
             </div>
@@ -216,57 +319,80 @@ const DonationModal = ({ isOpen, onClose, fundId, onsuccess }) => {
           <div className="p-8 md:p-5 text-center bg-white flex flex-col items-center justify-center h-full transition-all duration-500">
             <div className="mb-6 flex items-center justify-center">
               <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center border border-green-100 shadow-inner">
-                <CheckCircle2 size={44} className="text-green-500" strokeWidth={1.5} />
+                <CheckCircle2
+                  size={44}
+                  className="text-green-500"
+                  strokeWidth={1.5}
+                />
               </div>
             </div>
 
-            <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">Contribution Confirmed</h2>
-            <p className="text-slate-500 text-sm mt-2 font-medium">Thank you, {form.name}. Your donation has been verified and settled.</p>
+            <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
+              Contribution Confirmed
+            </h2>
+            <p className="text-slate-500 text-sm mt-2 font-medium">
+              Thank you, {form.name}. Your donation has been verified and
+              settled.
+            </p>
 
             {/* Official Confirmation Card */}
             <div className="w-full mt-10 bg-slate-50/50 border border-slate-100 rounded-lg p-6 text-left relative overflow-hidden">
-               <div className="absolute top-0 left-0 w-1 h-full bg-blue-600"></div>
-               
-               <div className="space-y-4">
-                  <div className="flex justify-between items-end border-b border-slate-200/60 pb-3">
-                     <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amount Disbursed</span>
-                        <span className="text-2xl font-black text-slate-900 leading-none mt-1">₹{txnDetails?.amount.toLocaleString('en-IN')}</span>
-                     </div>
-                     <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100 uppercase">
-                        {form.donationType}
-                     </span>
+              <div className="absolute top-0 left-0 w-1 h-full bg-blue-600"></div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-end border-b border-slate-200/60 pb-3">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Amount Disbursed
+                    </span>
+                    <span className="text-2xl font-black text-slate-900 leading-none mt-1">
+                      ₹{txnDetails?.amount.toLocaleString("en-IN")}
+                    </span>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                     <div>
-                        <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Receipt ID</span>
-                        <span className="text-[11px] font-bold text-slate-700 break-all leading-tight">#{txnDetails?.id}</span>
-                     </div>
-                     <div className="text-right">
-                        <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Settlement Date</span>
-                        <span className="text-[11px] font-bold text-slate-700">{txnDetails?.date}</span>
-                     </div>
+                  <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100 uppercase">
+                    {form.donationType}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                      Receipt ID
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-700 break-all leading-tight">
+                      #{txnDetails?.id}
+                    </span>
                   </div>
-               </div>
+                  <div className="text-right">
+                    <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                      Settlement Date
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-700">
+                      {txnDetails?.date}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Closing Action */}
             <div className="w-full mt-10">
-              <button 
-                onClick={returnFundraiser()}
+              <button
+                onClick={() => {
+                  resetModal();
+                  onClose();
+                }}
                 className="flex items-center justify-center gap-2 w-full py-4 bg-slate-900 text-white rounded-lg font-black text-[11px] uppercase tracking-[0.2em] hover:bg-black active:scale-[0.98] transition-all shadow-xl shadow-slate-200"
               >
                 Return to Fundraisers <ArrowRight size={14} />
               </button>
             </div>
-            
+
             <p className="mt-5 text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">
-               DonateCare Foundation • System Verified
+              DonateCare Foundation • System Verified
             </p>
           </div>
         )}
-
       </div>
     </div>
   );

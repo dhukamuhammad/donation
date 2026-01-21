@@ -102,10 +102,8 @@ const FundraisersDetailsPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-12">
-
           {/* --- Left Column: Story & Details --- */}
           <div className="lg:col-span-2 space-y-8">
-
             <header className="space-y-4">
               <h1 className="text-3xl font-bold text-slate-900 leading-snug">
                 {fundraiser.title}
@@ -148,10 +146,11 @@ const FundraisersDetailsPage = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-colors ${activeTab === tab.id
+                    className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-colors ${
+                      activeTab === tab.id
                         ? "bg-white text-blue-600 border-b-2 border-blue-600"
                         : "text-slate-500 hover:text-slate-800"
-                      }`}
+                    }`}
                   >
                     <tab.icon size={16} />
                     {tab.label}
@@ -163,9 +162,12 @@ const FundraisersDetailsPage = () => {
                 {activeTab === "description" && (
                   <div className="relative">
                     <div
-                      className={`prose prose-slate max-w-none text-slate-600 leading-relaxed overflow-hidden transition-all duration-500 ${expanded ? "max-h-full" : "max-h-[350px]"
-                        }`}
-                      dangerouslySetInnerHTML={{ __html: fundraiser.description }}
+                      className={`prose prose-slate max-w-none text-slate-600 leading-relaxed overflow-hidden transition-all duration-500 ${
+                        expanded ? "max-h-full" : "max-h-[350px]"
+                      }`}
+                      dangerouslySetInnerHTML={{
+                        __html: fundraiser.description,
+                      }}
                     />
                     {!expanded && isLongDescription(fundraiser.description) && (
                       <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent flex items-end justify-center">
@@ -201,7 +203,9 @@ const FundraisersDetailsPage = () => {
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <span className="text-white text-xs font-bold">View Full Image</span>
+                        <span className="text-white text-xs font-bold">
+                          View Full Image
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -211,18 +215,27 @@ const FundraisersDetailsPage = () => {
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                     {supporters.length > 0 ? (
                       supporters.map((item, i) => (
-                        <div key={i} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                        <div
+                          key={i}
+                          className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-lg"
+                        >
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold uppercase">
                               {item.name.charAt(0)}
                             </div>
-                            <span className="font-bold text-slate-800 text-sm">{item.name}</span>
+                            <span className="font-bold text-slate-800 text-sm">
+                              {item.name}
+                            </span>
                           </div>
-                          <span className="font-bold text-blue-600 text-sm">{formatAmount(item.amount)}</span>
+                          <span className="font-bold text-blue-600 text-sm">
+                            {formatAmount(item.amount)}
+                          </span>
                         </div>
                       ))
                     ) : (
-                      <p className="text-center text-slate-400 py-8 italic">No donations yet. Be the first to help!</p>
+                      <p className="text-center text-slate-400 py-8 italic">
+                        No donations yet. Be the first to help!
+                      </p>
                     )}
                   </div>
                 )}
@@ -233,7 +246,6 @@ const FundraisersDetailsPage = () => {
           {/* --- Right Column: Donation Card --- */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-
               {/* Main Widget */}
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-6 md:p-8 space-y-6">
@@ -243,11 +255,19 @@ const FundraisersDetailsPage = () => {
                         {formatAmount(fundraiser.raised_amount)}
                       </span>
                       <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                        {getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%
+                        {getProgress(
+                          fundraiser.raised_amount,
+                          fundraiser.total_amount,
+                        )}
+                        %
                       </span>
                     </div>
                     <p className="text-sm text-slate-500 font-medium">
-                      raised out of <span className="text-slate-800 font-bold">{formatAmount(fundraiser.total_amount)}</span> goal
+                      raised out of{" "}
+                      <span className="text-slate-800 font-bold">
+                        {formatAmount(fundraiser.total_amount)}
+                      </span>{" "}
+                      goal
                     </p>
                   </div>
 
@@ -255,38 +275,52 @@ const FundraisersDetailsPage = () => {
                   <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-blue-600 rounded-full transition-all duration-1000"
-                      style={{ width: `${getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%` }}
+                      style={{
+                        width: `${getProgress(fundraiser.raised_amount, fundraiser.total_amount)}%`,
+                      }}
                     />
                   </div>
 
                   <div className="flex items-center gap-3 text-sm text-slate-600 font-semibold py-4 border-y border-slate-100">
                     <Users size={18} className="text-blue-600" />
-                    <span>{fundraiser.supporters || 0} People have donated</span>
+                    <span>
+                      {fundraiser.supporters || 0} People have donated
+                    </span>
                   </div>
 
                   {/* CTA */}
                   {fundraiser.raised_amount >= fundraiser.total_amount ? (
-                    <button disabled className="w-full bg-slate-100 text-slate-500 font-bold py-3.5 rounded-lg cursor-not-allowed border border-slate-200">
-                      Successfully Funded
+                    <button
+                      disabled
+                      className="w-full bg-slate-50 text-slate-400 font-bold py-3 rounded-lg cursor-default text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 border border-slate-200"
+                    >
+                      Campaign Successful
                     </button>
                   ) : (
                     <button
                       onClick={() => setIsOpen(true)}
-                      className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 group"
+                      className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-all text-[11px] uppercase tracking-[0.2em] shadow-md shadow-blue-600/10 active:scale-[0.98] flex items-center justify-center gap-2 group"
                     >
-                      <Heart size={20} className="group-hover:scale-110 transition-transform" />
-                      Donate Now
+                      <Heart
+                        size={16}
+                        className="group-hover:scale-110 transition-transform"
+                      />
+                      Contribute Now
                     </button>
                   )}
 
                   <div className="flex flex-wrap justify-center gap-3 mt-5 font-['Outfit']">
-                    {['Zakat ', 'Sadqah', 'Lillah'].map((tag) => (
+                    {["Zakat ", "Sadqah", "Lillah"].map((tag) => (
                       <div
                         key={tag}
                         className="flex items-center gap-1.5 border border-slate-200 px-3 py-1.5 rounded-full transition-colors hover:border-blue-200 hover:bg-blue-50/50"
                       >
                         {/* Premium Lucide Icon */}
-                        <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                        <CheckCircle
+                          size={14}
+                          className="text-blue-600"
+                          strokeWidth={2.5}
+                        />
 
                         {/* Badge Text */}
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
@@ -317,16 +351,23 @@ const FundraisersDetailsPage = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
       {/* --- Modal Preview (Document) --- */}
       {showDoc && (
-        <div className="fixed inset-0 z-[100] bg-slate-900/90 flex items-center justify-center p-6" onClick={() => setShowDoc(false)}>
+        <div
+          className="fixed inset-0 z-[100] bg-slate-900/90 flex items-center justify-center p-6"
+          onClick={() => setShowDoc(false)}
+        >
           <div className="relative max-w-4xl w-full bg-white p-2 rounded-lg">
-            <button className="absolute -top-10 right-0 text-white font-bold flex items-center gap-1">✕ Close</button>
-            <img src={`/uploads/${fundraiser.document_img}`} className="w-full h-auto rounded shadow-2xl" />
+            <button className="absolute -top-10 right-0 text-white font-bold flex items-center gap-1">
+              ✕ Close
+            </button>
+            <img
+              src={`/uploads/${fundraiser.document_img}`}
+              className="w-full h-auto rounded shadow-2xl"
+            />
           </div>
         </div>
       )}

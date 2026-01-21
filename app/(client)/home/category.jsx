@@ -1,45 +1,48 @@
 "use client";
+import axiosInstance from "@/lib/axiosinstance";
 import {
   ArrowRight,
   CheckCircle,
   Users,
   TrendingUp,
   ChevronRight,
+  Heart,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const Category = () => {
-  const categories = [
-    {
-      id: 1,
-      title: "Monthly Ration Kits",
-      image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?w=500",
-      amount: 15165,
-      goal: 500000,
-      supporters: 16,
-    },
-    {
-      id: 2,
-      title: "Widow Pension Scheme",
-      image: "https://images.unsplash.com/photo-1509099863731-ef4bff19e808?w=500",
-      amount: 2981,
-      goal: 500000,
-      supporters: 9,
-    },
-    {
-      id: 3,
-      title: "Human Welfare Center",
-      image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=500",
-      amount: 21160,
-      goal: 750000,
-      supporters: 12,
-    },
-  ];
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  // const getCategories = async () => {
+  //   try {
+  //     const res = await axiosInstance.get("/donationFund");
+  //     setCategories(res.data);
+  //   } catch (error) {
+  //     console.error("Error fetching categories:", error);
+  //   }
+  // };
+
+  const getCategories = async () => {
+    try {
+      const res = await axiosInstance.get("/donationFund");
+
+      // ✅ only active campaigns
+      const activeFunds = res.data.filter((item) => item.status === 1);
+
+      setCategories(activeFunds);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   return (
     <section className="py-16 bg-slate-50 font-['Outfit']">
       <div className="max-w-7xl mx-auto px-6">
-
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
@@ -65,8 +68,16 @@ const Category = () => {
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {categories.map((item) => {
-            const percentage = Math.min(Math.round((item.amount / item.goal) * 100), 100);
+          {categories.slice(0, 3).map((item) => {
+            const percentage =
+              item.total_amount > 0
+                ? Math.min(
+                    Math.round((item.raised_amount / item.total_amount) * 100),
+                    100,
+                  )
+                : 0;
+
+            const isCompleted = item.raised_amount >= item.total_amount;
 
             return (
               <div
@@ -76,7 +87,7 @@ const Category = () => {
                 {/* Image Section */}
                 <div className="relative h-52 overflow-hidden rounded-t-xl">
                   <img
-                    src={item.image}
+                    src={`/uploads/${item.thumbnail}`}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -96,39 +107,52 @@ const Category = () => {
                   <div className="flex items-center gap-3 mb-5">
                     {/* Zakat */}
                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                      <CheckCircle
+                        size={14}
+                        className="text-blue-600"
+                        strokeWidth={2.5}
+                      />
                       <span>Zakat</span>
                     </div>
-
-                    <span className="w-px h-3 bg-slate-200"></span> {/* Vertical Divider */}
-
+                    <span className="w-px h-3 bg-slate-200"></span>{" "}
+                    {/* Vertical Divider */}
                     {/* Sadaqah */}
                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                      <CheckCircle
+                        size={14}
+                        className="text-blue-600"
+                        strokeWidth={2.5}
+                      />
                       <span>Sadaqah</span>
                     </div>
-
-                    <span className="w-px h-3 bg-slate-200"></span> {/* Vertical Divider */}
-
+                    <span className="w-px h-3 bg-slate-200"></span>{" "}
+                    {/* Vertical Divider */}
                     {/* Lillah */}
                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      <CheckCircle size={14} className="text-blue-600" strokeWidth={2.5} />
+                      <CheckCircle
+                        size={14}
+                        className="text-blue-600"
+                        strokeWidth={2.5}
+                      />
                       <span>Lillah</span>
                     </div>
                   </div>
-
 
                   {/* Progress Data */}
                   <div className="mt-auto">
                     <div className="flex justify-between items-end mb-2">
                       <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Raised So Far</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                          Raised So Far
+                        </p>
                         <p className="text-lg font-bold text-slate-900">
-                          ₹{item.amount.toLocaleString("en-IN")}
+                          ₹{item.total_amount.toLocaleString("en-IN")}
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs font-bold text-blue-600">{percentage}%</span>
+                        <span className="text-xs font-bold text-blue-600">
+                          {percentage}%
+                        </span>
                       </div>
                     </div>
 
@@ -144,17 +168,26 @@ const Category = () => {
                     <div className="flex items-center justify-between py-3 border-t border-slate-50">
                       <div className="flex items-center gap-1.5 text-slate-500">
                         <Users size={14} />
-                        <span className="text-xs font-semibold">{item.supporters} Donors</span>
+                        <span className="text-xs font-semibold">
+                          {item.supporters} Donors
+                        </span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-400">Goal: ₹{item.goal.toLocaleString("en-IN")}</span>
+                      <span className="text-[10px] font-bold text-slate-400">
+                        Goal: ₹{item.total_amount.toLocaleString("en-IN")}
+                      </span>
                     </div>
 
-                    {/* Action Button */}
-                    <Link href={`/fundraisers/${item.id}`}>
-                      <button className="w-full bg-blue-600 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 text-sm">
-                        Donate Now
-                        <ChevronRight size={16} />
-                      </button>
+                    {/* CTA Button */}
+                    <Link href={`/fundraisers/${item.id}`} className="block">
+                      {isCompleted ? (
+                        <button className="w-full bg-slate-50 text-slate-400 font-bold py-3 rounded-lg cursor-default text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 border border-slate-200">
+                          Campaign Successful
+                        </button>
+                      ) : (
+                        <button className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-all text-[11px] uppercase tracking-[0.2em] shadow-md shadow-blue-600/10 active:scale-[0.98]">
+                          Contribute Now
+                        </button>
+                      )}
                     </Link>
                   </div>
                 </div>

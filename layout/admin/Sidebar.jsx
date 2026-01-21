@@ -102,17 +102,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 bg-white">
           <Link href="/admin/dashboard" className="flex items-center gap-2">
             <Image src="/donatecare.png" alt="DonateCare Logo" width={160} height={35} priority />
-            <div className="bg-blue-600 p-1.5 rounded-lg shadow-sm">
-              <Heart
-                size={18}
-                fill="white"
-                className="text-white"
-                strokeWidth={2.5}
-              />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900">
-              Admin<span className="text-blue-600">Portal</span>
-            </span>
           </Link>
           <button
             onClick={toggleSidebar}
