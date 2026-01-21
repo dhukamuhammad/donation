@@ -18,6 +18,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosinstance";
 import CustomModal from "@/components/CustomModel"; // Import your CustomModal
+import Image from "next/image";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const pathname = usePathname();
@@ -100,6 +101,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         {/* --- Sidebar Header --- */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 bg-white">
           <Link href="/admin/dashboard" className="flex items-center gap-2">
+            <Image src="/donatecare.png" alt="DonateCare Logo" width={160} height={35} priority />
             <div className="bg-blue-600 p-1.5 rounded-lg shadow-sm">
               <Heart
                 size={18}

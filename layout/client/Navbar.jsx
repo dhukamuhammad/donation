@@ -108,7 +108,7 @@ const Navbar = () => {
         
         {/* ================= Logo ================= */}
         <Link href="/" className="flex items-center flex-shrink-0">
-          <Image src="/image.png" alt="DonateCare Logo" width={150} height={35} priority />
+          <Image src="/donatecare.png" alt="DonateCare Logo" width={160} height={35} priority />
         </Link>
 
         {/* ================= Desktop Navigation ================= */}
