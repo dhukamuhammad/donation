@@ -116,9 +116,19 @@ const Fundraisers = () => {
 
   const truncateText = (text, maxLength = 50) => {
     if (!text) return "";
-    return text.length > maxLength
-      ? text.slice(0, maxLength) + "..."
-      : text;
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+
+  // one image show
+
+  const getFirstThumbnail = (thumbnail) => {
+    try {
+      const parsed = JSON.parse(thumbnail);
+      return Array.isArray(parsed) ? parsed[0] : parsed;
+    } catch {
+      // old data (single image string)
+      return thumbnail;
+    }
   };
 
   return (
@@ -137,10 +147,11 @@ const Fundraisers = () => {
             <div className="p-2 space-y-1">
               <button
                 onClick={() => setSelectedCategory("All")}
-                className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${selectedCategory === "All"
-                  ? "bg-blue-600 text-white font-bold"
-                  : "text-slate-600 hover:bg-slate-100"
-                  }`}
+                className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${
+                  selectedCategory === "All"
+                    ? "bg-blue-600 text-white font-bold"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
               >
                 <span>All Causes</span>
                 {selectedCategory === "All" && <ChevronRight size={14} />}
@@ -150,10 +161,11 @@ const Fundraisers = () => {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${selectedCategory === category.id
-                    ? "bg-blue-600 text-white font-bold"
-                    : "text-slate-600 hover:bg-slate-100"
-                    }`}
+                  className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${
+                    selectedCategory === category.id
+                      ? "bg-blue-600 text-white font-bold"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
                 >
                   <span>{category.title}</span>
                   {selectedCategory === category.id && (
@@ -198,7 +210,7 @@ const Fundraisers = () => {
                   {/* Image Area */}
                   <div className="relative h-48 overflow-hidden bg-slate-200">
                     <img
-                      src={`/uploads/${fund.thumbnail}`}
+                      src={`/uploads/${getFirstThumbnail(fund.thumbnail)}`}
                       alt={fund.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -215,7 +227,6 @@ const Fundraisers = () => {
                     <h3 className="font-bold text-slate-800 text-[17px] leading-snug h-11 group-hover:text-blue-600 transition-colors">
                       {truncateText(fund.title, 25)}
                     </h3>
-
 
                     {/* Eligibility Indicators - Professional Circle Icons (No Background) */}
                     <div className="flex items-center gap-3 mb-5">
@@ -255,30 +266,21 @@ const Fundraisers = () => {
                     {/* Time & Donor Stats */}
                     {/* Time & Donor Stats */}
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-slate-400 font-semibold mb-6">
-
                       <div className="flex items-center gap-1.5 whitespace-nowrap">
                         <Clock size={13} strokeWidth={2} />
-                        <span>
-                          Start: {formatDate(fund.start_date)}
-                        </span>
+                        <span>Start: {formatDate(fund.start_date)}</span>
                       </div>
 
                       <div className="flex items-center gap-1.5 whitespace-nowrap">
                         <Clock size={13} strokeWidth={2} />
-                        <span>
-                          End: {formatDate(fund.end_date)}
-                        </span>
+                        <span>End: {formatDate(fund.end_date)}</span>
                       </div>
 
                       <div className="flex items-center gap-1.5 whitespace-nowrap">
                         <Users size={13} strokeWidth={2} />
-                        <span>
-                          {fund.supporters || 0} Donors
-                        </span>
+                        <span>{fund.supporters || 0} Donors</span>
                       </div>
-
                     </div>
-
 
                     {/* Progress Section */}
                     <div className="mt-auto">
@@ -325,7 +327,10 @@ const Fundraisers = () => {
                           Campaign Successful
                         </button>
                       ) : (
-                        <Link href={`/fundraisers/${fund.id}`} className="block">
+                        <Link
+                          href={`/fundraisers/${fund.id}`}
+                          className="block"
+                        >
                           <button className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-all text-[11px] uppercase tracking-[0.2em] shadow-md shadow-blue-600/10 active:scale-[0.98]">
                             Contribute Now
                           </button>
