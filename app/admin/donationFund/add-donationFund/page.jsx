@@ -9,7 +9,8 @@ import {
   Plus,
   ChevronLeft,
   Upload,
-  Info
+  Info,
+  ExternalLink
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useRouter } from "next/navigation";
@@ -181,29 +182,78 @@ const AddDonationFundPage = () => {
 
             {/* Support Document */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              {/* Header Label */}
               <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                <FileText size={14} className="text-blue-600" /> Verification Doc
+                <FileText size={14} className="text-red-600" /> Verification Document (PDF)
               </label>
+
               <div className="space-y-4">
-                <div className="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-blue-400 transition-all text-center">
+                {/* Upload Area */}
+                <div className="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-red-400 transition-all text-center bg-slate-50/30">
                   <input
                     type="file"
                     name="document_img"
-                    accept="image/*"
+                    accept="application/pdf" // Sirf PDF restrict kiya
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <Upload size={24} className="mx-auto text-slate-300 mb-2 group-hover:text-blue-500" />
-                  <p className="text-xs text-slate-500 font-medium">Click to upload medical doc</p>
+                  <Upload size={20} className="mx-auto text-slate-300 mb-2 group-hover:text-red-500" />
+                  <p className="text-xs text-slate-500 font-medium">Click to upload medical PDF</p>
                 </div>
+
+                {/* Horizontal PDF Preview Bar */}
                 {formData.document_img && (
-                  <div className="relative h-40 rounded-lg overflow-hidden border border-slate-200">
-                    <img src={URL.createObjectURL(formData.document_img)} className="w-full h-full object-cover" />
+                  <div className="relative flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white shadow-sm group hover:border-red-200 transition-all">
+
+                    {/* 1. PDF Icon (Left) */}
+                    <div className="relative w-10 h-10 bg-red-50 rounded-lg flex flex-col items-center justify-center flex-shrink-0 border border-red-100">
+                      <FileText size={20} className="text-red-500 stroke-[2]" />
+                      <span className="absolute -bottom-1 text-[6px] font-black bg-red-600 text-white px-1 rounded-[1px] leading-none uppercase">
+                        PDF
+                      </span>
+                    </div>
+
+                    {/* 2. File Name & Path Info (Middle) */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-[13px] font-bold text-slate-700 truncate max-w-[180px]">
+                          {formData.document_img instanceof File
+                            ? formData.document_img.name
+                            : formData.document_img}
+                        </p>
+                        <span className="text-[8px] font-black text-green-500 border border-green-200 bg-green-50 px-1.5 py-0.5 rounded uppercase leading-none">
+                          Attached
+                        </span>
+                      </div>
+
+                      <p className="text-[10px] text-slate-400 truncate mt-0.5 flex items-center gap-1">
+                        <span className="font-bold text-slate-300 uppercase">Path:</span>
+                        <span className="italic">
+                          {formData.document_img instanceof File
+                            ? "local_preview_temp"
+                            : `/uploads/${formData.document_img}`}
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* 3. View Action (Right) */}
+                    <div className="pl-3 border-l border-slate-100">
+                      <a
+                        href={formData.document_img instanceof File
+                          ? URL.createObjectURL(formData.document_img)
+                          : `/uploads/${formData.document_img}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-lg transition-all group"
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-widest">View</span>
+                        <ExternalLink size={14} />
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
+            </div>          </div>
 
           {/* Section 3: Financials & Classification */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">

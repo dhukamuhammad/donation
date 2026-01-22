@@ -205,13 +205,33 @@ const DonationFundPage = () => {
                           className="object-cover"
                         />
                       </div>
-                      <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden">
-                        <Image
-                          src={`/uploads/${fund.document_img}`}
-                          alt=""
-                          fill
-                          className="object-cover"
-                        />
+
+                      <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden bg-slate-50 group shadow-sm flex items-center justify-center">
+                        {fund.document_img?.toLowerCase().endsWith('.pdf') && (
+                          <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden bg-slate-50 group shadow-sm flex items-center justify-center flex-shrink-0">
+                            <a
+                              href={`/uploads/${fund.document_img}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full h-full flex flex-col items-center justify-center bg-red-50/50 transition-all group-hover:bg-red-100/60"
+                            >
+                              {/* PDF Visual Design */}
+                              <div className="relative flex flex-col items-center">
+                                {/* PDF Icon */}
+                                <FileText size={18} className="text-red-500 stroke-[2.5]" />
+
+                                {/* Tiny Red Label */}
+                                <span className="absolute -bottom-1.5 text-[7px] font-black bg-red-600 text-white px-0.5 rounded-[1px] leading-none uppercase">
+                                  PDF
+                                </span>
+                              </div>
+                            </a>
+
+                            {/* Subtle Hover Overlay */}
+                            <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors pointer-events-none" />
+                          </div>
+                        )}
+
                       </div>
                     </div>
                   </td>
@@ -239,14 +259,12 @@ const DonationFundPage = () => {
                   <td className="p-4 text-center">
                     <div
                       onClick={() => toggleStatus(fund)}
-                      className={`relative w-10 h-5 rounded-full cursor-pointer ${
-                        fund.status === 1 ? "bg-blue-500" : "bg-slate-300"
-                      }`}
+                      className={`relative w-10 h-5 rounded-full cursor-pointer ${fund.status === 1 ? "bg-blue-500" : "bg-slate-300"
+                        }`}
                     >
                       <div
-                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${
-                          fund.status === 1 ? "left-5" : "left-1"
-                        }`}
+                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${fund.status === 1 ? "left-5" : "left-1"
+                          }`}
                       />
                     </div>
                   </td>
