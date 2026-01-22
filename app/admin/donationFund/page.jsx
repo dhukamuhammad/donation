@@ -8,6 +8,7 @@ import {
   FileText,
   Image as ImageIcon,
   Search,
+  Tag,
 } from "lucide-react";
 import Link from "next/link";
 import axiosInstance from "@/lib/axiosinstance";
@@ -19,6 +20,7 @@ const DonationFundPage = () => {
   const [funds, setFunds] = useState([]);
   const [showDelete, setShowDelete] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchDonationFund();
@@ -40,60 +42,68 @@ const DonationFundPage = () => {
       setShowDelete(false);
       setDeleteId(null);
       fetchDonationFund();
-    } catch (error) {
+    } catch {
       showError("Failed to delete campaign");
     }
   };
 
-  const formatAmount = (amount) => {
-    return new Intl.NumberFormat("en-IN", {
+  const formatAmount = (amount) =>
+    new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
-  };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-  };
 
   const toggleStatus = async (fund) => {
     const updatedStatus = fund.status === 1 ? 0 : 1;
-
     try {
       await axiosInstance.put(`/donationFund/status/${fund.id}`, {
         status: updatedStatus,
       });
-
-      // ✅ IMPORTANT: update UI state
-      setFunds((prevFunds) =>
-        prevFunds.map((item) =>
+      setFunds((prev) =>
+        prev.map((item) =>
           item.id === fund.id ? { ...item, status: updatedStatus } : item,
         ),
       );
-
       showSuccess("Campaign status updated");
-    } catch (error) {
+    } catch {
       showError("Failed to update status");
     }
   };
 
-  const truncateText = (text, maxLength = 50) => {
-    if (!text) return "";
-    return text.length > maxLength
-      ? text.slice(0, maxLength) + "..."
-      : text;
+  const truncateText = (text, maxLength = 23) =>
+    text && text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+
+  // ================= FILTER =================
+  const filteredFunds = funds.filter((fund) =>
+    fund.title?.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  // ================= HIGHLIGHT (COLOR ONLY) =================
+  const highlightText = (text, query) => {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, "gi");
+    return text.split(regex).map((part, i) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <span key={i} className="text-blue-600">
+          {part}
+        </span>
+      ) : (
+        <span key={i}>{part}</span>
+      ),
+    );
   };
 
-
   return (
-    <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
-      {/* --- Dashboard Header --- */}
+    <div className="p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
@@ -105,28 +115,45 @@ const DonationFundPage = () => {
         </div>
 
         <Link href="/admin/donationFund/add-donationFund">
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-sm font-bold text-sm active:scale-95">
+          <button className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-sm font-bold text-sm">
             <Plus size={18} strokeWidth={2.5} />
-            <span>Launch New Fund</span>
+            Launch New Fund
           </button>
         </Link>
       </div>
 
-      {/* --- Data Table Container --- */}
+      {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        {/* Table Toolbar */}
+        {/* Toolbar */}
         <div className="p-4 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center">
+          {/* LEFT — unchanged */}
           <div className="flex items-center gap-2 text-slate-400">
-            <Search size={16} />
+            <Tag size={16} />
             <span className="text-xs font-bold uppercase tracking-widest">
               Active Campaigns
             </span>
           </div>
-          <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">
-            Total: {funds.length}
-          </span>
+
+          {/* RIGHT — search + total */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 bg-white shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all">
+              <Search size={18} className="text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search campaign"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="text-sm outline-none bg-transparent w-56 placeholder-slate-400"
+              />
+            </div>
+
+            <span className="flex items-center font-bold text-blue-600 bg-blue-50  h-[38px] px-4 rounded-lg border text-sm font-semibold border-blue-100 uppercase  shadow-sm">
+              Total: {filteredFunds.length}
+            </span>
+          </div>
         </div>
 
+        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -137,10 +164,10 @@ const DonationFundPage = () => {
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                   Visuals
                 </th>
-                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest min-w-[20px]">
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                   Campaign Title
                 </th>
-                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-left">
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                   Target Amount
                 </th>
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
@@ -149,7 +176,6 @@ const DonationFundPage = () => {
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
                   End Date
                 </th>
-
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
                   Status
                 </th>
@@ -160,7 +186,7 @@ const DonationFundPage = () => {
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {funds.map((fund) => (
+              {filteredFunds.map((fund) => (
                 <tr
                   key={fund.id}
                   className="hover:bg-blue-50/30 transition-colors group"
@@ -171,85 +197,66 @@ const DonationFundPage = () => {
 
                   <td className="p-4">
                     <div className="flex items-center gap-2">
-                      {/* Thumbnail Preview */}
-                      <div className="group/img relative w-10 h-10 rounded border border-slate-200 bg-slate-50 overflow-hidden shadow-sm">
+                      <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden">
                         <Image
                           src={`/uploads/${fund.thumbnail}`}
-                          alt="Thumbnail"
+                          alt=""
                           fill
                           className="object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
-                          <ImageIcon size={12} className="text-white" />
-                        </div>
                       </div>
-                      {/* Document Preview */}
-                      <div className="group/img relative w-10 h-10 rounded border border-slate-200 bg-slate-50 overflow-hidden shadow-sm">
+                      <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden">
                         <Image
                           src={`/uploads/${fund.document_img}`}
-                          alt="Doc"
+                          alt=""
                           fill
                           className="object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
-                          <FileText size={12} className="text-white" />
-                        </div>
                       </div>
                     </div>
                   </td>
 
                   <td className="p-4">
-                    <span className=" text-sm font-semibold text-slate-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
-                      {truncateText(fund.title, 23)}
+                    <span className="text-sm font-semibold text-slate-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                      {highlightText(truncateText(fund.title), search)}
                     </span>
                   </td>
 
-                  <td className="p-4 text-left">
-                    <span className="text-sm font-bold text-slate-900">
-                      {formatAmount(fund.total_amount)}
-                    </span>
+                  <td className="p-4 text-sm font-bold text-slate-900">
+                    {formatAmount(fund.total_amount)}
+                  </td>
+
+                  <td className="p-4 text-center text-slate-500 text-[13px] font-medium">
+                    <Calendar size={14} className="inline text-blue-500 mr-1" />
+                    {formatDate(fund.start_date)}
+                  </td>
+
+                  <td className="p-4 text-center text-slate-500 text-[13px] font-medium">
+                    <Calendar size={14} className="inline text-red-500 mr-1" />
+                    {formatDate(fund.end_date)}
                   </td>
 
                   <td className="p-4 text-center">
-                    <div className="inline-flex items-center gap-1.5 text-slate-500 text-[13px] font-medium">
-                      <Calendar size={14} className="text-blue-500" />
-                      <span>{formatDate(fund.start_date)}</span>
-                    </div>
-                  </td>
-
-                  <td className="p-4 text-center">
-                    <div className="inline-flex items-center gap-1.5 text-slate-500 text-[13px] font-medium">
-                      <Calendar size={14} className="text-red-500" />
-                      <span>{formatDate(fund.end_date)}</span>
-                    </div>
-                  </td>
-
-
-
-                  <td className="p-4 text-left">
                     <div
                       onClick={() => toggleStatus(fund)}
-                      className={`relative w-10 h-5 rounded-full cursor-pointer transition-colors
-      ${fund.status === 1 ? "bg-blue-500" : "bg-slate-300"}
-    `}
+                      className={`relative w-10 h-5 rounded-full cursor-pointer ${
+                        fund.status === 1 ? "bg-blue-500" : "bg-slate-300"
+                      }`}
                     >
                       <div
-                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all
-        ${fund.status === 1 ? "left-5" : "left-1"}
-      `}
+                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${
+                          fund.status === 1 ? "left-5" : "left-1"
+                        }`}
                       />
                     </div>
                   </td>
 
                   <td className="p-4">
-                    <div className="flex items-center justify-center gap-1">
+                    <div className="flex justify-center gap-1">
                       <Link
                         href={`/admin/donationFund/edit-donationFund/${fund.id}`}
                       >
-                        <button
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                          title="Edit Campaign"
-                        >
+                        <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
                           <Edit2 size={16} />
                         </button>
                       </Link>
@@ -258,8 +265,7 @@ const DonationFundPage = () => {
                           setDeleteId(fund.id);
                           setShowDelete(true);
                         }}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                        title="Delete Campaign"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -271,29 +277,20 @@ const DonationFundPage = () => {
           </table>
         </div>
 
-        {/* Empty State Overlay */}
-        {funds.length === 0 && (
-          <div className="text-center py-20 bg-white">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
-              <FileText className="text-slate-300" size={32} />
-            </div>
-            <p className="text-slate-800 font-bold">
-              No active fundraisers found
-            </p>
-            <p className="text-slate-400 text-sm mt-1">
-              Get started by creating your first campaign.
-            </p>
+        {filteredFunds.length === 0 && (
+          <div className="text-center py-20">
+            <FileText className="mx-auto text-slate-300" size={32} />
+            <p className="text-slate-400 text-sm mt-2">No campaigns found</p>
           </div>
         )}
       </div>
 
-      {/* --- Delete Confirmation --- */}
       <DeleteModal
         isOpen={showDelete}
         onClose={() => setShowDelete(false)}
         onConfirm={confirmDelete}
         title="Remove Campaign"
-        description="Are you sure you want to delete this fundraiser? All associated records will be permanently removed from the system."
+        description="Are you sure you want to delete this fundraiser?"
         Delete="Delete Permanently"
       />
     </div>
