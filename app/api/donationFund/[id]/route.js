@@ -12,7 +12,8 @@ export async function GET(req, { params }) {
     //   id,
     // ]);
 
-    const [rows] = await db.query(`
+    const [rows] = await db.query(
+      `
       SELECT 
         df.*,
         IFNULL(SUM(di.amount), 0) AS raised_amount,
@@ -21,7 +22,9 @@ export async function GET(req, { params }) {
       LEFT JOIN donation_info di ON di.fund_id = df.id
       WHERE df.id = ?
       GROUP BY df.id 
-    `, [id]);
+    `,
+      [id],
+    );
     return NextResponse.json(rows[0]);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -35,14 +38,13 @@ export async function PUT(req, { params }) {
 
     const data = await req.formData();
     const fields = Object.fromEntries(data.entries());
-    console.log(fields)
 
-    const thumbnailFile = data.get("thumbnail");
+    const thumbnailFiles = data.getAll("thumbnail");
     const documentFile = data.get("document_img");
 
     const [rows] = await db.query(
       "SELECT thumbnail, document_img FROM donation_fund WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (!rows.length) {
@@ -51,25 +53,32 @@ export async function PUT(req, { params }) {
 
     const old = rows[0];
 
-    let thumbnailPath = old.thumbnail;
-    let documentPath = old.document_img;
+    // ---------- MULTIPLE IMAGE LOGIC ----------
+    let existingImages = [];
+    try {
+      existingImages = old.thumbnail ? JSON.parse(old.thumbnail) : [];
+    } catch {
+      existingImages = old.thumbnail ? [old.thumbnail] : [];
+    }
 
-    if (thumbnailFile && thumbnailFile.size > 0) {
-      thumbnailPath = await uploadImage(thumbnailFile);
-      if (old.thumbnail) {
-        await fs
-          .unlink(path.join(process.cwd(), "public/uploads", old.thumbnail))
-          .catch(() => { });
+    let newImages = [];
+    if (thumbnailFiles && thumbnailFiles.length > 0) {
+      for (const file of thumbnailFiles) {
+        if (file && file.size > 0) {
+          const imgPath = await uploadImage(file);
+          newImages.push(imgPath);
+        }
       }
     }
 
+    const finalImages = [...existingImages, ...newImages];
+    const thumbnailPath =
+      finalImages.length > 0 ? JSON.stringify(finalImages) : null;
+    // -----------------------------------------
+
+    let documentPath = old.document_img;
     if (documentFile && documentFile.size > 0) {
       documentPath = await uploadImage(documentFile);
-      if (old.document_img) {
-        await fs
-          .unlink(path.join(process.cwd(), "public/uploads", old.document_img))
-          .catch(() => { });
-      }
     }
 
     await db.query(
@@ -82,11 +91,11 @@ export async function PUT(req, { params }) {
         fields.start_date,
         fields.end_date,
         fields.total_amount || 0,
-        thumbnailPath || null,
-        documentPath || null,
+        thumbnailPath,
+        documentPath,
         fields.fun_cat || null,
         id,
-      ]
+      ],
     );
 
     return NextResponse.json({ success: true });
@@ -103,13 +112,13 @@ export async function DELETE(req, { params }) {
 
     const [[old]] = await db.query(
       "SELECT thumbnail FROM donation_fund WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (old?.thumbnail) {
       await fs
         .unlink(path.join(process.cwd(), "public/uploads", old.thumbnail))
-        .catch(() => { });
+        .catch(() => {});
     }
 
     await db.query("DELETE FROM donation_fund WHERE id = ?", [id]);
@@ -119,5 +128,3 @@ export async function DELETE(req, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
-
