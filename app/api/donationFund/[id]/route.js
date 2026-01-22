@@ -35,6 +35,7 @@ export async function PUT(req, { params }) {
 
     const data = await req.formData();
     const fields = Object.fromEntries(data.entries());
+    console.log(fields)
 
     const thumbnailFile = data.get("thumbnail");
     const documentFile = data.get("document_img");
@@ -73,12 +74,13 @@ export async function PUT(req, { params }) {
 
     await db.query(
       `UPDATE donation_fund 
-       SET title=?, description=?, date=?, total_amount=?, thumbnail=?, document_img=?, fun_cat=? 
+       SET title=?, description=?, start_date=?, end_date=?, total_amount=?, thumbnail=?, document_img=?, fun_cat=? 
        WHERE id=?`,
       [
         fields.title || "",
         fields.description || "",
-        fields.date || null,
+        fields.start_date,
+        fields.end_date,
         fields.total_amount || 0,
         thumbnailPath || null,
         documentPath || null,

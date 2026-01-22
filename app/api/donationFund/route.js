@@ -47,11 +47,12 @@ export async function POST(req) {
 
     await db.query(
       `INSERT INTO donation_fund 
-      (title, date, total_amount, thumbnail, fun_cat, description, document_img) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      (title, start_date, end_date, total_amount, thumbnail, fun_cat, description, document_img) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         fields.title,
-        fields.date,
+        fields.start_date,
+        fields.end_date,
         fields.total_amount,
         thumbnailPath,
         fields.fun_cat,
