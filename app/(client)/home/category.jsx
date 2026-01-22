@@ -41,29 +41,21 @@ const Category = () => {
   };
 
   return (
-    <section className="py-16 bg-slate-50 font-['Outfit']">
+    <section className="py-10 bg-slate-50 font-['Outfit']">
       <div className="max-w-7xl mx-auto px-6">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider mb-2">
-              <TrendingUp size={16} />
-              <span>Current Impact</span>
-            </div>
-            <h2 className="text-3xl font-bold text-slate-900">
-              Trending Fundraisers
-            </h2>
-            <p className="text-slate-500 mt-1 text-sm">
-              Urgent causes that need your immediate support and attention.
-            </p>
-          </div>
 
-          <Link href="/fundraisers" className="hidden md:block">
-            <button className="flex items-center gap-2 text-blue-600 font-bold text-sm hover:underline underline-offset-4 transition-all">
-              View All Campaigns
-              <ArrowRight size={18} />
-            </button>
-          </Link>
+        <div className="text-center mb-13">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
+            <TrendingUp size={16} />
+            <span>Current Impact</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
+            Trending<span className="text-blue-600"> Fundraisers</span>
+          </h2>
+          <p className="text-slate-500 text-sm md:text-base max-w-2xl mx-auto">
+            Urgent causes that need your immediate support and attention.
+          </p>
         </div>
 
         {/* Cards Grid */}
@@ -204,6 +196,18 @@ const Category = () => {
             </button>
           </Link>
         </div>
+      </div>
+
+      <div className="flex justify-center mt-10">
+        <Link href="/fundraisers" className="hidden md:block group">
+          <button className="flex items-center gap-2 text-blue-600 font-bold text-sm hover:underline underline-offset-4 transition-all">
+            View All Campaigns
+            <ArrowRight
+              size={18}
+              className="transition-transform duration-300 group-hover:translate-x-2"
+            />
+          </button>
+        </Link>
       </div>
     </section>
   );

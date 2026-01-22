@@ -12,11 +12,20 @@ import {
 } from "lucide-react";
 import DeleteModal from "@/components/CustomModel";
 import { showSuccess, showError } from "@/components/Toaster";
+import { z } from "zod"; // 1. Zod Import kiya
+
+/* =======================
+    Zod Schema
+======================= */
+const categorySchema = z.object({
+  title: z.string().trim().min(1, "Category title is required"),
+});
 
 const CategoryPage = () => {
   // ================= STATE =================
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ id: null, title: "" });
+  const [errors, setErrors] = useState({}); // 2. Errors State add ki
   const [showDelete, setShowDelete] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [search, setSearch] = useState("");
@@ -55,10 +64,19 @@ const CategoryPage = () => {
     );
   };
 
-  // ================= SUBMIT =================
+  // ================= SUBMIT (With Zod) =================
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim()) return showError("Category title is required");
+    setErrors({}); // Pehle ke errors clear karo
+
+    // 3. Zod Validation Logic
+    const result = categorySchema.safeParse(form);
+
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+      setErrors({ title: fieldErrors.title?.[0] }); // Sirf title ka error set karo
+      return;
+    }
 
     try {
       if (form.id) {
@@ -91,6 +109,7 @@ const CategoryPage = () => {
 
   // ================= EDIT =================
   const handleEdit = (category) => {
+    setErrors({}); // Edit karte waqt purane error hatao
     setForm({ id: category.id, title: category.title });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -113,13 +132,11 @@ const CategoryPage = () => {
         {/* ================= TABLE SECTION ================= */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-            {/* LEFT */}
             <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
               <Tag size={16} className="text-blue-600" />
               Existing Categories
             </h2>
 
-            {/* RIGHT — SEARCH */}
             <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 bg-white shadow-sm">
               <Search size={16} className="text-slate-400" />
               <input
@@ -224,15 +241,26 @@ const CategoryPage = () => {
                       setForm({ ...form, title: e.target.value })
                     }
                     placeholder="e.g. Medical Aid, Education"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 outline-none font-medium"
+                    className={`w-full bg-slate-50 border rounded-lg px-4 py-3 text-sm focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 outline-none font-medium transition-all ${
+                      errors.title ? "border-red-500" : "border-slate-200"
+                    }`}
                   />
+                  {/* 4. Error Message Display */}
+                  {errors.title && (
+                    <p className="text-red-500 text-[11px] mt-1 font-semibold ml-1">
+                      {errors.title}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-2">
                   {form.id && (
                     <button
                       type="button"
-                      onClick={() => setForm({ id: null, title: "" })}
+                      onClick={() => {
+                        setForm({ id: null, title: "" });
+                        setErrors({});
+                      }}
                       className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 flex items-center justify-center gap-2"
                     >
                       <XCircle size={14} />

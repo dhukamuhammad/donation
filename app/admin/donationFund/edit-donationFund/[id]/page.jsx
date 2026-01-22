@@ -10,7 +10,7 @@ import {
   ChevronLeft,
   Upload,
   Info,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useParams, useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ import { showSuccess, showError } from "@/components/Toaster";
 // ✅ TinyMCE client-only (SSR OFF)
 const TinyEditor = dynamic(
   () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
-  { ssr: false }
+  { ssr: false },
 );
 
 const EditDonationFundPage = () => {
@@ -33,7 +33,7 @@ const EditDonationFundPage = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    thumbnail: null,
+    thumbnail: [],
     document_img: null,
     total_amount: "",
     fun_cat: "",
@@ -65,13 +65,20 @@ const EditDonationFundPage = () => {
       const localStartDateString = parsedStartDate.toLocaleDateString("en-CA");
       const localEndDateString = parsedEndDate.toLocaleDateString("en-CA");
 
-      console.log(localStartDateString)
-      console.log(localEndDateString)
+      console.log(localStartDateString);
+      console.log(localEndDateString);
 
       setFormData({
         title: donation_fund.title,
         description: donation_fund.description || "",
-        thumbnail: donation_fund.thumbnail || null,
+        thumbnail: (() => {
+          try {
+            const parsed = JSON.parse(donation_fund.thumbnail);
+            return Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            return donation_fund.thumbnail ? [donation_fund.thumbnail] : [];
+          }
+        })(),
         document_img: donation_fund.document_img || null,
         total_amount: donation_fund.total_amount,
         fun_cat: donation_fund.fun_cat,
@@ -91,10 +98,18 @@ const EditDonationFundPage = () => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files[0],
-    }));
+
+    if (name === "thumbnail") {
+      setFormData((prev) => ({
+        ...prev,
+        thumbnail: [...prev.thumbnail, ...Array.from(files)],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: files[0],
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -111,8 +126,14 @@ const EditDonationFundPage = () => {
       fd.append("description", formData.description);
 
       // Only append if it's a new file (instance of File)
-      if (formData.thumbnail instanceof File) fd.append("thumbnail", formData.thumbnail);
-      if (formData.document_img instanceof File) fd.append("document_img", formData.document_img);
+      formData.thumbnail.forEach((img) => {
+        if (img instanceof File) {
+          fd.append("thumbnail", img);
+        }
+      });
+
+      if (formData.document_img instanceof File)
+        fd.append("document_img", formData.document_img);
 
       await axiosInstance.put(`/donationFund/${id}`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -128,9 +149,15 @@ const EditDonationFundPage = () => {
     }
   };
 
+  const removeImage = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      thumbnail: prev.thumbnail.filter((_, i) => i !== index),
+    }));
+  };
+
   return (
     <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
-
       {/* --- Page Header --- */}
       <div className="max-w-5xl mx-auto mb-8 flex items-center justify-between">
         <div>
@@ -140,19 +167,24 @@ const EditDonationFundPage = () => {
           >
             <ChevronLeft size={14} /> Back to listing
           </button>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Edit Campaign</h1>
-          <p className="text-sm text-slate-500 mt-1">Modify fundraiser details and verify information.</p>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+            Edit Campaign
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Modify fundraiser details and verify information.
+          </p>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-8">
-
           {/* Section 1: Overview */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
               <FileText size={16} className="text-blue-600" />
-              <h2 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Campaign Details</h2>
+              <h2 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest">
+                Campaign Details
+              </h2>
             </div>
             <div className="p-6 space-y-6">
               <div className="space-y-2">
@@ -184,8 +216,10 @@ const EditDonationFundPage = () => {
                       height: 350,
                       menubar: false,
                       plugins: "link lists table wordcount",
-                      toolbar: "undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | link table | removeformat",
-                      content_style: "body { font-family:Outfit,Arial,sans-serif; font-size:14px }",
+                      toolbar:
+                        "undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | link table | removeformat",
+                      content_style:
+                        "body { font-family:Outfit,Arial,sans-serif; font-size:14px }",
                     }}
                   />
                 </div>
@@ -198,7 +232,8 @@ const EditDonationFundPage = () => {
             {/* Thumbnail */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
               <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                <ImageIcon size={14} className="text-blue-600" /> Update Thumbnail
+                <ImageIcon size={14} className="text-blue-600" /> Update
+                Thumbnail
               </label>
               <div className="space-y-4">
                 <div className="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-blue-400 transition-all text-center">
@@ -206,19 +241,46 @@ const EditDonationFundPage = () => {
                     type="file"
                     name="thumbnail"
                     accept="image/*"
+                    multiple
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <Upload size={24} className="mx-auto text-slate-300 mb-2 group-hover:text-blue-500" />
-                  <p className="text-xs text-slate-500 font-medium">Click to change cover image</p>
+
+                  <Upload
+                    size={24}
+                    className="mx-auto text-slate-300 mb-2 group-hover:text-blue-500"
+                  />
+                  <p className="text-xs text-slate-500 font-medium">
+                    Click to change cover image
+                  </p>
                 </div>
-                {formData.thumbnail && (
-                  <div className="relative h-40 rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
-                    <img
-                      src={formData.thumbnail instanceof File ? URL.createObjectURL(formData.thumbnail) : `/uploads/${formData.thumbnail}`}
-                      className="w-full h-full object-cover"
-                      alt="Preview"
-                    />
+                {formData.thumbnail.length > 0 && (
+                  <div className="flex gap-3 overflow-x-auto pb-2">
+                    {formData.thumbnail.map((img, index) => (
+                      <div
+                        key={index}
+                        className="relative w-28 h-28 flex-shrink-0 rounded-lg overflow-hidden border border-slate-200"
+                      >
+                        <img
+                          src={
+                            img instanceof File
+                              ? URL.createObjectURL(img)
+                              : `/uploads/${img}`
+                          }
+                          alt="preview"
+                          className="w-full h-full object-cover"
+                        />
+
+                        {/* ❌ Remove */}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 bg-black/60 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs transition-all"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -227,7 +289,8 @@ const EditDonationFundPage = () => {
             {/* Support Document - ONLY PDF */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
               <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                <FileText size={14} className="text-red-600" /> Update Verification PDF
+                <FileText size={14} className="text-red-600" /> Update
+                Verification PDF
               </label>
 
               <div className="space-y-4">
@@ -241,19 +304,28 @@ const EditDonationFundPage = () => {
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <Upload size={24} className="mx-auto text-slate-300 mb-2 group-hover:text-red-500" />
-                  <p className="text-xs text-slate-500 font-medium">Click to upload medical PDF</p>
-                  <p className="text-[10px] text-slate-400 mt-1">(Only PDF files are supported)</p>
+                  <Upload
+                    size={24}
+                    className="mx-auto text-slate-300 mb-2 group-hover:text-red-500"
+                  />
+                  <p className="text-xs text-slate-500 font-medium">
+                    Click to upload medical PDF
+                  </p>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    (Only PDF files are supported)
+                  </p>
                 </div>
 
                 {/* PDF Preview & Path Display - Horizontal Sleek Design */}
                 {formData.document_img && (
                   <div className="relative rounded-xl border border-slate-200 bg-slate-50/50 p-3 shadow-sm group hover:border-red-200 transition-all">
                     <div className="flex items-center gap-3">
-
                       {/* 1. Left Side: Compact PDF Icon */}
                       <div className="relative w-10 h-10 bg-white rounded-lg flex flex-col items-center justify-center flex-shrink-0 border border-slate-100 shadow-sm">
-                        <FileText size={20} className="text-red-500 stroke-[2]" />
+                        <FileText
+                          size={20}
+                          className="text-red-500 stroke-[2]"
+                        />
                         <span className="absolute -bottom-1 text-[6px] font-black bg-red-600 text-white px-1 rounded-[1px] leading-none uppercase">
                           PDF
                         </span>
@@ -275,7 +347,9 @@ const EditDonationFundPage = () => {
 
                         {/* Horizontal Path Display */}
                         <p className="text-[10px] text-slate-400 truncate flex items-center gap-1">
-                          <span className="font-bold text-slate-300 uppercase">Path:</span>
+                          <span className="font-bold text-slate-300 uppercase">
+                            Path:
+                          </span>
                           <span className="italic">
                             {formData.document_img instanceof File
                               ? "Local Preview"
@@ -287,14 +361,18 @@ const EditDonationFundPage = () => {
                       {/* 3. Right Side: Actions */}
                       <div className="flex items-center gap-1 pl-2 border-l border-slate-200">
                         <a
-                          href={formData.document_img instanceof File
-                            ? URL.createObjectURL(formData.document_img)
-                            : `/uploads/${formData.document_img}`}
+                          href={
+                            formData.document_img instanceof File
+                              ? URL.createObjectURL(formData.document_img)
+                              : `/uploads/${formData.document_img}`
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-lg transition-all"
                         >
-                          <span className="text-[10px] font-bold uppercase tracking-widest">View</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest">
+                            View
+                          </span>
                           <ExternalLink size={14} />
                         </a>
                       </div>
@@ -313,7 +391,10 @@ const EditDonationFundPage = () => {
                   Target Amount (₹)
                 </label>
                 <div className="relative">
-                  <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <DollarSign
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
                   <input
                     type="number"
                     name="total_amount"
@@ -330,7 +411,10 @@ const EditDonationFundPage = () => {
                   Category
                 </label>
                 <div className="relative">
-                  <Tag size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Tag
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
                   <select
                     name="fun_cat"
                     required
@@ -340,7 +424,9 @@ const EditDonationFundPage = () => {
                   >
                     <option value="">Select category</option>
                     {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.title}</option>
+                      <option key={cat.id} value={cat.id}>
+                        {cat.title}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -351,7 +437,10 @@ const EditDonationFundPage = () => {
                   Start Date
                 </label>
                 <div className="relative">
-                  <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Calendar
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
                   <input
                     type="date"
                     name="start_date"
@@ -368,7 +457,10 @@ const EditDonationFundPage = () => {
                   End Date
                 </label>
                 <div className="relative">
-                  <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Calendar
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
                   <input
                     type="date"
                     name="end_date"
@@ -401,11 +493,16 @@ const EditDonationFundPage = () => {
                 disabled={isSubmitting}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md active:scale-95 transition-all flex items-center gap-2"
               >
-                {isSubmitting ? "Updating..." : <><Save size={16} /> Save Changes</>}
+                {isSubmitting ? (
+                  "Updating..."
+                ) : (
+                  <>
+                    <Save size={16} /> Save Changes
+                  </>
+                )}
               </button>
             </div>
           </div>
-
         </form>
       </div>
     </div>
