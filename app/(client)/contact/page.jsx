@@ -13,6 +13,17 @@ import {
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { showError, showSuccess } from "@/components/Toaster";
+import { z } from "zod"; // Zod import kiya
+
+/* =======================
+    Zod Schema
+======================= */
+const contactSchema = z.object({
+  name: z.string().min(1, "Full name is required"),
+  email: z.string().email("Valid email is required"),
+  subject: z.string().min(1, "Subject is required"),
+  message: z.string().min(1, "Message is required"),
+});
 
 const ContactPage = () => {
   const [form, setForm] = useState({
@@ -22,6 +33,7 @@ const ContactPage = () => {
     message: "",
   });
 
+  const [errors, setErrors] = useState({}); // Errors store karne ke liye state
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -33,6 +45,21 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({}); // Pehle ke errors clear karo
+
+    // Zod validation logic
+    const result = contactSchema.safeParse(form);
+
+    if (!result.success) {
+      const formattedErrors = result.error.flatten().fieldErrors;
+      const fieldErrors = {};
+      for (const key in formattedErrors) {
+        fieldErrors[key] = formattedErrors[key][0];
+      }
+      setErrors(fieldErrors); // Errors set karo
+      return; // Aage ka code mat chalao
+    }
+
     setLoading(true);
 
     try {
@@ -45,6 +72,7 @@ const ContactPage = () => {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-white font-['Outfit']">
       {/* --- Header Section --- */}
@@ -64,7 +92,7 @@ const ContactPage = () => {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-5 gap-16">
-            {/* Left: Contact Info (2 Columns span) */}
+            {/* Left Section (Original) */}
             <div className="lg:col-span-2 space-y-12">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 mb-6">
@@ -76,7 +104,6 @@ const ContactPage = () => {
                 </p>
 
                 <div className="space-y-6">
-                  {/* Address */}
                   <div className="flex gap-4 items-start">
                     <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
                       <MapPin className="text-blue-600" size={22} />
@@ -93,7 +120,6 @@ const ContactPage = () => {
                     </div>
                   </div>
 
-                  {/* Phone */}
                   <div className="flex gap-4 items-start">
                     <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
                       <Phone className="text-blue-600" size={22} />
@@ -108,7 +134,6 @@ const ContactPage = () => {
                     </div>
                   </div>
 
-                  {/* Email */}
                   <div className="flex gap-4 items-start">
                     <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
                       <Mail className="text-blue-600" size={22} />
@@ -123,7 +148,6 @@ const ContactPage = () => {
                     </div>
                   </div>
 
-                  {/* Support Hours */}
                   <div className="flex gap-4 items-start">
                     <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
                       <Clock className="text-blue-600" size={22} />
@@ -140,7 +164,6 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              {/* Social Links */}
               <div>
                 <p className="font-bold text-slate-800 text-xs uppercase tracking-[0.2em] mb-6">
                   Connect with us
@@ -159,7 +182,7 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Right: Contact Form (3 Columns span) */}
+            {/* Right: Contact Form */}
             <div className="lg:col-span-3">
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 md:p-10">
                 <div className="flex items-center gap-3 mb-8">
@@ -176,7 +199,6 @@ const ContactPage = () => {
                         Full Name
                       </label>
                       <input
-                        required
                         type="text"
                         name="name"
                         value={form.name}
@@ -184,13 +206,17 @@ const ContactPage = () => {
                         placeholder="John Doe"
                         className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all text-sm"
                       />
+                      {errors.name && (
+                        <p className="text-red-500 text-xs mt-1 font-medium">
+                          {errors.name}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-400 uppercase ml-1">
                         Email Address
                       </label>
                       <input
-                        required
                         type="email"
                         name="email"
                         value={form.email}
@@ -198,6 +224,11 @@ const ContactPage = () => {
                         placeholder="john@example.com"
                         className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all text-sm"
                       />
+                      {errors.email && (
+                        <p className="text-red-500 text-xs mt-1 font-medium">
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -206,7 +237,6 @@ const ContactPage = () => {
                       Subject
                     </label>
                     <input
-                      required
                       type="text"
                       name="subject"
                       value={form.subject}
@@ -214,6 +244,11 @@ const ContactPage = () => {
                       placeholder="How can we help you?"
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all text-sm"
                     />
+                    {errors.subject && (
+                      <p className="text-red-500 text-xs mt-1 font-medium">
+                        {errors.subject}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -221,7 +256,6 @@ const ContactPage = () => {
                       Your Message
                     </label>
                     <textarea
-                      required
                       rows="5"
                       name="message"
                       value={form.message}
@@ -229,6 +263,11 @@ const ContactPage = () => {
                       placeholder="Type your message here..."
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all text-sm resize-none"
                     ></textarea>
+                    {errors.message && (
+                      <p className="text-red-500 text-xs mt-1 font-medium">
+                        {errors.message}
+                      </p>
+                    )}
                   </div>
 
                   <button
@@ -255,7 +294,7 @@ const ContactPage = () => {
               loading="lazy"
               allowFullScreen
               referrerPolicy="no-referrer-when-downgrade"
-              src="https://www.google.com/maps?q=Mahi%20Village%20Vadgam%20Banaskantha%20Gujarat&output=embed"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14614.331498110825!2d72.486255!3d23.951556!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395ce6df67417e0b%3A0xc3f17070f7d56637!2sMahi%2C%20Gujarat%20385410!5e0!3m2!1sen!2sin!4v1700000000000"
             ></iframe>
           </div>
         </div>
