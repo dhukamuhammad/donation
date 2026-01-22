@@ -37,16 +37,16 @@ const PaymentInfo = () => {
     }
   };
 
-  const filteredPayments = payments.filter((txn) => {
+  const filteredPayments = payments.filter((txn) => {                                                   
     const nameMatch = txn.name
-      ?.toLowerCase()
+      ?.toLowerCase()                                                       
       .includes(searchName.toLowerCase());
 
     const txnDate = new Date(txn.created_date);
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
 
-    return (
+    return (            
       nameMatch && (!start || txnDate >= start) && (!end || txnDate <= end)
     );
   });
