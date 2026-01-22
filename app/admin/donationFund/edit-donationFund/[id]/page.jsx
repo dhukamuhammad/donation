@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { 
-  Calendar, 
-  DollarSign, 
-  Tag, 
-  FileText, 
-  Image as ImageIcon, 
-  Save, 
+import {
+  Calendar,
+  DollarSign,
+  Tag,
+  FileText,
+  Image as ImageIcon,
+  Save,
   ChevronLeft,
   Upload,
   Info
@@ -36,7 +36,8 @@ const EditDonationFundPage = () => {
     document_img: null,
     total_amount: "",
     fun_cat: "",
-    date: "",
+    start_date: "",
+    end_date: "",
   });
 
   useEffect(() => {
@@ -58,8 +59,13 @@ const EditDonationFundPage = () => {
       const res = await axiosInstance.get(`/donationFund/${id}`);
       const donation_fund = res.data;
 
-      const parsedDate = new Date(donation_fund.date);
-      const localDateString = parsedDate.toLocaleDateString("en-CA");
+      const parsedStartDate = new Date(donation_fund.start_date);
+      const parsedEndDate = new Date(donation_fund.end_date);
+      const localStartDateString = parsedStartDate.toLocaleDateString("en-CA");
+      const localEndDateString = parsedEndDate.toLocaleDateString("en-CA");
+
+      console.log(localStartDateString)
+      console.log(localEndDateString)
 
       setFormData({
         title: donation_fund.title,
@@ -68,7 +74,8 @@ const EditDonationFundPage = () => {
         document_img: donation_fund.document_img || null,
         total_amount: donation_fund.total_amount,
         fun_cat: donation_fund.fun_cat,
-        date: localDateString,
+        start_date: localStartDateString,
+        end_date: localEndDateString,
       });
     } catch (err) {
       console.error(err);
@@ -96,7 +103,8 @@ const EditDonationFundPage = () => {
     try {
       const fd = new FormData();
       fd.append("title", formData.title);
-      fd.append("date", formData.date);
+      fd.append("start_date", formData.start_date);
+      fd.append("end_date", formData.end_date);
       fd.append("total_amount", formData.total_amount);
       fd.append("fun_cat", formData.fun_cat);
       fd.append("description", formData.description);
@@ -108,7 +116,7 @@ const EditDonationFundPage = () => {
       await axiosInstance.put(`/donationFund/${id}`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      
+
       showSuccess("Campaign updated successfully ✅");
       router.back();
     } catch (err) {
@@ -121,11 +129,11 @@ const EditDonationFundPage = () => {
 
   return (
     <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
-      
+
       {/* --- Page Header --- */}
       <div className="max-w-5xl mx-auto mb-8 flex items-center justify-between">
         <div>
-          <button 
+          <button
             onClick={() => router.back()}
             className="flex items-center gap-1 text-slate-400 hover:text-blue-600 transition-colors text-xs font-bold uppercase tracking-widest mb-2"
           >
@@ -138,7 +146,7 @@ const EditDonationFundPage = () => {
 
       <div className="max-w-5xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-8">
-          
+
           {/* Section 1: Overview */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
@@ -205,9 +213,9 @@ const EditDonationFundPage = () => {
                 </div>
                 {formData.thumbnail && (
                   <div className="relative h-40 rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
-                    <img 
-                      src={formData.thumbnail instanceof File ? URL.createObjectURL(formData.thumbnail) : `/uploads/${formData.thumbnail}`} 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={formData.thumbnail instanceof File ? URL.createObjectURL(formData.thumbnail) : `/uploads/${formData.thumbnail}`}
+                      className="w-full h-full object-cover"
                       alt="Preview"
                     />
                   </div>
@@ -234,9 +242,9 @@ const EditDonationFundPage = () => {
                 </div>
                 {formData.document_img && (
                   <div className="relative h-40 rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
-                    <img 
-                      src={formData.document_img instanceof File ? URL.createObjectURL(formData.document_img) : `/uploads/${formData.document_img}`} 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={formData.document_img instanceof File ? URL.createObjectURL(formData.document_img) : `/uploads/${formData.document_img}`}
+                      className="w-full h-full object-cover"
                       alt="Preview"
                     />
                   </div>
@@ -247,7 +255,7 @@ const EditDonationFundPage = () => {
 
           {/* Section 3: Financials */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                   Target Amount (₹)
@@ -288,15 +296,32 @@ const EditDonationFundPage = () => {
 
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                  Campaign Date
+                  Start Date
                 </label>
                 <div className="relative">
                   <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="date"
-                    name="date"
+                    name="start_date"
                     required
-                    value={formData.date}
+                    value={formData.start_date}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  End Date
+                </label>
+                <div className="relative">
+                  <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="date"
+                    name="end_date"
+                    required
+                    value={formData.end_date}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all font-medium"
                   />
@@ -307,26 +332,26 @@ const EditDonationFundPage = () => {
 
           {/* Action Bar */}
           <div className="flex items-center justify-between p-6 bg-slate-800 rounded-xl shadow-lg shadow-slate-200">
-             <div className="flex items-center gap-2 text-slate-300 text-xs font-medium">
-               <Info size={14} />
-               <span>Changes will be updated on the public page instantly.</span>
-             </div>
-             <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
-                >
-                  Discard
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md active:scale-95 transition-all flex items-center gap-2"
-                >
-                  {isSubmitting ? "Updating..." : <><Save size={16} /> Save Changes</>}
-                </button>
-             </div>
+            <div className="flex items-center gap-2 text-slate-300 text-xs font-medium">
+              <Info size={14} />
+              <span>Changes will be updated on the public page instantly.</span>
+            </div>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+              >
+                Discard
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md active:scale-95 transition-all flex items-center gap-2"
+              >
+                {isSubmitting ? "Updating..." : <><Save size={16} /> Save Changes</>}
+              </button>
+            </div>
           </div>
 
         </form>

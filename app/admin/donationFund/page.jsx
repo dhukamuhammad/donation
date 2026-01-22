@@ -83,6 +83,14 @@ const DonationFundPage = () => {
     }
   };
 
+  const truncateText = (text, maxLength = 50) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? text.slice(0, maxLength) + "..."
+      : text;
+  };
+
+
   return (
     <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
       {/* --- Dashboard Header --- */}
@@ -139,6 +147,10 @@ const DonationFundPage = () => {
                   Start Date
                 </th>
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                  End Date
+                </th>
+
+                <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
                   Status
                 </th>
                 <th className="p-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
@@ -188,7 +200,7 @@ const DonationFundPage = () => {
 
                   <td className="p-4">
                     <span className=" text-sm font-semibold text-slate-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
-                      {fund.title}
+                      {truncateText(fund.title, 23)}
                     </span>
                   </td>
 
@@ -201,9 +213,18 @@ const DonationFundPage = () => {
                   <td className="p-4 text-center">
                     <div className="inline-flex items-center gap-1.5 text-slate-500 text-[13px] font-medium">
                       <Calendar size={14} className="text-blue-500" />
-                      <span>{formatDate(fund.date)}</span>
+                      <span>{formatDate(fund.start_date)}</span>
                     </div>
                   </td>
+
+                  <td className="p-4 text-center">
+                    <div className="inline-flex items-center gap-1.5 text-slate-500 text-[13px] font-medium">
+                      <Calendar size={14} className="text-red-500" />
+                      <span>{formatDate(fund.end_date)}</span>
+                    </div>
+                  </td>
+
+
 
                   <td className="p-4 text-left">
                     <div

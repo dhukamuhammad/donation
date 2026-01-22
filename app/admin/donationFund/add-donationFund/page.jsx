@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { 
-  Calendar, 
-  DollarSign, 
-  Tag, 
-  FileText, 
-  Image as ImageIcon, 
-  Plus, 
+import {
+  Calendar,
+  DollarSign,
+  Tag,
+  FileText,
+  Image as ImageIcon,
+  Plus,
   ChevronLeft,
   Upload,
   Info
@@ -34,7 +34,8 @@ const AddDonationFundPage = () => {
     description: "",
     total_amount: "",
     fun_cat: "",
-    date: "",
+    start_date: "",
+    end_date: "",
   });
 
   useEffect(() => {
@@ -75,7 +76,7 @@ const AddDonationFundPage = () => {
       await axiosInstance.post("/donationFund", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      
+
       showSuccess("Campaign launched successfully ✅");
       router.push("/admin/donationFund");
     } catch (err) {
@@ -87,11 +88,11 @@ const AddDonationFundPage = () => {
 
   return (
     <div className="p-6 lg:p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
-      
+
       {/* --- Page Header --- */}
       <div className="max-w-5xl mx-auto mb-8 flex items-center justify-between">
         <div>
-          <button 
+          <button
             onClick={() => router.back()}
             className="flex items-center gap-1 text-slate-400 hover:text-blue-600 transition-colors text-xs font-bold uppercase tracking-widest mb-2"
           >
@@ -104,7 +105,7 @@ const AddDonationFundPage = () => {
 
       <div className="max-w-5xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-8">
-          
+
           {/* Section 1: Basic Info */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
@@ -206,7 +207,9 @@ const AddDonationFundPage = () => {
 
           {/* Section 3: Financials & Classification */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Target Amount */}
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                   Target Amount (₹)
@@ -225,6 +228,7 @@ const AddDonationFundPage = () => {
                 </div>
               </div>
 
+              {/* Category */}
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
                   Campaign Category
@@ -246,47 +250,66 @@ const AddDonationFundPage = () => {
                 </div>
               </div>
 
+              {/* Start Date */}
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                  Target Date
+                  Start Date
                 </label>
                 <div className="relative">
                   <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="date"
-                    name="date"
+                    name="start_date"
                     required
-                    value={formData.date}
+                    value={formData.start_date}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all font-medium"
                   />
                 </div>
               </div>
+
+              {/* End Date (AUTO) */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  End Date
+                </label>
+                <div className="relative">
+                  <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="date"
+                    name="end_date"
+                    value={formData.end_date}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:border-blue-600 outline-none transition-all font-medium"
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
 
           {/* Action Bar */}
           <div className="flex items-center justify-between p-6 bg-slate-800 rounded-xl shadow-lg shadow-slate-200">
-             <div className="flex items-center gap-2 text-slate-300 text-xs font-medium">
-               <Info size={14} />
-               <span>Campaign will go live immediately after creation.</span>
-             </div>
-             <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md active:scale-95 transition-all flex items-center gap-2"
-                >
-                  {isSubmitting ? "Launching..." : <><Plus size={16} /> Launch Campaign</>}
-                </button>
-             </div>
+            <div className="flex items-center gap-2 text-slate-300 text-xs font-medium">
+              <Info size={14} />
+              <span>Campaign will go live immediately after creation.</span>
+            </div>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest shadow-md active:scale-95 transition-all flex items-center gap-2"
+              >
+                {isSubmitting ? "Launching..." : <><Plus size={16} /> Launch Campaign</>}
+              </button>
+            </div>
           </div>
 
         </form>
