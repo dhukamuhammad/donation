@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { showError, showSuccess } from "@/components/Toaster";
-import { z } from "zod"; // Zod import kiya
+import { z } from "zod";
 
 /* =======================
     Zod Schema
@@ -25,6 +25,9 @@ const contactSchema = z.object({
   message: z.string().min(1, "Message is required"),
 });
 
+// 1. Line-by-line validation ke liye field sequence define ki
+const fieldOrder = ["name", "email", "subject", "message"];
+
 const ContactPage = () => {
   const [form, setForm] = useState({
     name: "",
@@ -33,7 +36,7 @@ const ContactPage = () => {
     message: "",
   });
 
-  const [errors, setErrors] = useState({}); // Errors store karne ke liye state
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -41,23 +44,32 @@ const ContactPage = () => {
       ...form,
       [e.target.name]: e.target.value,
     });
+    // User jab likhna shuru kare toh error clear ho jaye
+    if (errors[e.target.name]) {
+      setErrors({});
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({}); // Pehle ke errors clear karo
 
-    // Zod validation logic
     const result = contactSchema.safeParse(form);
 
     if (!result.success) {
       const formattedErrors = result.error.flatten().fieldErrors;
-      const fieldErrors = {};
-      for (const key in formattedErrors) {
-        fieldErrors[key] = formattedErrors[key][0];
+
+      // 2. Line-by-line logic: sirf pehla error field dhundo jo sequence mein ho
+      const firstErrorField = fieldOrder.find(
+        (field) => formattedErrors[field],
+      );
+
+      if (firstErrorField) {
+        setErrors({
+          [firstErrorField]: formattedErrors[firstErrorField][0],
+        });
       }
-      setErrors(fieldErrors); // Errors set karo
-      return; // Aage ka code mat chalao
+      return;
     }
 
     setLoading(true);
@@ -92,7 +104,6 @@ const ContactPage = () => {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-5 gap-16">
-            {/* Left Section (Original) */}
             <div className="lg:col-span-2 space-y-12">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 mb-6">

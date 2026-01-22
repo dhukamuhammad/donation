@@ -101,6 +101,18 @@ const DonationFundPage = () => {
     );
   };
 
+  // one image show
+
+  const getFirstThumbnail = (thumbnail) => {
+    try {
+      const parsed = JSON.parse(thumbnail);
+      return Array.isArray(parsed) ? parsed[0] : parsed;
+    } catch {
+      // old data (single image string)
+      return thumbnail;
+    }
+  };
+
   return (
     <div className="p-6 bg-slate-50/50 min-h-screen font-['Outfit']">
       {/* Header */}
@@ -199,7 +211,7 @@ const DonationFundPage = () => {
                     <div className="flex items-center gap-2">
                       <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden">
                         <Image
-                          src={`/uploads/${fund.thumbnail}`}
+                          src={`/uploads/${getFirstThumbnail(fund.thumbnail)}`}
                           alt=""
                           fill
                           className="object-cover"
@@ -207,7 +219,7 @@ const DonationFundPage = () => {
                       </div>
 
                       <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden bg-slate-50 group shadow-sm flex items-center justify-center">
-                        {fund.document_img?.toLowerCase().endsWith('.pdf') && (
+                        {fund.document_img?.toLowerCase().endsWith(".pdf") && (
                           <div className="relative w-10 h-10 rounded border border-slate-200 overflow-hidden bg-slate-50 group shadow-sm flex items-center justify-center flex-shrink-0">
                             <a
                               href={`/uploads/${fund.document_img}`}
@@ -218,7 +230,10 @@ const DonationFundPage = () => {
                               {/* PDF Visual Design */}
                               <div className="relative flex flex-col items-center">
                                 {/* PDF Icon */}
-                                <FileText size={18} className="text-red-500 stroke-[2.5]" />
+                                <FileText
+                                  size={18}
+                                  className="text-red-500 stroke-[2.5]"
+                                />
 
                                 {/* Tiny Red Label */}
                                 <span className="absolute -bottom-1.5 text-[7px] font-black bg-red-600 text-white px-0.5 rounded-[1px] leading-none uppercase">
@@ -231,7 +246,6 @@ const DonationFundPage = () => {
                             <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors pointer-events-none" />
                           </div>
                         )}
-
                       </div>
                     </div>
                   </td>
@@ -259,12 +273,14 @@ const DonationFundPage = () => {
                   <td className="p-4 text-center">
                     <div
                       onClick={() => toggleStatus(fund)}
-                      className={`relative w-10 h-5 rounded-full cursor-pointer ${fund.status === 1 ? "bg-blue-500" : "bg-slate-300"
-                        }`}
+                      className={`relative w-10 h-5 rounded-full cursor-pointer ${
+                        fund.status === 1 ? "bg-blue-500" : "bg-slate-300"
+                      }`}
                     >
                       <div
-                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${fund.status === 1 ? "left-5" : "left-1"
-                          }`}
+                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${
+                          fund.status === 1 ? "left-5" : "left-1"
+                        }`}
                       />
                     </div>
                   </td>
