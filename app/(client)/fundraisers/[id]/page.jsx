@@ -15,11 +15,14 @@ import {
   Facebook,
   Twitter,
   MessageCircle,
+  ExternalLink,
+  Eye,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
 import DonationModal from "./DonationModal";
+import Link from "next/link";
 
 const FundraisersDetailsPage = () => {
   const params = useParams();
@@ -146,11 +149,10 @@ const FundraisersDetailsPage = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-colors ${
-                      activeTab === tab.id
-                        ? "bg-white text-blue-600 border-b-2 border-blue-600"
-                        : "text-slate-500 hover:text-slate-800"
-                    }`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-colors ${activeTab === tab.id
+                      ? "bg-white text-blue-600 border-b-2 border-blue-600"
+                      : "text-slate-500 hover:text-slate-800"
+                      }`}
                   >
                     <tab.icon size={16} />
                     {tab.label}
@@ -162,9 +164,8 @@ const FundraisersDetailsPage = () => {
                 {activeTab === "description" && (
                   <div className="relative">
                     <div
-                      className={`prose prose-slate max-w-none text-slate-600 leading-relaxed overflow-hidden transition-all duration-500 ${
-                        expanded ? "max-h-full" : "max-h-[350px]"
-                      }`}
+                      className={`prose prose-slate max-w-none text-slate-600 leading-relaxed overflow-hidden transition-all duration-500 ${expanded ? "max-h-full" : "max-h-[350px]"
+                        }`}
                       dangerouslySetInnerHTML={{
                         __html: fundraiser.description,
                       }}
@@ -191,22 +192,47 @@ const FundraisersDetailsPage = () => {
                 )}
 
                 {activeTab === "documents" && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <div
-                      className="group relative aspect-[3/4] cursor-pointer rounded-lg overflow-hidden border border-slate-200"
-                      onClick={() => setShowDoc(true)}
-                    >
-                      <Image
-                        src={`/uploads/${fundraiser.document_img}`}
-                        alt="Document"
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <span className="text-white text-xs font-bold">
-                          View Full Image
-                        </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <div className="group relative aspect-[3/4] cursor-pointer rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-300">
+
+                      {/* PDF Visual Design */}
+                      <div className="absolute inset-0 flex flex-col">
+                        {/* Top Section: PDF Icon Area */}
+                        <div className="flex-1 flex flex-col items-center justify-center bg-slate-50/50 group-hover:bg-red-50/30 transition-colors">
+                          <div className="relative">
+                            <FileText size={48} className="text-red-500 stroke-[1.5]" />
+                            <div className="absolute -bottom-1 -right-1 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                              PDF
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bottom Section: File Info */}
+                        <div className="p-3 bg-white border-t border-slate-100">
+                          <p className="text-[11px] font-bold text-slate-700 truncate mb-1 uppercase tracking-tight">
+                            {fundraiser.document_img.split('_').pop() || "Document.pdf"}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-bold text-slate-400 uppercase">Medical Doc</span>
+                            <ExternalLink size={12} className="text-slate-400" />
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Hover Overlay: Interactive State */}
+                      <a
+                        href={`/uploads/${fundraiser.document_img}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/80 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px]"
+                      >
+                        <div className="bg-white/10 p-3 rounded-full mb-2">
+                          <Eye size={24} className="text-white" />
+                        </div>
+                        <span className="text-white text-[10px] font-black uppercase tracking-[0.2em]">
+                          View Full PDF
+                        </span>
+                      </a>
                     </div>
                   </div>
                 )}

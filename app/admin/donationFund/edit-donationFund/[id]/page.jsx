@@ -9,7 +9,8 @@ import {
   Save,
   ChevronLeft,
   Upload,
-  Info
+  Info,
+  ExternalLink
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { useParams, useRouter } from "next/navigation";
@@ -223,30 +224,81 @@ const EditDonationFundPage = () => {
               </div>
             </div>
 
-            {/* Support Document */}
+            {/* Support Document - ONLY PDF */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
               <label className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                <FileText size={14} className="text-blue-600" /> Update Verification Doc
+                <FileText size={14} className="text-red-600" /> Update Verification PDF
               </label>
+
               <div className="space-y-4">
-                <div className="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-blue-400 transition-all text-center">
+                {/* Upload Box */}
+                <div className="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-xl p-2 hover:border-red-400 transition-all text-center bg-slate-50/30">
                   <input
                     type="file"
                     name="document_img"
-                    accept="image/*"
+                    // Sirf PDF allow karega
+                    accept="application/pdf"
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <Upload size={24} className="mx-auto text-slate-300 mb-2 group-hover:text-blue-500" />
-                  <p className="text-xs text-slate-500 font-medium">Click to change medical doc</p>
+                  <Upload size={24} className="mx-auto text-slate-300 mb-2 group-hover:text-red-500" />
+                  <p className="text-xs text-slate-500 font-medium">Click to upload medical PDF</p>
+                  <p className="text-[10px] text-slate-400 mt-1">(Only PDF files are supported)</p>
                 </div>
+
+                {/* PDF Preview & Path Display - Horizontal Sleek Design */}
                 {formData.document_img && (
-                  <div className="relative h-40 rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
-                    <img
-                      src={formData.document_img instanceof File ? URL.createObjectURL(formData.document_img) : `/uploads/${formData.document_img}`}
-                      className="w-full h-full object-cover"
-                      alt="Preview"
-                    />
+                  <div className="relative rounded-xl border border-slate-200 bg-slate-50/50 p-3 shadow-sm group hover:border-red-200 transition-all">
+                    <div className="flex items-center gap-3">
+
+                      {/* 1. Left Side: Compact PDF Icon */}
+                      <div className="relative w-10 h-10 bg-white rounded-lg flex flex-col items-center justify-center flex-shrink-0 border border-slate-100 shadow-sm">
+                        <FileText size={20} className="text-red-500 stroke-[2]" />
+                        <span className="absolute -bottom-1 text-[6px] font-black bg-red-600 text-white px-1 rounded-[1px] leading-none uppercase">
+                          PDF
+                        </span>
+                      </div>
+
+                      {/* 2. Middle: Name & Path (Flexible space) */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="text-[13px] font-bold text-slate-700 truncate">
+                            {formData.document_img instanceof File
+                              ? formData.document_img.name
+                              : formData.document_img}
+                          </p>
+                          {/* Status Badge */}
+                          <span className="text-[8px] font-black text-green-500 border border-green-200 bg-green-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                            Attached
+                          </span>
+                        </div>
+
+                        {/* Horizontal Path Display */}
+                        <p className="text-[10px] text-slate-400 truncate flex items-center gap-1">
+                          <span className="font-bold text-slate-300 uppercase">Path:</span>
+                          <span className="italic">
+                            {formData.document_img instanceof File
+                              ? "Local Preview"
+                              : `/uploads/${formData.document_img}`}
+                          </span>
+                        </p>
+                      </div>
+
+                      {/* 3. Right Side: Actions */}
+                      <div className="flex items-center gap-1 pl-2 border-l border-slate-200">
+                        <a
+                          href={formData.document_img instanceof File
+                            ? URL.createObjectURL(formData.document_img)
+                            : `/uploads/${formData.document_img}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-lg transition-all"
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-widest">View</span>
+                          <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
