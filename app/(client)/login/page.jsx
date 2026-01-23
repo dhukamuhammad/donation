@@ -199,10 +199,18 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-bold text-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-lg text-sm font-black   shadow-lg shadow-blue-600/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:bg-blue-400"
               >
-                {loading ? "Sending OTP..." : "Send Verification Code"}
+                {loading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Sending OTP...
+                  </>
+                ) : (
+                  "Send Verification Code"
+                )}
               </button>
+
             </form>
           )}
 

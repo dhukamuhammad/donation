@@ -27,24 +27,11 @@ const Fundraisers = () => {
     fetchDonationFund();
   }, []);
 
-  // useEffect(() => {
-  //   let data = donationFunds;
-  //   if (selectedCategory !== "All") {
-  //     data = data.filter((fund) => fund.fun_cat === selectedCategory);
-  //   }
-  //   if (searchTerm.trim() !== "") {
-  //     data = data.filter((fund) =>
-  //       fund.title.toLowerCase().includes(searchTerm.toLowerCase())
-  //     );
-  //   }
-  //   setFilteredFunds(data);
-  // }, [selectedCategory, searchTerm, donationFunds]);
-
   useEffect(() => {
     let data = donationFunds;
 
     // ✅ ONLY ACTIVE CAMPAIGNS
-    data = data.filter((fund) => fund.status === 1);
+    data = data.filter((fund) => fund.status === 1 && isCampaignActive(fund.start_date, fund.end_date));
 
     // Category filter
     if (selectedCategory !== "All") {
@@ -102,22 +89,24 @@ const Fundraisers = () => {
     return Math.min(Math.round((raised / goal) * 100), 100);
   };
 
-  const isExpired = (endDate) => {
-    if (!endDate) return false;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const end = new Date(endDate);
-    end.setHours(0, 0, 0, 0);
-
-    return end < today;
-  };
-
   const truncateText = (text, maxLength = 50) => {
     if (!text) return "";
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
+
+  const isCampaignActive = (startDate, endDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+
+    return today >= start && today <= end;
+  };
+
 
   // one image show
 
@@ -147,11 +136,10 @@ const Fundraisers = () => {
             <div className="p-2 space-y-1">
               <button
                 onClick={() => setSelectedCategory("All")}
-                className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${
-                  selectedCategory === "All"
-                    ? "bg-blue-600 text-white font-bold"
-                    : "text-slate-600 hover:bg-slate-100"
-                }`}
+                className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${selectedCategory === "All"
+                  ? "bg-blue-600 text-white font-bold"
+                  : "text-slate-600 hover:bg-slate-100"
+                  }`}
               >
                 <span>All Causes</span>
                 {selectedCategory === "All" && <ChevronRight size={14} />}
@@ -161,11 +149,10 @@ const Fundraisers = () => {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${
-                    selectedCategory === category.id
-                      ? "bg-blue-600 text-white font-bold"
-                      : "text-slate-600 hover:bg-slate-100"
-                  }`}
+                  className={`w-full text-left px-4 py-2.5 rounded-md transition-colors flex items-center justify-between text-sm ${selectedCategory === category.id
+                    ? "bg-blue-600 text-white font-bold"
+                    : "text-slate-600 hover:bg-slate-100"
+                    }`}
                 >
                   <span>{category.title}</span>
                   {selectedCategory === category.id && (
@@ -200,7 +187,6 @@ const Fundraisers = () => {
                 fund.total_amount,
               );
               const isCompleted = fund.raised_amount >= fund.total_amount;
-              const expired = isExpired(fund.end_date);
 
               return (
                 <div
@@ -312,14 +298,7 @@ const Fundraisers = () => {
                       </div>
 
                       {/* CTA Button */}
-                      {expired ? (
-                        <button
-                          disabled
-                          className="w-full bg-slate-50 text-slate-400 font-bold py-3 rounded-lg cursor-default text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 border border-slate-200"
-                        >
-                          Campaign Ended
-                        </button>
-                      ) : isCompleted ? (
+                      {isCompleted ? (
                         <button
                           disabled
                           className="w-full bg-slate-50 text-slate-400 font-bold py-3 rounded-lg cursor-default text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 border border-slate-200"

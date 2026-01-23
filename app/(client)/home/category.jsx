@@ -7,6 +7,7 @@ import {
   TrendingUp,
   ChevronRight,
   Heart,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -18,27 +19,60 @@ const Category = () => {
     getCategories();
   }, []);
 
-  // const getCategories = async () => {
-  //   try {
-  //     const res = await axiosInstance.get("/donationFund");
-  //     setCategories(res.data);
-  //   } catch (error) {
-  //     console.error("Error fetching categories:", error);
-  //   }
-  // };
-
   const getCategories = async () => {
     try {
       const res = await axiosInstance.get("/donationFund");
 
       // ✅ only active campaigns
-      const activeFunds = res.data.filter((item) => item.status === 1);
+      const activeFunds = res.data.filter((item) => item.status === 1 && isCampaignActive(item.start_date, item.end_date));
 
       setCategories(activeFunds);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
   };
+
+  const getFirstThumbnail = (thumbnail) => {
+    try {
+      const parsed = JSON.parse(thumbnail);
+      return Array.isArray(parsed) ? parsed[0] : parsed;
+    } catch {
+      // old data (single image string)
+      return thumbnail;
+    }
+  };
+
+  const isCampaignActive = (startDate, endDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+
+    return today >= start && today <= end;
+  };
+
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
 
   return (
     <section className="py-10 bg-slate-50 font-['Outfit']">
@@ -64,9 +98,9 @@ const Category = () => {
             const percentage =
               item.total_amount > 0
                 ? Math.min(
-                    Math.round((item.raised_amount / item.total_amount) * 100),
-                    100,
-                  )
+                  Math.round((item.raised_amount / item.total_amount) * 100),
+                  100,
+                )
                 : 0;
 
             const isCompleted = item.raised_amount >= item.total_amount;
@@ -79,7 +113,7 @@ const Category = () => {
                 {/* Image Section */}
                 <div className="relative h-52 overflow-hidden rounded-t-xl">
                   <img
-                    src={`/uploads/${item.thumbnail}`}
+                    src={`/uploads/${getFirstThumbnail(item.thumbnail)}`}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -130,6 +164,19 @@ const Category = () => {
                     </div>
                   </div>
 
+                  {/* Campaign Duration */}
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] text-slate-400 font-semibold mb-5">
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <Clock size={13} strokeWidth={2} />
+                      <span>Start: {formatDate(item.start_date)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <Clock size={13} strokeWidth={2} />
+                      <span>End: {formatDate(item.end_date)}</span>
+                    </div>
+                  </div>
+
                   {/* Progress Data */}
                   <div className="mt-auto">
                     <div className="flex justify-between items-end mb-2">
@@ -164,8 +211,8 @@ const Category = () => {
                           {item.supporters} Donors
                         </span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-400">
-                        Goal: ₹{item.total_amount.toLocaleString("en-IN")}
+                      <span className="text-[11px] font-bold text-slate-400">
+                        Goal: ₹{formatAmount(item.total_amount)}
                       </span>
                     </div>
 

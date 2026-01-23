@@ -1,14 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { 
-  Heart, 
-  Menu, 
-  X, 
-  LogIn, 
-  UserPlus, 
-  User, 
-  LogOut, 
-  ChevronDown 
+import {
+  Heart,
+  Menu,
+  X,
+  LogIn,
+  UserPlus,
+  User,
+  LogOut,
+  ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,9 +21,11 @@ import {
   showLoading,
   dismissToast,
 } from "@/components/Toaster";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
@@ -86,9 +88,10 @@ const Navbar = () => {
       setProfileImage(null);
       window.dispatchEvent(new Event("auth-changed"));
       dismissToast();
+      router.push("/");
+      // window.location.href = "/";
       showSuccess("Logged out successfully");
       setShowLogoutModal(false);
-      setTimeout(() => { window.location.href = "/"; }, 500);
     } catch (err) {
       dismissToast();
       showError("Logout failed");
@@ -105,7 +108,7 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 h-16 font-['Outfit']">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex justify-between items-center">
-        
+
         {/* ================= Logo ================= */}
         <Link href="/" className="flex items-center flex-shrink-0">
           <Image src="/donatecare.png" alt="DonateCare Logo" width={160} height={35} priority />
@@ -117,9 +120,8 @@ const Navbar = () => {
             <Link
               key={link.name}
               href={link.href}
-              className={`text-sm font-semibold transition-colors ${
-                pathname === link.href ? "text-blue-600" : "text-slate-600 hover:text-blue-600"
-              }`}
+              className={`text-sm font-semibold transition-colors ${pathname === link.href ? "text-blue-600" : "text-slate-600 hover:text-blue-600"
+                }`}
             >
               {link.name}
             </Link>
@@ -213,14 +215,13 @@ const Navbar = () => {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className={`px-4 py-3 rounded-md text-sm font-bold transition-all ${
-                  pathname === link.href ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50"
-                }`}
+                className={`px-4 py-3 rounded-md text-sm font-bold transition-all ${pathname === link.href ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50"
+                  }`}
               >
                 {link.name}
               </Link>
             ))}
-            
+
             {!isLoggedIn ? (
               <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-100">
                 <Link href="/login" onClick={() => setIsMenuOpen(false)}>
@@ -233,13 +234,13 @@ const Navbar = () => {
             ) : (
               <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-1">
                 <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 text-sm font-bold text-slate-600 flex items-center gap-3">
-                  <User size={18}/> My Profile
+                  <User size={18} /> My Profile
                 </Link>
                 <Link href="/my-donation" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 text-sm font-bold text-slate-600 flex items-center gap-3">
-                  <Heart size={18}/> My Donations
+                  <Heart size={18} /> My Donations
                 </Link>
                 <button onClick={() => setShowLogoutModal(true)} className="px-4 py-3 text-sm font-bold text-red-600 flex items-center gap-3">
-                  <LogOut size={18}/> Logout Account
+                  <LogOut size={18} /> Logout Account
                 </button>
               </div>
             )}
