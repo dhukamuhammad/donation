@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { User as UserIcon, Mail, History, Search } from "lucide-react";
+import { User as UserIcon, Mail, History, Search, Calendar } from "lucide-react"; // Calendar icon add kiya
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
 import Link from "next/link";
@@ -70,20 +70,24 @@ const UserManagement = () => {
           </span>
 
           <div className="flex items-center gap-3">
-            {/* SEARCH */}
-            <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 bg-white shadow-sm">
-              <Search size={16} className="text-slate-400" />
+            {/* SEARCH - Pro Design Style */}
+            <div className="relative group">
+              {/* Absolute Icon Positioning */}
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                <Search size={16} />
+              </div>
+
               <input
                 type="text"
                 placeholder="Search user"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="text-sm outline-none bg-transparent w-56 placeholder-slate-400"
+                value={search} // Logic untouched
+                onChange={(e) => setSearch(e.target.value)} // Logic untouched
+                className="w-64 text-[13px] font-medium bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none placeholder:text-slate-400 shadow-sm"
               />
             </div>
 
-            {/* TOTAL */}
-            <span className="flex items-center h-[40px] px-4 rounded-lg border border-slate-300 bg-slate-50 text-sm font-semibold text-slate-600 shadow-sm">
+            {/* TOTAL - Styled to match the Pro UI */}
+            <span className="flex items-center text-[13px] font-medium bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-4 py-2 focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none placeholder:text-slate-400">
               Total Users: {filteredUsers.length}
             </span>
           </div>
@@ -98,6 +102,7 @@ const UserManagement = () => {
                 <th className="p-5">Profile</th>
                 <th className="p-5">Member Name</th>
                 <th className="p-5">Email Address</th>
+                <th className="p-5">Join Date</th>
                 <th className="p-5 text-center">Activity</th>
               </tr>
             </thead>
@@ -135,6 +140,24 @@ const UserManagement = () => {
 
                   <td className="p-5 text-sm font-medium text-slate-500">
                     {highlightText(user.email, search)}
+                  </td>
+
+                  {/* Created At Column Data */}
+                  <td className="p-5">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-700">
+                        {user.created_at
+                          ? new Date(user.created_at).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric"
+                          })
+                          : "N/A"}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">
+                        Registration Date
+                      </span>
+                    </div>
                   </td>
 
                   <td className="p-5 text-center">

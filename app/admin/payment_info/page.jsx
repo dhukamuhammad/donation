@@ -10,6 +10,8 @@ import {
   ArrowUpRight,
   Globe,
   X,
+  SlidersHorizontal,
+  Search,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import { showError } from "@/components/Toaster";
@@ -37,16 +39,16 @@ const PaymentInfo = () => {
     }
   };
 
-  const filteredPayments = payments.filter((txn) => {                                                   
+  const filteredPayments = payments.filter((txn) => {
     const nameMatch = txn.name
-      ?.toLowerCase()                                                       
+      ?.toLowerCase()
       .includes(searchName.toLowerCase());
 
     const txnDate = new Date(txn.created_date);
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
 
-    return (            
+    return (
       nameMatch && (!start || txnDate >= start) && (!end || txnDate <= end)
     );
   });
@@ -77,6 +79,7 @@ const PaymentInfo = () => {
     setEndDate("");
   };
 
+
   return (
     <div className="p-6 bg-[#F8FAFC] min-h-screen font-['Outfit']">
       {/* Header */}
@@ -89,52 +92,74 @@ const PaymentInfo = () => {
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-nowrap">
         {/* Toolbar */}
-        <div className="p-5 border-b border-slate-100 bg-slate-50/30 flex flex-wrap justify-between items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Globe size={14} className="text-blue-600" />
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              Transaction Registry
-            </span>
+        <div className="p-4 border-b border-slate-200/60 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+          {/* Left Side: Title & Counter */}
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-50 p-2 rounded-lg">
+              <Globe size={18} className="text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1">
+                Transaction Registry
+              </h2>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Search name"
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              className="text-xs px-3 py-1.5 border border-slate-200 rounded-md"
-            />
+          {/* Right Side: Professional Filter Group */}
+          <div className="flex flex-wrap items-center gap-2">
 
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="text-xs px-2 py-1.5 border border-slate-200 rounded-md"
-            />
+            {/* Search Input with Integrated Icon */}
+            <div className="relative group min-w-[240px]">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                <Search size={14} />
+              </div>
+              <input
+                type="text"
+                placeholder="Search identity..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="w-full text-[13px] font-medium bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none placeholder:text-slate-400"
+              />
+            </div>
 
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="text-xs px-2 py-1.5 border border-slate-200 rounded-md"
-            />
+            {/* Segmented Date Picker Group */}
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-1 py-1 gap-0.5">
+              <div className="flex items-center px-2 text-slate-400">
+                <Calendar size={14} />
+              </div>
 
-            {(startDate || endDate) && (
-              <button
-                onClick={clearDateFilter}
-                className="p-1.5 border border-slate-200 rounded-md hover:bg-slate-100"
-              >
-                <X size={12} />
-              </button>
-            )}
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-transparent border-none text-[11px] font-bold text-slate-600 focus:ring-0 cursor-pointer py-1 w-28 uppercase tracking-tighter"
+              />
 
-            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100 uppercase">
-              Records: {filteredPayments.length}
+              <div className="h-4 w-[1px] bg-slate-200 mx-1" />
+
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="bg-transparent border-none text-[11px] font-bold text-slate-600 focus:ring-0 cursor-pointer py-1 w-28 uppercase tracking-tighter"
+              />
+
+              {(startDate || endDate) && (
+                <button
+                  onClick={clearDateFilter}
+                  className="ml-1 p-1.5 bg-white text-slate-400 hover:text-red-500 rounded-lg shadow-sm border border-slate-100 transition-all"
+                >
+                  <X size={12} strokeWidth={3} />
+                </button>
+              )}
+            </div>
+
+            <span className="flex items-center text-[13px] font-medium bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-4 py-2 focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none placeholder:text-slate-400">
+              Total Users: {filteredPayments.length}
             </span>
           </div>
         </div>
-
         {/* TABLE */}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-left border-collapse">

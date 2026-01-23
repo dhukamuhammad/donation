@@ -8,20 +8,27 @@ import {
     ShieldCheck,
     User as UserIcon,
     Loader2,
-    TrendingUp
+    TrendingUp,
+    Calendar
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosinstance";
 import Image from "next/image";
+import { showError, showSuccess } from "@/components/Toaster";
+
 
 const UserHistory = () => {
     const { id } = useParams();
     const router = useRouter();
 
+
+    const [user, setUser] = useState([]);
+    console.log(user)
     const [userData, setUserData] = useState(null);
     const [donations, setDonations] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        fetchUser();
         if (id) fetchUserHistory();
     }, [id]);
 
@@ -40,12 +47,41 @@ const UserHistory = () => {
         }
     };
 
+    const fetchUser = async () => {
+        try {
+            const res = await axiosInstance.get(`/users/${id}`);
+            setUser(res.data);
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            showError("Failed to fetch user details.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const formatINR = (amt) =>
         new Intl.NumberFormat("en-IN", {
             style: "currency",
             currency: "INR",
             maximumFractionDigits: 0,
         }).format(amt || 0);
+
+
+
+    const getFirstThumbnail = (thumbnail) => {
+        try {
+            const parsed = JSON.parse(thumbnail);
+            return Array.isArray(parsed) ? parsed[0] : parsed;
+        } catch {
+            // old data (single image string)
+            return thumbnail;
+        }
+    };
+
+    const truncateText = (text, maxLength = 50) => {
+        if (!text) return "";
+        return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+    };
 
     if (loading) {
         return (
@@ -73,9 +109,9 @@ const UserHistory = () => {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
                 <div className="p-6 flex flex-col md:flex-row items-center gap-6">
                     <div className="relative w-24 h-24 rounded-xl border-2 border-slate-50 overflow-hidden shadow-sm bg-slate-100 flex-shrink-0">
-                        {userData?.user_profile_img ? (
+                        {user?.profile_img ? (
                             <Image
-                                src={`/uploads/${userData.user_profile_img}`}
+                                src={`/uploads/${user.profile_img}`}
                                 alt="Profile"
                                 fill
                                 className="object-cover"
@@ -89,27 +125,42 @@ const UserHistory = () => {
 
                     <div className="flex-1 text-center md:text-left">
                         <h1 className="text-2xl font-black text-slate-900 tracking-tight capitalize mb-2">
-                            {userData?.user_name || "Unknown User"}
+                            {user?.name || "Unknown User"}
                         </h1>
-                        <div className="flex flex-wrap justify-center md:justify-start gap-4 text-slate-500">
+
+                        {/* Metadata Row */}
+                        <div className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 text-slate-500">
                             <div className="flex items-center gap-1.5 text-sm font-bold">
                                 <Mail size={14} className="text-blue-600" />
-                                {userData?.user_email}
+                                {user?.email}
                             </div>
                             <div className="flex items-center gap-1.5 text-sm font-bold">
                                 <Phone size={14} className="text-blue-600" />
-                                {userData?.user_phone || "Not Provided"}
+                                {user?.phone || "Not Provided"}
                             </div>
-
+                            {/* Nayi Column: Join Date */}
+                            <div className="flex items-center gap-1.5 text-sm font-bold">
+                                <Calendar size={14} className="text-blue-600" />
+                                <span className="text-slate-400 font-medium">Joined:</span>
+                                {user?.created_at
+                                    ? new Date(user.created_at).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric"
+                                    })
+                                    : "N/A"
+                                }
+                            </div>
                         </div>
 
-                        <div className="pt-3">
+                        <div className="pt-3 flex items-center justify-center md:justify-start gap-2">
                             <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest border border-blue-100">
                                 Verified Contributor
                             </span>
                         </div>
                     </div>
 
+                    {/* Stats Box */}
                     <div className="bg-slate-900 text-white p-5 rounded-2xl w-full md:w-52">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Given</p>
                         <p className="text-2xl font-black">
@@ -123,7 +174,6 @@ const UserHistory = () => {
                     </div>
                 </div>
             </div>
-
             {/* Donation Table - Fixed layout to prevent overflow */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-hidden"> {/* Scroll bandh kiya */}
@@ -132,13 +182,14 @@ const UserHistory = () => {
                             <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                                 <th className="w-12 px-2 py-4">ID</th>
                                 <th className="w-14 px-2 py-4 text-center">Fund</th>
-                                <th className="px-2 py-4 min-w-[120px]">Title</th>
+                                <th className="px-2 py-4 min-w-[60px]">Title</th>
                                 <th className="px-2 py-4 w-28">Donor</th>
                                 <th className="px-2 py-4 w-32">Email</th>
                                 <th className="px-2 py-4 w-24">Amount</th>
+                                <th className="px-2 py-4 w-18">Gateway</th>
                                 <th className="px-2 py-4 w-28">Mobile</th>
                                 <th className="px-2 py-4 w-20">Type</th>
-                                <th className="px-2 py-4 w-24 text-center">Date</th>
+                                <th className="px-2 py-4 w-27 text-center">Date</th>
                             </tr>
                         </thead>
 
@@ -153,7 +204,7 @@ const UserHistory = () => {
                                         <td className="px-2 py-4">
                                             <div className="relative w-10 h-10 mx-auto rounded overflow-hidden border border-slate-100">
                                                 <Image
-                                                    src={`/uploads/${log.fund_thumbnail}`}
+                                                    src={`/uploads/${getFirstThumbnail(log.fund_thumbnail)}`}
                                                     alt="fund"
                                                     fill
                                                     className="object-cover"
@@ -164,7 +215,7 @@ const UserHistory = () => {
                                         {/* Title: Text wrap hoga niche ki line mein */}
                                         <td className="px-2 py-4">
                                             <p className="text-sm font-bold text-slate-800 leading-tight break-words">
-                                                {log.fund_title}
+                                                {truncateText(log.fund_title, 20)}
                                             </p>
                                         </td>
 
@@ -178,6 +229,10 @@ const UserHistory = () => {
 
                                         <td className="px-2 py-4 text-sm font-black text-slate-900">
                                             {formatINR(log.amount)}
+                                        </td>
+
+                                        <td className="px-2 py-4 text-xs text-slate-500 font-bold capitalize">
+                                            {log.gateway || "N/A"}
                                         </td>
 
                                         <td className="px-2 py-4 text-xs text-slate-500 font-bold">
@@ -194,7 +249,9 @@ const UserHistory = () => {
                                             <div className="text-xs font-bold text-slate-600 whitespace-nowrap">
                                                 {new Date(log.created_date).toLocaleDateString("en-GB", {
                                                     day: "2-digit",
-                                                    month: "short"
+                                                    month: "short",
+                                                    year: "numeric",
+
                                                 })}
                                             </div>
                                             <div className="text-[9px] text-green-500 font-bold uppercase">Settled</div>

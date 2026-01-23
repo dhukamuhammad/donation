@@ -114,6 +114,16 @@ const MyDonation = () => {
         });
     };
 
+    const getFirstThumbnail = (thumbnail) => {
+        try {
+            const parsed = JSON.parse(thumbnail);
+            return Array.isArray(parsed) ? parsed[0] : parsed;
+        } catch {
+            // old data (single image string)
+            return thumbnail;
+        }
+    };
+
     return (
         <div className="flex gap-8 max-w-[1400px] mx-auto p-8 font-['Outfit'] text-slate-700 max-md:flex-col bg-white min-h-screen">
 
@@ -179,7 +189,7 @@ const MyDonation = () => {
                             {/* Thumbnail */}
                             <div className="w-32 h-24 flex-shrink-0 rounded-md overflow-hidden border border-slate-100">
                                 <Image
-                                    src={`/uploads/${item.thumbnail}`}
+                                    src={`/uploads/${getFirstThumbnail(item.thumbnail)}`}
                                     alt={item.title} width={128} height={96}
                                     className="w-full h-full object-cover"
                                 />

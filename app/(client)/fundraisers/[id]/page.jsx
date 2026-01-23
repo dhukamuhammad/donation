@@ -141,13 +141,20 @@ const FundraisersDetailsPage = () => {
               <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500 font-medium">
                 <div className="flex items-center gap-2">
                   <Calendar size={16} className="text-blue-600" />
-                  <span>Started on {formatDate(fundraiser.date)}</span>
+                  <span>Started on {formatDate(fundraiser.start_date)}</span>
                 </div>
+
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} className="text-blue-600" />
+                  <span>Ends on {formatDate(fundraiser.end_date)}</span>
+                </div>
+
                 <div className="flex items-center gap-2">
                   <ShieldCheck size={16} className="text-blue-600" />
                   <span>Verified Campaign</span>
                 </div>
               </div>
+
             </header>
 
             {/* ================= PROFESSIONAL GALLERY START ================= */}
@@ -169,13 +176,13 @@ const FundraisersDetailsPage = () => {
                 {/* Overlays: Navigation Arrows (Visible on Hover) */}
                 {images.length > 1 && (
                   <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <button 
+                    <button
                       onClick={prevImage}
                       className="pointer-events-auto p-2.5 rounded-full bg-white/90 text-slate-900 shadow-xl hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110 active:scale-90"
                     >
                       <ChevronLeft size={24} strokeWidth={2.5} />
                     </button>
-                    <button 
+                    <button
                       onClick={nextImage}
                       className="pointer-events-auto p-2.5 rounded-full bg-white/90 text-slate-900 shadow-xl hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110 active:scale-90"
                     >
@@ -186,10 +193,10 @@ const FundraisersDetailsPage = () => {
 
                 {/* Image Counter Badge */}
                 <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/50 backdrop-blur-md rounded-lg border border-white/10 flex items-center gap-2">
-                   <Maximize2 size={12} className="text-white/70" />
-                   <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                     {activeImageIndex + 1} / {images.length}
-                   </span>
+                  <Maximize2 size={12} className="text-white/70" />
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                    {activeImageIndex + 1} / {images.length}
+                  </span>
                 </div>
               </div>
 
@@ -200,11 +207,10 @@ const FundraisersDetailsPage = () => {
                     <button
                       key={index}
                       onClick={() => setActiveImageIndex(index)}
-                      className={`relative w-24 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                        activeImageIndex === index
+                      className={`relative w-24 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 ${activeImageIndex === index
                           ? "border-blue-600 ring-4 ring-blue-600/10 scale-95 shadow-inner"
                           : "border-transparent hover:border-slate-300 opacity-60 hover:opacity-100"
-                      }`}
+                        }`}
                     >
                       <Image
                         src={`/uploads/${img}`}
@@ -232,11 +238,10 @@ const FundraisersDetailsPage = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-colors ${
-                      activeTab === tab.id
+                    className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-colors ${activeTab === tab.id
                         ? "bg-white text-blue-600 border-b-2 border-blue-600"
                         : "text-slate-500 hover:text-slate-800"
-                    }`}
+                      }`}
                   >
                     <tab.icon size={16} />
                     {tab.label}
@@ -248,9 +253,8 @@ const FundraisersDetailsPage = () => {
                 {activeTab === "description" && (
                   <div className="relative">
                     <div
-                      className={`prose prose-slate max-w-none text-slate-600 leading-relaxed overflow-hidden transition-all duration-500 ${
-                        expanded ? "max-h-full" : "max-h-[350px]"
-                      }`}
+                      className={`prose prose-slate max-w-none text-slate-600 leading-relaxed overflow-hidden transition-all duration-500 ${expanded ? "max-h-full" : "max-h-[350px]"
+                        }`}
                       dangerouslySetInnerHTML={{
                         __html: fundraiser.description,
                       }}

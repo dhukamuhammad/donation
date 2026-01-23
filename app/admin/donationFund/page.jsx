@@ -148,18 +148,24 @@ const DonationFundPage = () => {
 
           {/* RIGHT — search + total */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 bg-white shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all">
-              <Search size={18} className="text-slate-400" />
+            {/* Search Input with Pro Design */}
+            <div className="relative group">
+              {/* Icon absolute positioning as per the design */}
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                <Search size={16} />
+              </div>
+
               <input
                 type="text"
                 placeholder="Search campaign"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="text-sm outline-none bg-transparent w-56 placeholder-slate-400"
+                value={search} // Logic untouched
+                onChange={(e) => setSearch(e.target.value)} // Logic untouched
+                className="w-64 text-[13px] font-medium bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none placeholder:text-slate-400 shadow-sm"
               />
             </div>
 
-            <span className="flex items-center font-bold text-blue-600 bg-blue-50  h-[38px] px-4 rounded-lg border text-sm font-semibold border-blue-100 uppercase  shadow-sm">
+            {/* Total Badge styled to match the Pro UI */}
+            <span className="flex items-center text-[13px] font-medium bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-4 py-2 focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none placeholder:text-slate-400">
               Total: {filteredFunds.length}
             </span>
           </div>
@@ -273,14 +279,12 @@ const DonationFundPage = () => {
                   <td className="p-4 text-center">
                     <div
                       onClick={() => toggleStatus(fund)}
-                      className={`relative w-10 h-5 rounded-full cursor-pointer ${
-                        fund.status === 1 ? "bg-blue-500" : "bg-slate-300"
-                      }`}
+                      className={`relative w-10 h-5 rounded-full cursor-pointer ${fund.status === 1 ? "bg-blue-500" : "bg-slate-300"
+                        }`}
                     >
                       <div
-                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${
-                          fund.status === 1 ? "left-5" : "left-1"
-                        }`}
+                        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${fund.status === 1 ? "left-5" : "left-1"
+                          }`}
                       />
                     </div>
                   </td>

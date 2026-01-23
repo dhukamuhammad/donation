@@ -137,14 +137,19 @@ const CategoryPage = () => {
               Existing Categories
             </h2>
 
-            <div className="flex items-center gap-2 border border-slate-300 rounded-lg px-3 py-2 bg-white shadow-sm">
-              <Search size={16} className="text-slate-400" />
+            <div className="relative group min-w-[240px]">
+              {/* Icon wrapper with absolute positioning and focus transition */}
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                <Search size={14} />
+              </div>
+
+              {/* Input with the full modern design className */}
               <input
                 type="text"
                 placeholder="Search category"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="text-sm outline-none bg-transparent w-48 placeholder-slate-400"
+                className="w-full text-[13px] font-medium bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all outline-none placeholder:text-slate-400"
               />
             </div>
           </div>
@@ -241,9 +246,8 @@ const CategoryPage = () => {
                       setForm({ ...form, title: e.target.value })
                     }
                     placeholder="e.g. Medical Aid, Education"
-                    className={`w-full bg-slate-50 border rounded-lg px-4 py-3 text-sm focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 outline-none font-medium transition-all ${
-                      errors.title ? "border-red-500" : "border-slate-200"
-                    }`}
+                    className={`w-full bg-slate-50 border rounded-lg px-4 py-3 text-sm focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/5 outline-none font-medium transition-all ${errors.title ? "border-red-500" : "border-slate-200"
+                      }`}
                   />
                   {/* 4. Error Message Display */}
                   {errors.title && (
